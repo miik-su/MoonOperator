@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/controller"
+
+import {
+  "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/queue",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Controller {
+  queue : @queue.Queue
+  reconcile : async (@core.Key) -> Outcome
+  mut stopped : Bool
+}
+pub fn Controller::new(@queue.Queue, async (@core.Key) -> Outcome) -> Self
+pub async fn Controller::run(Self, () -> Bool, workers? : Int32) -> Unit
+pub async fn Controller::step(Self, Int64) -> Bool
+pub fn Controller::stop(Self) -> Unit
+
+pub(all) enum Outcome {
+  Complete
+  RequeueAfter(Int32)
+  Retry
+}
+
+// Type aliases
+
+// Traits
