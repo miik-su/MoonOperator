@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/examples/moonapp"
+
+import {
+  "mik1e80/moonoperator/client",
+  "mik1e80/moonoperator/controller",
+  "mik1e80/moonoperator/core",
+}
+
+// Values
+pub let app_type : @core.ResourceType
+
+pub let deployment_type : @core.ResourceType
+
+pub fn desired(@core.Resource) -> Array[(@core.ResourceType, @core.Resource)] raise
+
+pub async fn reconcile(@client.Client, @core.Key) -> @controller.Outcome
+
+pub let service_type : @core.ResourceType
+
+pub fn spec_schema() -> Json
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

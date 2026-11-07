@@ -46,7 +46,10 @@ pub async fn inform(
     if code == 410 {
       store.invalidate(kind.gvk)
     }
-    let sample = @tls.rand_bytes(1)[0].to_int() * 1000 / 255
+    let sample = match @env.rand(1) {
+      Some(bytes) => bytes[0].to_int() * 1000 / 255
+      None => 500
+    }
     @async.sleep(state.disconnected(code, sample))
   }
 }

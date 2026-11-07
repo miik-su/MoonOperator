@@ -54,6 +54,9 @@ pub fn Fake::send(
       match old {
         Some(resource) => response(200, resource.json())
         None => {
+          if !request.path.contains("?") {
+            return response(404, Json::null())
+          }
           let prefix = path + "/"
           let items : Array[Json] = []
           for key, resource in self.objects {
