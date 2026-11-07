@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/queue"
+
+import {
+  "mik1e80/moonoperator/core",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Queue {
+  dirty : Map[@core.Key, Bool]
+  processing : Map[@core.Key, Bool]
+  delayed : Map[@core.Key, Int64]
+  retries : Map[@core.Key, Int32]
+  ready : Array[@core.Key]
+  capacity : Int32
+  mut closed : Bool
+}
+pub fn Queue::add(Self, @core.Key) -> Unit raise @core.OperatorError
+pub fn Queue::add_after(Self, @core.Key, Int64) -> Unit raise @core.OperatorError
+pub fn Queue::done(Self, @core.Key) -> Unit
+pub fn Queue::forget(Self, @core.Key) -> Unit
+pub fn Queue::get(Self, Int64) -> @core.Key? raise @core.OperatorError
+pub fn Queue::length(Self) -> Int32
+pub fn Queue::new(capacity? : Int32) -> Self
+pub fn Queue::retry(Self, @core.Key, Int64) -> Int32 raise @core.OperatorError
+pub fn Queue::shutdown(Self) -> Unit
+
+// Type aliases
+
+// Traits
