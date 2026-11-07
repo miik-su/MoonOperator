@@ -9,29 +9,79 @@ pub async fn inform(
   queue : @queue.Queue,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Unit {
-  let state = @watch.State::new()
   let client = config.client()
+  let source = Source::new(() => client.list(kind, ns), (rv, on_event) => {
+    @watch.stream(config, @watch.watch_path(kind, ns, rv), on_event)
+  })
+  source.run(kind, store, queue, metrics~)
+}
+
+///|
+/// Injectable LIST/WATCH I/O. Both fake fault tests and live clusters use this
+/// same recovery loop, including backpressure and resource-version checkpoints.
+pub struct Source {
+  list : async () -> @client.ResourceList
+  watch : async (String, async (@watch.Event) -> Unit) -> Unit
+}
+
+///|
+pub fn Source::new(
+  list : async () -> @client.ResourceList,
+  watch : async (String, async (@watch.Event) -> Unit) -> Unit,
+) -> Source {
+  { list, watch, }
+}
+
+///|
+/// Yield to workers when the bounded queue is full; never discard the event.
+async fn enqueue(queue : @queue.Queue, key : @core.Key) -> Unit {
+  for ;; {
+    let accepted = try queue.add(key) catch {
+      @core.Capacity(_) => false
+      error => raise error
+    } noraise {
+      _ => true
+    }
+    if accepted {
+      return
+    }
+    @async.sleep(10)
+  }
+}
+
+///|
+pub async fn Source::run(
+  self : Source,
+  kind : @core.ResourceType,
+  store : @cache.Store,
+  queue : @queue.Queue,
+  metrics~ : @observability.Metrics = @observability.Metrics::new(),
+) -> Unit {
+  let state = @watch.State::new()
   for ;; {
     let code = try {
       if state.needs_list() {
         metrics.increment("watch_relist")
         store.invalidate(kind.gvk)
-        let snapshot = client.list(kind, ns)
+        let snapshot = (self.list)()
         // Enqueue disappeared keys too, for delete reconciliation.
         let previous = store.list(kind.gvk)
         store.replace(kind.gvk, snapshot.items)
         for resource in previous {
-          queue.add(resource.key())
+          enqueue(queue, resource.key())
         }
         for resource in snapshot.items {
-          queue.add(resource.key())
+          enqueue(queue, resource.key())
         }
         state.listed(snapshot.resource_version)
       }
-      @watch.stream(config, @watch.watch_path(kind, ns, state.version()), event => {
+      (self.watch)(state.version(), event => {
+        if event.resource() is Some(resource) && resource.key().gvk != kind.gvk {
+          raise @core.Invalid("watch resource kind mismatch")
+        }
         store.apply(event)
         if event.resource() is Some(resource) {
-          queue.add(resource.key())
+          enqueue(queue, resource.key())
         }
         state.checkpoint(event)
       })

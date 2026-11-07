@@ -3,10 +3,12 @@ package "mik1e80/moonoperator/runtime"
 
 import {
   "mik1e80/moonoperator/cache",
+  "mik1e80/moonoperator/client",
   "mik1e80/moonoperator/core",
   "mik1e80/moonoperator/observability",
   "mik1e80/moonoperator/queue",
   "mik1e80/moonoperator/transport",
+  "mik1e80/moonoperator/watch",
 }
 
 // Values
@@ -15,6 +17,12 @@ pub async fn inform(@transport.Config, @core.ResourceType, String, @cache.Store,
 // Errors
 
 // Types and methods
+pub struct Source {
+  list : async () -> @client.ResourceList
+  watch : async (String, async (@watch.Event) -> Unit) -> Unit
+}
+pub fn Source::new(async () -> @client.ResourceList, async (String, async (@watch.Event) -> Unit) -> Unit) -> Self
+pub async fn Source::run(Self, @core.ResourceType, @cache.Store, @queue.Queue, metrics? : @observability.Metrics) -> Unit
 
 // Type aliases
 
