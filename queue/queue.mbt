@@ -1,6 +1,7 @@
 ///|
 /// Single-event-loop queue; dirty work arriving in flight is never lost.
 pub struct Queue {
+  admitted : Map[@core.Key, Bool]
   dirty : Map[@core.Key, Bool]
   processing : Map[@core.Key, Bool]
   delayed : Map[@core.Key, Int64]
@@ -13,6 +14,7 @@ pub struct Queue {
 ///|
 pub fn Queue::new(capacity~ : Int32 = 10000) -> Queue {
   {
+    admitted: Map([]),
     dirty: Map([]),
     processing: Map([]),
     delayed: Map([]),
@@ -34,13 +36,11 @@ pub fn Queue::add(
   if self.dirty.contains(key) {
     return
   }
-  if !self.processing.contains(key) &&
-    self.dirty.length() + self.processing.length() + self.delayed.length() >=
-    self.capacity &&
-    !self.delayed.contains(key) {
+  if !self.admitted.contains(key) && self.admitted.length() >= self.capacity {
     raise @core.Capacity("workqueue capacity")
   }
   self.delayed.remove(key)
+  self.admitted[key] = true
   self.dirty[key] = true
   if !self.processing.contains(key) {
     self.ready.push(key)
@@ -59,7 +59,6 @@ pub fn Queue::get(
     }
   }
   for key in due {
-    self.delayed.remove(key)
     self.add(key)
   }
   if self.ready.is_empty() {
@@ -80,6 +79,9 @@ pub fn Queue::done(self : Queue, key : @core.Key) -> Unit {
   self.processing.remove(key)
   if self.dirty.contains(key) {
     self.ready.push(key)
+  } else if !self.delayed.contains(key) {
+    self.admitted.remove(key)
+    self.retries.remove(key)
   }
 }
 
@@ -97,12 +99,10 @@ pub fn Queue::add_after(
   if self.closed || self.dirty.contains(key) {
     return
   }
-  if !self.delayed.contains(key) &&
-    !self.processing.contains(key) &&
-    self.dirty.length() + self.processing.length() + self.delayed.length() >=
-    self.capacity {
+  if !self.admitted.contains(key) && self.admitted.length() >= self.capacity {
     raise @core.Capacity("delayed queue capacity")
   }
+  self.admitted[key] = true
   match self.delayed.get(key) {
     Some(old) => if at < old { self.delayed[key] = at }
     None => self.delayed[key] = at
@@ -115,6 +115,9 @@ pub fn Queue::retry(
   key : @core.Key,
   now : Int64,
 ) -> Int32 raise @core.OperatorError {
+  if self.closed {
+    return 0
+  }
   let count = self.retries.get(key).unwrap_or(0)
   let delay = 100 * (1 << (if count > 8 { 8 } else { count }))
   self.add_after(key, now + delay.to_int64())
@@ -126,7 +129,20 @@ pub fn Queue::retry(
 /// Shutdown stops admission and discards delayed work; admitted work drains.
 pub fn Queue::shutdown(self : Queue) -> Unit {
   self.closed = true
+  let delayed = self.delayed.keys().collect()
+  for key in delayed {
+    if !self.processing.contains(key) && !self.dirty.contains(key) {
+      self.admitted.remove(key)
+      self.retries.remove(key)
+    }
+  }
   self.delayed.clear()
+}
+
+///|
+/// Number of distinct admitted keys across ready, delayed and in-flight work.
+pub fn Queue::pending(self : Queue) -> Int32 {
+  self.admitted.length()
 }
 
 ///|

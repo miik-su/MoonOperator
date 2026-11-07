@@ -25,17 +25,19 @@ pub fn Controller::new(
 pub async fn Controller::step(self : Controller, now : Int64) -> Bool {
   guard self.queue.get(now) is Some(key) else { return false }
   defer self.queue.done(key)
+  let started = @async.now()
   let result = (self.reconcile)(key) catch { _ => Retry }
+  let finished = now + (@async.now() - started)
   match result {
     Complete => self.queue.forget(key)
     RequeueAfter(delay) => {
       self.queue.forget(key)
       self.queue.add_after(
         key,
-        now + (if delay < 0 { 0 } else { delay }).to_int64(),
+        finished + (if delay < 0 { 0 } else { delay }).to_int64(),
       )
     }
-    Retry => ignore(self.queue.retry(key, now))
+    Retry => ignore(self.queue.retry(key, finished))
   }
   true
 }
@@ -62,7 +64,11 @@ pub async fn Controller::run(
   @async.with_task_group(group => {
     for _ in 0..<workers {
       group.spawn_bg(() => {
-        while !self.stopped {
+        while !self.stopped || self.queue.length() > 0 {
+          if !ready() && !self.stopped {
+            @async.sleep(20)
+            continue
+          }
           if !self.step(@async.now()) {
             @async.sleep(20)
           }
