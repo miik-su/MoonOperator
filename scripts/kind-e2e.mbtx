@@ -1,0 +1,61 @@
+----
+import {
+  "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell",
+  "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env",
+}
+----
+
+fn field(json : Json, key : String) -> Json {
+  match json { Object(fields) => fields.get(key).unwrap_or(Json::null()); _ => Json::null() }
+}
+
+async fn kubectl(args : Array[String], input? : String = "") -> String {
+  let prefix = ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e"]
+  prefix.append(args)
+  let output = @shell.Cmd("kubectl", prefix, stdin=Text(input)).output(timeout_ms=180000)
+  output.check()
+  output.stdout()
+}
+
+async fn replicas(expected : Double) -> Unit {
+  for attempt in 0..<90 {
+    let output = @shell.Cmd("kubectl", ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e", "get", "deployment", "demo-app", "-o", "json"]).output(timeout_ms=5000)
+    if output.exit_code() == 0 {
+      let resource = @json.parse(output.stdout())
+      if field(field(resource, "spec"), "replicas") == Json::number(expected) { return }
+    }
+    if attempt == 89 { fail("MoonApp replicas did not converge") }
+    @async.sleep(1000)
+  }
+}
+
+async fn main {
+  // The script only touches an explicitly named disposable Kind context.
+  let args = @env.args()
+  guard args.length() == 2 else { fail("usage: kind-e2e.mbtx MANIFEST_GENERATOR_BINARY") }
+  let ns : Json = { "apiVersion": "v1", "kind": "Namespace", "metadata": { "name": "moonoperator-e2e" } }
+  ignore(kubectl(["apply", "-f", "-"], input=ns.stringify()))
+  let bundle = @shell.Cmd(args[1], [], env={ "MOONOPERATOR_NAMESPACE": "moonoperator-e2e" }).output(timeout_ms=10000)
+  bundle.check()
+  ignore(kubectl(["apply", "-f", "-"], input=bundle.stdout()))
+  ignore(kubectl(["wait", "--for=condition=Established", "crd/moonapps.moonoperator.dev", "--timeout=60s"]))
+  ignore(kubectl(["apply", "-f", "config/operator.yaml"]))
+  ignore(kubectl(["rollout", "status", "deployment/moonoperator", "--timeout=120s"]))
+  ignore(kubectl(["apply", "-f", "config/moonapp.yaml"]))
+  replicas(3.0)
+  ignore(kubectl(["get", "service", "demo-app"]))
+  ignore(kubectl(["patch", "moonapp", "demo-app", "--type=merge", "-p", "{\"spec\":{\"replicas\":2}} "]))
+  replicas(2.0)
+  ignore(kubectl(["scale", "deployment/demo-app", "--replicas=1"]))
+  replicas(2.0)
+  ignore(kubectl(["delete", "deployment", "demo-app", "--wait=true"]))
+  replicas(2.0)
+  ignore(kubectl(["rollout", "restart", "deployment/moonoperator"]))
+  ignore(kubectl(["rollout", "status", "deployment/moonoperator", "--timeout=120s"]))
+  replicas(2.0)
+  ignore(kubectl(["delete", "moonapp", "demo-app", "--wait=true"]))
+  ignore(kubectl(["wait", "--for=delete", "deployment/demo-app", "--timeout=90s"]))
+  ignore(kubectl(["wait", "--for=delete", "service/demo-app", "--timeout=90s"]))
+  @fs.write_file("kind-e2e-report.json", "{\"suite\":\"kind-moonapp\",\"create_update_drift_restart_gc\":true}\n")
+  println("Kind MoonApp create/update/drift/restart/GC verified")
+}

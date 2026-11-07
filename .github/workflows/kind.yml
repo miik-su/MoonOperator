@@ -1,0 +1,33 @@
+name: Focused Kind acceptance
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  moonapp:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/install-moonbit.sh
+      - run: bash /tmp/install-moonbit.sh '0.10.17+d971670cd'
+      - run: echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y libssl-dev
+      - run: moon update
+      - run: moon build cmd/moonapp cmd/manifests --target native
+      - run: docker build -t moonoperator:dev .
+      - run: curl -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind
+      - run: chmod +x /tmp/kind
+      - run: /tmp/kind create cluster --name moonoperator-e2e --wait 120s
+      - run: /tmp/kind load docker-image moonoperator:dev --name moonoperator-e2e
+      - run: moon run scripts/kind-e2e.mbtx -- _build/native/debug/build/cmd/manifests/manifests.exe
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kind-acceptance
+          path: kind-e2e-report.json
+          if-no-files-found: ignore
+      - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
+        if: failure()
+      - run: /tmp/kind delete cluster --name moonoperator-e2e
+        if: always()
