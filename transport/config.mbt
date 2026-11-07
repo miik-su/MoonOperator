@@ -1,6 +1,7 @@
 ///|
 /// Credentials are private and have no derived Debug/Show implementation.
 pub struct Config {
+  metrics : @observability.Metrics
   server : String
   token : String
   token_file : String
@@ -22,6 +23,7 @@ pub fn Config::new(
   max_response_bytes~ : Int32 = 4194304,
   min_interval_ms~ : Int32 = 20,
   allow_loopback_http~ : Bool = false,
+  metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Config raise @core.OperatorError {
   let server = server.trim_end(chars="/").to_owned()
   let authority = if server.has_prefix("https://") {
@@ -46,6 +48,7 @@ pub fn Config::new(
     raise @core.Invalid("invalid transport configuration")
   }
   {
+    metrics,
     server,
     token,
     token_file,
@@ -62,6 +65,7 @@ pub fn Config::new(
 /// Convert YAML using `kubectl config view --raw -o json`; exec auth is rejected.
 pub fn Config::from_kubeconfig(
   input : Json,
+  metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Config raise @core.OperatorError {
   let context_name = @core.text(@core.field(input, "current-context"))
   let context = named_entry(
@@ -94,6 +98,7 @@ pub fn Config::from_kubeconfig(
     token=@core.text(@core.field(user, "token")),
     token_file=@core.text(@core.field(user, "tokenFile")),
     ca_file=@core.text(@core.field(cluster, "certificate-authority")),
+    metrics~,
   )
 }
 
@@ -119,11 +124,13 @@ pub fn Config::in_cluster(
   host : String,
   port~ : String = "443",
   service_account_dir~ : String = "/var/run/secrets/kubernetes.io/serviceaccount",
+  metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Config raise @core.OperatorError {
   let host = if host.contains(":") { "[" + host + "]" } else { host }
   Config::new(
     "https://" + host + ":" + port,
     token_file=service_account_dir + "/token",
     ca_file=service_account_dir + "/ca.crt",
+    metrics~,
   )
 }

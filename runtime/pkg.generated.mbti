@@ -4,12 +4,13 @@ package "mik1e80/moonoperator/runtime"
 import {
   "mik1e80/moonoperator/cache",
   "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/observability",
   "mik1e80/moonoperator/queue",
   "mik1e80/moonoperator/transport",
 }
 
 // Values
-pub async fn inform(@transport.Config, @core.ResourceType, String, @cache.Store, @queue.Queue) -> Unit
+pub async fn inform(@transport.Config, @core.ResourceType, String, @cache.Store, @queue.Queue, metrics? : @observability.Metrics) -> Unit
 
 // Errors
 

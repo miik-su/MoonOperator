@@ -56,8 +56,14 @@ pub async fn Config::send(
   self : Config,
   request : @client.Request,
 ) -> @client.Response {
+  let started = @async.now()
+  self.metrics.increment("api_request")
+  defer self.metrics.observe("api", @async.now() - started)
   @async.with_timeout(self.timeout_ms, () => {
     let (response, conn) = self.open(request)
+    if response.code >= 400 {
+      self.metrics.increment("api_error")
+    }
     defer conn.close()
     let bytes = Buffer()
     for ;; {

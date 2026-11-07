@@ -2,10 +2,12 @@
 async fn main {
   @signal.set_global_cancellation_signals([SIGINT, SIGTERM])
   let ns = @env.get_env_var("MOONOPERATOR_NAMESPACE").unwrap_or("default")
+  let metrics = @observability.Metrics::new()
   let config = match @env.get_env_var("MOONOPERATOR_KUBECONFIG_JSON") {
     Some(path) =>
       @transport.Config::from_kubeconfig(
         @json.parse(@fs.read_file(path).text()),
+        metrics~,
       )
     None =>
       match @env.get_env_var("KUBERNETES_SERVICE_HOST") {
@@ -13,20 +15,24 @@ async fn main {
           @transport.Config::in_cluster(
             host,
             port=@env.get_env_var("KUBERNETES_SERVICE_PORT").unwrap_or("443"),
+            metrics~,
           )
         None =>
           @transport.Config::new(
             "http://127.0.0.1:8001",
             allow_loopback_http=true,
+            metrics~,
           )
       }
   }
   let client = config.client()
   let store = @cache.Store::new()
   let queue = @queue.Queue::new()
-  let controller = @controller.Controller::new(queue, key => {
-    @app.reconcile(client, key)
-  })
+  let controller = @controller.Controller::new(
+    queue,
+    key => @app.reconcile(client, key),
+    metrics~,
+  )
   defer controller.stop()
   println("MoonApp operator starting (single replica)")
   @async.with_task_group(group => {
@@ -35,10 +41,11 @@ async fn main {
         "0.0.0.0:8080",
         () => store.ready(@app.app_type.gvk),
         () => queue.length(),
+        metrics~,
       )
     })
     group.spawn_bg(() => {
-      @runtime.inform(config, @app.app_type, ns, store, queue)
+      @runtime.inform(config, @app.app_type, ns, store, queue, metrics~)
     })
     controller.run(() => store.ready(@app.app_type.gvk), workers=2)
   })

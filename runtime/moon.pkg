@@ -4,6 +4,7 @@ import {
   "mik1e80/moonoperator/watch",
   "mik1e80/moonoperator/cache",
   "mik1e80/moonoperator/queue",
+  "mik1e80/moonoperator/observability",
   "moonbitlang/async",
   "moonbitlang/core/env",
 }

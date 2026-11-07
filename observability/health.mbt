@@ -27,12 +27,18 @@ pub async fn serve(
   address : String,
   ready : () -> Bool,
   queue_depth : () -> Int32,
+  metrics~ : Metrics = Metrics::new(),
 ) -> Unit {
   let server = @http.Server(@socket.Addr::parse(address))
   defer server.close()
   server.run_forever(
     (request, _, conn) => {
       let (code, body) = route(request.path, ready(), queue_depth())
+      let body = if request.path == "/metrics" {
+        body + metrics.prometheus()
+      } else {
+        body
+      }
       conn.send_response(code, if code == 200 { "OK" } else { "Unavailable" }, extra_headers={
         "Content-Type": "text/plain; charset=utf-8",
       })

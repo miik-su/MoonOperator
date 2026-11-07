@@ -7,12 +7,14 @@ pub async fn inform(
   ns : String,
   store : @cache.Store,
   queue : @queue.Queue,
+  metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Unit {
   let state = @watch.State::new()
   let client = config.client()
   for ;; {
     let code = try {
       if state.needs_list() {
+        metrics.increment("watch_relist")
         store.invalidate(kind.gvk)
         let snapshot = client.list(kind, ns)
         // Enqueue disappeared keys too, for delete reconciliation.
@@ -50,6 +52,7 @@ pub async fn inform(
       Some(bytes) => bytes[0].to_int() * 1000 / 255
       None => 500
     }
+    metrics.increment("watch_reconnect")
     @async.sleep(state.disconnected(code, sample))
   }
 }

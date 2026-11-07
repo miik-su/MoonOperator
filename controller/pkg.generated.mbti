@@ -3,6 +3,7 @@ package "mik1e80/moonoperator/controller"
 
 import {
   "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/observability",
   "mik1e80/moonoperator/queue",
 }
 
@@ -14,9 +15,10 @@ import {
 pub struct Controller {
   queue : @queue.Queue
   reconcile : async (@core.Key) -> Outcome
+  metrics : @observability.Metrics
   mut stopped : Bool
 }
-pub fn Controller::new(@queue.Queue, async (@core.Key) -> Outcome) -> Self
+pub fn Controller::new(@queue.Queue, async (@core.Key) -> Outcome, metrics? : @observability.Metrics) -> Self
 pub async fn Controller::run(Self, () -> Bool, workers? : Int32) -> Unit
 pub async fn Controller::step(Self, Int64) -> Bool
 pub fn Controller::stop(Self) -> Unit

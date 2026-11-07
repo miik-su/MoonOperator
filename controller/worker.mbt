@@ -9,6 +9,7 @@ pub(all) enum Outcome {
 pub struct Controller {
   queue : @queue.Queue
   reconcile : async (@core.Key) -> Outcome
+  metrics : @observability.Metrics
   mut stopped : Bool
 }
 
@@ -16,8 +17,9 @@ pub struct Controller {
 pub fn Controller::new(
   queue : @queue.Queue,
   reconcile : async (@core.Key) -> Outcome,
+  metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Controller {
-  { queue, reconcile, stopped: false, }
+  { queue, reconcile, metrics, stopped: false, }
 }
 
 ///|
@@ -26,18 +28,32 @@ pub async fn Controller::step(self : Controller, now : Int64) -> Bool {
   guard self.queue.get(now) is Some(key) else { return false }
   defer self.queue.done(key)
   let started = @async.now()
-  let result = (self.reconcile)(key) catch { _ => Retry }
+  let result = (self.reconcile)(key) catch {
+    _ => {
+      self.metrics.increment("reconcile_failure")
+      Retry
+    }
+  }
   let finished = now + (@async.now() - started)
+  self.metrics.observe("reconcile", finished - now)
   match result {
-    Complete => self.queue.forget(key)
+    Complete => {
+      self.metrics.increment("reconcile_success")
+      self.queue.forget(key)
+    }
     RequeueAfter(delay) => {
+      self.metrics.increment("reconcile_success")
+      self.metrics.increment("reconcile_requeue")
       self.queue.forget(key)
       self.queue.add_after(
         key,
         finished + (if delay < 0 { 0 } else { delay }).to_int64(),
       )
     }
-    Retry => ignore(self.queue.retry(key, finished))
+    Retry => {
+      self.metrics.increment("queue_retry")
+      ignore(self.queue.retry(key, finished))
+    }
   }
   true
 }
