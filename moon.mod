@@ -1,5 +1,13 @@
 name = "mik1e80/moonoperator"
+
 version = "0.1.0"
+
 license = "Apache-2.0"
+
 repository = "https://github.com/mik1e80/MoonOperator"
+
 description = "MoonBit-native Kubernetes Operator framework"
+
+import {
+  "moonbitlang/async@0.22.5",
+}

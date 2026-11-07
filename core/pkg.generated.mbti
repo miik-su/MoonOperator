@@ -1,0 +1,107 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/core"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn copy_json(Json) -> Json
+
+pub fn field(Json, String) -> Json
+
+pub fn retryable(Int32) -> Bool
+
+pub fn text(Json) -> String
+
+// Errors
+pub(all) suberror OperatorError {
+  Invalid(String)
+  Api(Int32, String)
+  Capacity(String)
+  Transport(String)
+} derive(@debug.Debug)
+#deprecated
+pub fn OperatorError::to_repr(Self) -> @debug.Repr
+
+// Types and methods
+pub(all) struct GVK {
+  group : String
+  version : String
+  kind : String
+} derive(Eq, Hash, @debug.Debug)
+pub fn GVK::api_version(Self) -> String
+#deprecated
+pub fn GVK::equal(Self, Self) -> Bool
+#deprecated
+pub fn GVK::hash(Self) -> Int32
+#deprecated
+pub fn GVK::hash_combine(Self, Hasher) -> Unit
+#deprecated
+pub fn GVK::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn GVK::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Key {
+  gvk : GVK
+  ns : String
+  name : String
+} derive(Eq, Hash, @debug.Debug)
+#deprecated
+pub fn Key::equal(Self, Self) -> Bool
+#deprecated
+pub fn Key::hash(Self) -> Int32
+#deprecated
+pub fn Key::hash_combine(Self, Hasher) -> Unit
+#deprecated
+pub fn Key::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Key::to_repr(Self) -> @debug.Repr
+
+pub struct Registry {
+  types : Map[GVK, ResourceType]
+}
+pub fn Registry::lookup(Self, GVK) -> ResourceType?
+pub fn Registry::new() -> Self
+pub fn Registry::register(Self, ResourceType) -> Unit raise OperatorError
+
+pub struct Resource {
+  value : Json
+} derive(@debug.Debug)
+pub fn Resource::from_json(Json) -> Self raise OperatorError
+pub fn Resource::json(Self) -> Json
+pub fn Resource::key(Self) -> Key
+pub fn Resource::metadata(Self) -> Json
+pub fn Resource::parse(String) -> Self raise
+pub fn Resource::resource_version(Self) -> String
+#deprecated
+pub fn Resource::to_repr(Self) -> @debug.Repr
+pub fn Resource::with_field(Self, String, Json) -> Self raise OperatorError
+pub fn Resource::with_metadata(Self, String, Json) -> Self raise OperatorError
+
+pub(all) struct ResourceType {
+  gvk : GVK
+  plural : String
+  scope : Scope
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn ResourceType::equal(Self, Self) -> Bool
+#deprecated
+pub fn ResourceType::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn ResourceType::to_repr(Self) -> @debug.Repr
+
+pub(all) enum Scope {
+  Namespaced
+  Cluster
+} derive(Eq, @debug.Debug)
+#deprecated
+pub fn Scope::equal(Self, Self) -> Bool
+#deprecated
+pub fn Scope::not_equal(Self, Self) -> Bool
+#deprecated
+pub fn Scope::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits
