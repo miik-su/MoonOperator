@@ -1,0 +1,21 @@
+name: Focused native checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/install-moonbit.sh
+      - run: bash /tmp/install-moonbit.sh '0.10.17+d971670cd'
+      - run: echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y libssl-dev
+      - run: moon version --all
+      - run: moon check --target native
+      - run: moon fmt --check
+      - run: moon info --target native
+      - run: git diff --exit-code -- '*.mbti'
+      - run: moon test queue/queue_test.mbt transport/http_test.mbt watch/watch_test.mbt examples/moonapp/operator_test.mbt --target native
