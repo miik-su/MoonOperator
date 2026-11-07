@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn conditions_upsert(Json, Json) -> Json raise OperatorError
+
 pub fn copy_json(Json) -> Json
 
 pub fn field(Json, String) -> Json
@@ -68,12 +70,16 @@ pub fn Registry::register(Self, ResourceType) -> Unit raise OperatorError
 pub struct Resource {
   value : Json
 } derive(@debug.Debug)
+pub fn Resource::controlled_by(Self, Self) -> Self raise OperatorError
+pub fn Resource::deleting(Self) -> Bool
+pub fn Resource::finalizers(Self) -> Array[String]
 pub fn Resource::from_json(Json) -> Self raise OperatorError
 pub fn Resource::json(Self) -> Json
 pub fn Resource::key(Self) -> Key
 pub fn Resource::metadata(Self) -> Json
 pub fn Resource::parse(String) -> Self raise
 pub fn Resource::resource_version(Self) -> String
+pub fn Resource::set_finalizer(Self, String, Bool) -> Self raise OperatorError
 #deprecated
 pub fn Resource::to_repr(Self) -> @debug.Repr
 pub fn Resource::with_field(Self, String, Json) -> Self raise OperatorError
