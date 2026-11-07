@@ -1,0 +1,56 @@
+----
+import {
+  "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/http",
+  "moonbitlang/async@0.22.5/fs", "moonbitlang/core/env",
+}
+----
+
+///|
+/// Read-only GitHub API helper. Credentials stay in memory and never enter logs.
+async fn main {
+  let args = @env.args()
+  guard args.length() == 3 else {
+    fail("usage: github-read.mbtx API_PATH OUTPUT_FILE")
+  }
+  let path = args[1]
+  guard path.has_prefix("/repos/miik-su/MoonOperator/") else {
+    fail("repository-scoped read only")
+  }
+  let credentials = @shell.Cmd(
+    "git",
+    ["credential", "fill"],
+    stdin=Text("protocol=https\nhost=github.com\nusername=miik-su\n\n"),
+    env={ "GIT_TERMINAL_PROMPT": "0", "GCM_INTERACTIVE": "never" },
+    stdout=Capture,
+    stderr=Discard,
+  ).output(timeout_ms=15000)
+  credentials.check()
+  let mut token = ""
+  for line in credentials.stdout().split("\n") {
+    if line.strip_prefix("password=") is Some(value) {
+      token = value.trim().to_owned()
+    }
+  }
+  guard !token.is_empty() else { fail("GitHub credential not available") }
+  let conn = @http.Client("https://api.github.com", headers={
+    "Authorization": "Bearer " + token,
+    "User-Agent": "MoonOperator-checks",
+    "Accept": "application/vnd.github+json",
+  })
+  defer conn.close()
+  let response = conn.get(path)
+  let data = if response.code == 302 {
+    let url = response.headers.get("Location").unwrap()
+    // Signed download is fetched without the GitHub credential.
+    let (download, data) = @http.get(url)
+    guard download.code == 200 else { fail("GitHub log download failed") }
+    data
+  } else {
+    guard response.code == 200 else {
+      fail("GitHub API returned \{response.code}")
+    }
+    conn.read_all()
+  }
+  @fs.write_file(args[2], data)
+  println("Saved GitHub read result to \{args[2]}")
+}

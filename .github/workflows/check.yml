@@ -4,7 +4,7 @@ permissions:
   contents: read
 jobs:
   smoke:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
@@ -14,6 +14,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install -y libssl-dev
       - run: moon version --all
+      - run: moon update
       - run: moon check --target native
       - run: moon fmt --check
       - run: moon info --target native
