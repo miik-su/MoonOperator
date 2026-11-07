@@ -1,5 +1,5 @@
 ///|
-priv struct Registration {
+struct Registration {
   controller : Controller
   ready : () -> Bool
   workers : Int32

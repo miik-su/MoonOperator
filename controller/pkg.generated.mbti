@@ -21,11 +21,23 @@ pub async fn Controller::run(Self, () -> Bool, workers? : Int32) -> Unit
 pub async fn Controller::step(Self, Int64) -> Bool
 pub fn Controller::stop(Self) -> Unit
 
+pub struct Manager {
+  controllers : Map[String, Registration]
+  mut running : Bool
+}
+pub fn Manager::new() -> Self
+pub fn Manager::ready(Self) -> Bool
+pub fn Manager::register(Self, String, Controller, () -> Bool, workers? : Int32) -> Unit raise @core.OperatorError
+pub async fn Manager::run(Self) -> Unit
+pub fn Manager::stop(Self) -> Unit
+
 pub(all) enum Outcome {
   Complete
   RequeueAfter(Int32)
   Retry
 }
+
+type Registration
 
 // Type aliases
 
