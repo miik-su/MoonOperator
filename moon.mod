@@ -4,7 +4,7 @@ version = "0.1.0"
 
 license = "Apache-2.0"
 
-repository = "https://github.com/mik1e80/MoonOperator"
+repository = "https://github.com/miik-su/MoonOperator"
 
 description = "MoonBit-native Kubernetes Operator framework"
 

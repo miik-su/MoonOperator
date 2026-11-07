@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/watch"
+
+import {
+  "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/transport",
+  "moonbitlang/core/buffer",
+}
+
+// Values
+pub async fn stream(@transport.Config, String, async (Event) -> Unit) -> Unit
+
+pub fn watch_path(@core.ResourceType, String, String, labels? : String, fields? : String) -> String raise @core.OperatorError
+
+// Errors
+
+// Types and methods
+pub(all) enum Event {
+  Added(@core.Resource)
+  Modified(@core.Resource)
+  Deleted(@core.Resource)
+  Bookmark(String)
+  Failure(Int32)
+}
+pub fn Event::resource(Self) -> @core.Resource?
+pub fn Event::version(Self) -> String
+
+pub struct Parser {
+  mut pending : @buffer.Buffer
+  max_event_bytes : Int32
+}
+pub fn Parser::feed(Self, Bytes) -> Array[Event] raise
+pub fn Parser::finish(Self) -> Unit raise @core.OperatorError
+pub fn Parser::new(max_event_bytes? : Int32) -> Self
+
+pub struct State {
+  mut rv : String
+  mut relist : Bool
+  mut failures : Int32
+}
+pub fn State::checkpoint(Self, Event) -> Unit
+pub fn State::disconnected(Self, Int32, Int32) -> Int32
+pub fn State::listed(Self, String) -> Unit raise @core.OperatorError
+pub fn State::needs_list(Self) -> Bool
+pub fn State::new() -> Self
+pub fn State::version(Self) -> String
+
+// Type aliases
+
+// Traits

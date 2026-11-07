@@ -1,0 +1,8 @@
+import {
+  "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/client",
+  "mik1e80/moonoperator/transport",
+  "moonbitlang/async",
+  "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8",
+}
