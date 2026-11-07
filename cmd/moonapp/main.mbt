@@ -31,6 +31,13 @@ async fn main {
   println("MoonApp operator starting (single replica)")
   @async.with_task_group(group => {
     group.spawn_bg(() => {
+      @observability.serve(
+        "0.0.0.0:8080",
+        () => store.ready(@app.app_type.gvk),
+        () => queue.length(),
+      )
+    })
+    group.spawn_bg(() => {
       @runtime.inform(config, @app.app_type, ns, store, queue)
     })
     controller.run(() => store.ready(@app.app_type.gvk), workers=2)
