@@ -42,13 +42,13 @@ pub fn Resource::controlled_by(
     Array(items) => items
     _ => []
   }
-  for ref in refs {
-    if field(ref, "controller") == Json::boolean(true) &&
-      text(field(ref, "uid")) != uid {
+  for entry in refs {
+    if field(entry, "controller") == Json::boolean(true) &&
+      text(field(entry, "uid")) != uid {
       raise Invalid("resource already has a different controller")
     }
   }
-  let refs = refs.filter(ref => text(field(ref, "uid")) != uid)
+  let refs = refs.filter(entry => text(field(entry, "uid")) != uid)
   refs.push({
     "apiVersion": owner.key().gvk.api_version(),
     "kind": owner.key().gvk.kind,
