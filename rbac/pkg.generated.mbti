@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/rbac"
+
+import {
+  "mik1e80/moonoperator/core",
+}
+
+// Values
+pub fn manifests(String, String, Array[Rule], cluster? : Bool) -> Array[Json] raise @core.OperatorError
+
+// Errors
+
+// Types and methods
+pub(all) struct Rule {
+  group : String
+  resources : Array[String]
+  verbs : Array[String]
+}
+
+// Type aliases
+
+// Traits
