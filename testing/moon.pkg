@@ -1,0 +1,8 @@
+import {
+  "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/client",
+}
+
+import {
+  "moonbitlang/async",
+} for "test"

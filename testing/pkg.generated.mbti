@@ -1,0 +1,28 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/testing"
+
+import {
+  "mik1e80/moonoperator/client",
+  "mik1e80/moonoperator/core",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Fake {
+  objects : Map[String, @core.Resource]
+  mut revision : Int32
+  mut fault : Int32?
+  mut writes : Int32
+}
+pub fn Fake::client(Self) -> @client.Client
+pub fn Fake::fail_next(Self, Int32) -> Unit
+pub fn Fake::new() -> Self
+pub fn Fake::send(Self, @client.Request) -> @client.Response raise
+pub fn Fake::write_count(Self) -> Int32
+
+// Type aliases
+
+// Traits
