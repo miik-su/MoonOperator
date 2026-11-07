@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/transport"
+
+import {
+  "mik1e80/moonoperator/client",
+  "mik1e80/moonoperator/core",
+  "moonbitlang/async/http",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Config {
+  server : String
+  token : String
+  token_file : String
+  ca_file : String
+  timeout_ms : Int32
+  max_response_bytes : Int32
+  min_interval_ms : Int32
+  mut next_request_ms : Int64
+}
+pub fn Config::client(Self) -> @client.Client
+pub fn Config::from_kubeconfig(Json) -> Self raise @core.OperatorError
+pub fn Config::in_cluster(String, port? : String, service_account_dir? : String) -> Self raise @core.OperatorError
+pub fn Config::new(String, token? : String, token_file? : String, ca_file? : String, timeout_ms? : Int32, max_response_bytes? : Int32, min_interval_ms? : Int32, allow_loopback_http? : Bool) -> Self raise @core.OperatorError
+pub async fn Config::open(Self, @client.Request) -> (@http.Response, @http.Client)
+pub async fn Config::send(Self, @client.Request) -> @client.Response
+
+// Type aliases
+
+// Traits

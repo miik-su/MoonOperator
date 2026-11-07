@@ -8,6 +8,8 @@ repository = "https://github.com/mik1e80/MoonOperator"
 
 description = "MoonBit-native Kubernetes Operator framework"
 
+preferred_target = "native"
+
 import {
   "moonbitlang/async@0.22.5",
 }

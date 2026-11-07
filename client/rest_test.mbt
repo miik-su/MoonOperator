@@ -25,11 +25,33 @@ test "REST paths scope and encode selectors and tokens" {
 
 ///|
 async test "client classifies errors and rejects unsafe update" {
-  let kind : @core.ResourceType = { gvk: { group: "", version: "v1", kind: "Pod" }, plural: "pods", scope: Namespaced }
-  let client = @client.Client::new(async _ => { { code: 403, body: Json::null(), retry_after_seconds: None } })
-  let forbidden = try client.get(kind, "demo", "web") catch { @core.Api(403, _) => true; _ => false } else { _ => false }
+  let kind : @core.ResourceType = {
+    gvk: { group: "", version: "v1", kind: "Pod", },
+    plural: "pods",
+    scope: Namespaced,
+  }
+  let client = @client.Client::new(_ => {
+    code: 403,
+    body: Json::null(),
+    retry_after_seconds: None,
+  })
+  let forbidden = try client.get(kind, "demo", "web") catch {
+    @core.Api(403, _) => true
+    _ => false
+  } noraise {
+    _ => false
+  }
   assert_true(forbidden)
-  let resource = @core.Resource::from_json({ "apiVersion": "v1", "kind": "Pod", "metadata": { "namespace": "demo", "name": "web" } })
-  let invalid = try client.update(kind, resource) catch { @core.Invalid(_) => true; _ => false } else { _ => false }
+  let resource = @core.Resource::from_json({
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": { "namespace": "demo", "name": "web" },
+  })
+  let invalid = try client.update(kind, resource) catch {
+    @core.Invalid(_) => true
+    _ => false
+  } noraise {
+    _ => false
+  }
   assert_true(invalid)
 }
