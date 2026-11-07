@@ -1,0 +1,8 @@
+import {
+  "mik1e80/moonoperator/crd",
+  "mik1e80/moonoperator/rbac",
+  "mik1e80/moonoperator/examples/moonapp",
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")

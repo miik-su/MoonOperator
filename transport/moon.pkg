@@ -8,3 +8,7 @@ import {
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
 }
+
+import {
+  "moonbitlang/async/socket",
+} for "test"

@@ -1,0 +1,15 @@
+import {
+  "mik1e80/moonoperator/transport",
+  "mik1e80/moonoperator/runtime",
+  "mik1e80/moonoperator/cache",
+  "mik1e80/moonoperator/queue",
+  "mik1e80/moonoperator/controller",
+  "mik1e80/moonoperator/examples/moonapp" @app,
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/signal",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+}
+
+pkgtype(kind: "executable")
