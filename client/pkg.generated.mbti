@@ -1,0 +1,54 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/client"
+
+import {
+  "mik1e80/moonoperator/core",
+}
+
+// Values
+pub fn collection_path(@core.ResourceType, String) -> String raise @core.OperatorError
+
+pub fn encode(String) -> String
+
+pub fn list_path(@core.ResourceType, String, limit? : Int32, continue_token? : String, labels? : String, fields? : String) -> String raise @core.OperatorError
+
+pub fn object_path(@core.ResourceType, String, String) -> String raise @core.OperatorError
+
+// Errors
+
+// Types and methods
+pub struct Client {
+  send : async (Request) -> Response
+}
+pub async fn Client::create(Self, @core.ResourceType, @core.Resource) -> @core.Resource
+pub async fn Client::delete(Self, @core.ResourceType, String, String, uid? : String) -> Unit
+pub async fn Client::execute(Self, Request) -> Response
+pub async fn Client::get(Self, @core.ResourceType, String, String) -> @core.Resource
+pub async fn Client::list(Self, @core.ResourceType, String, labels? : String, fields? : String, max_items? : Int32) -> ResourceList
+pub async fn Client::list_page(Self, @core.ResourceType, String, continue_token? : String, labels? : String, fields? : String) -> ResourceList
+pub fn Client::new(async (Request) -> Response) -> Self
+pub async fn Client::patch(Self, @core.ResourceType, String, String, Json, status? : Bool) -> @core.Resource
+pub async fn Client::update(Self, @core.ResourceType, @core.Resource, status? : Bool) -> @core.Resource
+
+pub(all) struct Request {
+  verb : String
+  path : String
+  body : Json
+  content_type : String
+}
+
+pub(all) struct ResourceList {
+  items : Array[@core.Resource]
+  resource_version : String
+  continue_token : String
+}
+
+pub(all) struct Response {
+  code : Int32
+  body : Json
+  retry_after_seconds : Int32?
+}
+
+// Type aliases
+
+// Traits
