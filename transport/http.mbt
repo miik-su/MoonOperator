@@ -4,6 +4,20 @@ pub async fn Config::open(
   self : Config,
   request : @client.Request,
 ) -> (@http.Response, @http.Client) {
+  if !request.path.has_prefix("/") ||
+    request.path.has_prefix("//") ||
+    request.path.contains_any(chars="\\#") ||
+    !safe_header(request.path) ||
+    request.path.length() > 16384 ||
+    !safe_header(request.content_type) ||
+    request.content_type.length() > 256 {
+    raise @core.Invalid(
+      "request must use a safe origin-relative target and headers",
+    )
+  }
+  if request.body != Json::null() {
+    ignore(@core.json_size(request.body, max_bytes=self.max_request_bytes))
+  }
   let now = @async.now()
   let delay = self.next_request_ms - now
   self.next_request_ms = (if delay > 0L { self.next_request_ms } else { now }) +
@@ -15,9 +29,12 @@ pub async fn Config::open(
     let token = if self.token_file.is_empty() {
       self.token
     } else {
+      if @fs.file_size(self.token_file) > 16384L {
+        raise @core.Capacity("bearer token file limit")
+      }
       @fs.read_file(self.token_file).text().trim().to_owned()
     }
-    if token.contains_any(chars="\r\n") {
+    if !safe_header(token) || token.length() > 16384 {
       raise @core.Invalid("invalid bearer token")
     }
     let headers : @http.Headers = {
@@ -46,7 +63,11 @@ pub async fn Config::open(
     if request.body != Json::null() {
       conn.write(request.body.stringify())
     }
-    (conn.end_request(), conn)
+    let response = conn.end_request()
+    if response.code >= 300 && response.code < 400 {
+      raise @core.Api(response.code, "RedirectRefused")
+    }
+    (response, conn)
   })
 }
 

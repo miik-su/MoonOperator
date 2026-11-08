@@ -8,6 +8,7 @@ pub struct Config {
   ca_file : String
   timeout_ms : Int32
   max_response_bytes : Int32
+  max_request_bytes : Int32
   min_interval_ms : Int32
   mut next_request_ms : Int64
 }
@@ -21,6 +22,7 @@ pub fn Config::new(
   ca_file~ : String = "",
   timeout_ms~ : Int32 = 30000,
   max_response_bytes~ : Int32 = 4194304,
+  max_request_bytes~ : Int32 = 4194304,
   min_interval_ms~ : Int32 = 20,
   allow_loopback_http~ : Bool = false,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
@@ -43,8 +45,10 @@ pub fn Config::new(
     authority.contains_any(chars="/@?#\\ \r\n\t") ||
     timeout_ms <= 0 ||
     max_response_bytes <= 0 ||
+    max_request_bytes <= 0 ||
     min_interval_ms < 0 ||
-    token.contains_any(chars="\r\n") {
+    !safe_header(token) ||
+    token.length() > 16384 {
     raise @core.Invalid("invalid transport configuration")
   }
   {
@@ -55,9 +59,15 @@ pub fn Config::new(
     ca_file,
     timeout_ms,
     max_response_bytes,
+    max_request_bytes,
     min_interval_ms,
     next_request_ms: 0L,
   }
+}
+
+///|
+fn safe_header(value : String) -> Bool {
+  value.all(c => c.to_int() >= 32 && c.to_int() != 127)
 }
 
 ///|

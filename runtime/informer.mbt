@@ -101,9 +101,9 @@ pub async fn Source::run(
       @core.Invalid(_) => 410
       _ => 0
     }
-    if code == 401 || code == 403 {
+    if code != 0 && code != 410 && !@core.retryable(code) {
       store.invalidate(kind.gvk)
-      raise @core.Api(code, "InformerAuthorizationFailed")
+      raise @core.Api(code, "InformerPermanentFailure")
     }
     if code == 410 {
       store.invalidate(kind.gvk)

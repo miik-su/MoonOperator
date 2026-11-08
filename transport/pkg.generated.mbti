@@ -21,6 +21,7 @@ pub struct Config {
   ca_file : String
   timeout_ms : Int32
   max_response_bytes : Int32
+  max_request_bytes : Int32
   min_interval_ms : Int32
   mut next_request_ms : Int64
 }
@@ -28,7 +29,7 @@ pub fn Config::client(Self) -> @client.Client
 pub fn Config::from_kubeconfig(Json, metrics? : @observability.Metrics) -> Self raise @core.OperatorError
 pub fn Config::in_cluster(String, port? : String, service_account_dir? : String, metrics? : @observability.Metrics) -> Self raise @core.OperatorError
 pub async fn Config::load_kubeconfig(String, metrics? : @observability.Metrics) -> Self
-pub fn Config::new(String, token? : String, token_file? : String, ca_file? : String, timeout_ms? : Int32, max_response_bytes? : Int32, min_interval_ms? : Int32, allow_loopback_http? : Bool, metrics? : @observability.Metrics) -> Self raise @core.OperatorError
+pub fn Config::new(String, token? : String, token_file? : String, ca_file? : String, timeout_ms? : Int32, max_response_bytes? : Int32, max_request_bytes? : Int32, min_interval_ms? : Int32, allow_loopback_http? : Bool, metrics? : @observability.Metrics) -> Self raise @core.OperatorError
 pub async fn Config::open(Self, @client.Request) -> (@http.Response, @http.Client)
 pub fn Config::parse_kubeconfig(String, metrics? : @observability.Metrics) -> Self raise @core.OperatorError
 pub async fn Config::send(Self, @client.Request) -> @client.Response
