@@ -2,6 +2,12 @@
 
 A MoonBit-native Kubernetes Operator development framework.
 
+An independent community project, with no claimed endorsement by Kubernetes or
+MoonBit. Third-party names and trademarks belong to their respective owners.
+See [security reporting](SECURITY.md), [contributing](CONTRIBUTING.md),
+[module boundaries](docs/module-boundaries.md) and the
+[security remediation record](docs/security-audit-20261108.md).
+
 The implementation follows the linked MoonOperator design: dynamic resources,
 an injectable Kubernetes client, LIST/WATCH recovery, a bounded cache and work
 queue, and idempotent reconciliation. See [the roadmap](docs/roadmap.md).
