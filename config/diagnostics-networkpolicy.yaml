@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: moonoperator-diagnostics
+spec:
+  podSelector:
+    matchLabels:
+      app: moonoperator
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              moonoperator.dev/diagnostics-access: "true"
+          podSelector:
+            matchLabels:
+              moonoperator.dev/diagnostics-client: "true"
+      ports:
+        - protocol: TCP
+          port: 8080

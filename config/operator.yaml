@@ -23,6 +23,8 @@ spec:
           image: moonoperator:dev
           imagePullPolicy: Never
           env:
+            - name: MOONOPERATOR_DIAGNOSTICS_ADDRESS
+              value: "0.0.0.0:8080"
             - name: MOONOPERATOR_NAMESPACE
               valueFrom:
                 fieldRef:

@@ -40,7 +40,9 @@ async fn main {
   @async.with_task_group(group => {
     group.spawn_bg(() => {
       @observability.serve(
-        "0.0.0.0:8080",
+        @env.get_env_var("MOONOPERATOR_DIAGNOSTICS_ADDRESS").unwrap_or(
+          "127.0.0.1:8080",
+        ),
         () => store.ready(@app.app_type.gvk),
         () => queue.length(),
         metrics~,
