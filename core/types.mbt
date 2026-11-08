@@ -89,6 +89,7 @@ pub fn text(value : Json) -> String {
 ///|
 /// Validate the minimal object identity and retain all other fields unchanged.
 pub fn Resource::from_json(value : Json) -> Resource raise OperatorError {
+  ignore(json_size(value))
   guard value is Object(_) else { raise Invalid("resource must be an object") }
   let meta = field(value, "metadata")
   if text(field(value, "apiVersion")).is_empty() ||
@@ -96,12 +97,23 @@ pub fn Resource::from_json(value : Json) -> Resource raise OperatorError {
     text(field(meta, "name")).is_empty() {
     raise Invalid("apiVersion, kind and metadata.name are required")
   }
+  for key in ["namespace", "uid", "resourceVersion"] {
+    let item = field(meta, key)
+    if item != Json::null() && !(item is String(_)) {
+      raise Invalid("metadata identity fields must be strings")
+    }
+  }
   { value: copy_json(value), }
 }
 
 ///|
 pub fn Resource::parse(input : String) -> Resource raise {
-  Resource::from_json(@json.parse(input))
+  if input.length() > 4194304 {
+    raise Capacity("resource input limit")
+  }
+  Resource::from_json(
+    @json.parse(input, max_nesting_depth=128, reject_duplicate_keys=true),
+  )
 }
 
 ///|
@@ -141,6 +153,7 @@ pub fn Resource::with_field(
   name : String,
   value : Json,
 ) -> Resource raise OperatorError {
+  ignore(json_size(value))
   let json = self.json()
   if json is Object(fields) {
     fields[name] = copy_json(value)
@@ -154,6 +167,7 @@ pub fn Resource::with_metadata(
   name : String,
   value : Json,
 ) -> Resource raise OperatorError {
+  ignore(json_size(value))
   let meta = self.metadata()
   if meta is Object(fields) {
     fields[name] = copy_json(value)

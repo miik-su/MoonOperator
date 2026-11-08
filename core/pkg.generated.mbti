@@ -13,6 +13,8 @@ pub fn copy_json(Json) -> Json
 
 pub fn field(Json, String) -> Json
 
+pub fn json_size(Json, max_bytes? : Int32, max_depth? : Int32, max_nodes? : Int32) -> Int32 raise OperatorError
+
 pub fn retryable(Int32) -> Bool
 
 pub fn text(Json) -> String
@@ -71,6 +73,7 @@ pub fn Registry::register(Self, ResourceType) -> Unit raise OperatorError
 pub struct Resource {
   value : Json
 } derive(@debug.Debug)
+pub fn Resource::byte_size(Self, max_bytes? : Int32) -> Int32 raise OperatorError
 pub fn Resource::controlled_by(Self, Self) -> Self raise OperatorError
 pub fn Resource::deleting(Self) -> Bool
 pub fn Resource::finalizers(Self) -> Array[String]

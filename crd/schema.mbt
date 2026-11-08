@@ -2,6 +2,8 @@
 /// A deliberately bounded OpenAPI subset: objects, arrays, scalars, required,
 /// enum, numeric range and defaults. Unknown keywords are left to API validation.
 pub fn validate(schema : Json, input : Json) -> Json raise @core.OperatorError {
+  ignore(@core.json_size(schema, max_depth=64))
+  ignore(@core.json_size(input, max_depth=64))
   validate_at(schema, @core.copy_json(input), 0)
 }
 

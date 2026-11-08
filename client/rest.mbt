@@ -204,6 +204,7 @@ fn decode_list_item(
   kind : @core.ResourceType,
   value : Json,
 ) -> @core.Resource raise @core.OperatorError {
+  ignore(@core.json_size(value))
   let value = @core.copy_json(value)
   guard value is Object(fields) else {
     raise @core.Invalid("LIST item must be object")
