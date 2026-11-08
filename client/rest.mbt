@@ -17,11 +17,12 @@ pub(all) struct Response {
 /// Transport injection is the boundary between protocol and I/O.
 pub struct Client {
   send : async (Request) -> Response
+  mut not_before : Int64
 }
 
 ///|
 pub fn Client::new(send : async (Request) -> Response) -> Client {
-  { send, }
+  { send, not_before: 0L, }
 }
 
 ///|
@@ -117,7 +118,19 @@ pub fn list_path(
 
 ///|
 pub async fn Client::execute(self : Client, request : Request) -> Response {
+  while self.not_before > @async.now() {
+    let delay = self.not_before - @async.now()
+    if delay > 0L {
+      @async.sleep(delay.to_int())
+    }
+  }
   let response = (self.send)(request)
+  if (response.code == 429 || response.code == 503) &&
+    response.retry_after_seconds is Some(seconds) &&
+    seconds > 0 {
+    let seconds = if seconds > 3600 { 3600 } else { seconds }
+    self.not_before = @async.now() + seconds.to_int64() * 1000L
+  }
   if response.code < 200 || response.code >= 300 {
     let reason = match response.code {
       400 => "BadRequest"

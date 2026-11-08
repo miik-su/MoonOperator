@@ -1,8 +1,5 @@
 import {
   "mik1e80/moonoperator/core",
   "moonbitlang/core/encoding/utf8",
-}
-
-import {
   "moonbitlang/async",
-} for "test"
+}

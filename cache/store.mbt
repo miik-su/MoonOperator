@@ -65,10 +65,8 @@ pub fn Store::list(
     let key = resource.key()
     let mut matches = true
     for name, value in labels {
-      if @core.text(
-          @core.field(@core.field(resource.metadata(), "labels"), name),
-        ) !=
-        value {
+      if @core.field(@core.field(resource.metadata(), "labels"), name) !=
+        Json::string(value) {
         matches = false
       }
     }

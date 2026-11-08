@@ -111,6 +111,40 @@ pub fn Fake::send(
       self.writes += 1
       response(200, resource.json())
     }
+    "PATCH" => {
+      guard old is Some(old) else { return response(404, Json::null()) }
+      if request.content_type != "application/merge-patch+json" {
+        return response(415, Json::null())
+      }
+      let patch_rv = @core.text(
+        @core.field(@core.field(request.body, "metadata"), "resourceVersion"),
+      )
+      if !patch_rv.is_empty() && patch_rv != old.resource_version() {
+        return response(409, Json::null())
+      }
+      let patched = if status {
+        old.with_field(
+          "status",
+          merge_patch(
+            @core.field(old.json(), "status"),
+            @core.field(request.body, "status"),
+          ),
+        )
+      } else {
+        @core.Resource::from_json(merge_patch(old.json(), request.body))
+      }
+      if patched.key() != old.key() {
+        return response(400, Json::null())
+      }
+      self.revision += 1
+      let patched = patched.with_metadata(
+        "resourceVersion",
+        Json::string(self.revision.to_string()),
+      )
+      self.objects[path] = patched
+      self.writes += 1
+      response(200, patched.json())
+    }
     "DELETE" => {
       guard old is Some(old) else { return response(404, Json::null()) }
       let uid = @core.text(
@@ -126,5 +160,30 @@ pub fn Fake::send(
       response(200, { "kind": "Status", "status": "Success" })
     }
     _ => response(405, Json::null())
+  }
+}
+
+///|
+/// RFC 7386 object merge: null removes a field; arrays replace wholesale.
+fn merge_patch(target : Json, patch : Json) -> Json {
+  match patch {
+    Object(fields) => {
+      let result = match @core.copy_json(target) {
+        Object(fields) => fields
+        _ => Map([])
+      }
+      for key, value in fields {
+        if value == Json::null() {
+          result.remove(key)
+        } else {
+          result[key] = merge_patch(
+            result.get(key).unwrap_or(Json::null()),
+            value,
+          )
+        }
+      }
+      Json::object(result)
+    }
+    _ => @core.copy_json(patch)
   }
 }

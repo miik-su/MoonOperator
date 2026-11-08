@@ -19,6 +19,7 @@ pub fn object_path(@core.ResourceType, String, String) -> String raise @core.Ope
 // Types and methods
 pub struct Client {
   send : async (Request) -> Response
+  mut not_before : Int64
 }
 pub async fn Client::create(Self, @core.ResourceType, @core.Resource) -> @core.Resource
 pub async fn Client::delete(Self, @core.ResourceType, String, String, uid? : String) -> Unit
