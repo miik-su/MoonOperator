@@ -109,7 +109,10 @@ pub async fn stream(
         break
       }
       Some(chunk) =>
-        for event in parser.feed(chunk) {
+        for
+          event in (parser.feed(chunk) catch {
+            _ => raise @core.Invalid("malformed watch record")
+          }) {
           match event {
             Failure(code) => raise @core.Api(code, "WatchStatusError")
             _ => on_event(event)

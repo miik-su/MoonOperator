@@ -2,12 +2,14 @@
 package "mik1e80/moonoperator/controller"
 
 import {
+  "mik1e80/moonoperator/client",
   "mik1e80/moonoperator/core",
   "mik1e80/moonoperator/observability",
   "mik1e80/moonoperator/queue",
 }
 
 // Values
+pub async fn finalize(@client.Client, @core.ResourceType, @core.Resource, String, async (@core.Resource) -> Bool) -> Bool
 
 // Errors
 

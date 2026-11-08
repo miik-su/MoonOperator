@@ -1,6 +1,11 @@
 import {
   "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/client",
   "mik1e80/moonoperator/queue",
   "mik1e80/moonoperator/observability",
   "moonbitlang/async",
 }
+
+import {
+  "mik1e80/moonoperator/testing",
+} for "test"

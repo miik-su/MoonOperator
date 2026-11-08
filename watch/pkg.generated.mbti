@@ -8,6 +8,10 @@ import {
 }
 
 // Values
+pub fn changed(@core.Resource?, Event) -> Bool
+
+pub fn generation_changed(@core.Resource?, Event) -> Bool
+
 pub async fn stream(@transport.Config, String, async (Event) -> Unit) -> Unit
 
 pub fn watch_path(@core.ResourceType, String, String, labels? : String, fields? : String) -> String raise @core.OperatorError

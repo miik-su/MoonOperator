@@ -45,7 +45,15 @@ async fn main {
       )
     })
     group.spawn_bg(() => {
-      @runtime.inform(config, @app.app_type, ns, store, queue, metrics~)
+      @runtime.inform(
+        config,
+        @app.app_type,
+        ns,
+        store,
+        queue,
+        metrics~,
+        predicate=@watch.generation_changed,
+      )
     })
     controller.run(() => store.ready(@app.app_type.gvk), workers=2)
   })

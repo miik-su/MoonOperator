@@ -8,12 +8,13 @@ pub async fn inform(
   store : @cache.Store,
   queue : @queue.Queue,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
+  predicate~ : (@core.Resource?, @watch.Event) -> Bool = @watch.changed,
 ) -> Unit {
   let client = config.client()
   let source = Source::new(() => client.list(kind, ns), (rv, on_event) => {
     @watch.stream(config, @watch.watch_path(kind, ns, rv), on_event)
   })
-  source.run(kind, store, queue, metrics~)
+  source.run(kind, store, queue, metrics~, predicate~)
 }
 
 ///|
@@ -56,6 +57,7 @@ pub async fn Source::run(
   store : @cache.Store,
   queue : @queue.Queue,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
+  predicate~ : (@core.Resource?, @watch.Event) -> Bool = @watch.changed,
 ) -> Unit {
   let state = @watch.State::new()
   for ;; {
@@ -79,8 +81,12 @@ pub async fn Source::run(
         if event.resource() is Some(resource) && resource.key().gvk != kind.gvk {
           raise @core.Invalid("watch resource kind mismatch")
         }
+        let previous = event
+          .resource()
+          .bind(resource => store.get(resource.key()))
+        let accepted = predicate(previous, event)
         store.apply(event)
-        if event.resource() is Some(resource) {
+        if accepted && event.resource() is Some(resource) {
           enqueue(queue, resource.key())
         }
         state.checkpoint(event)
@@ -89,6 +95,7 @@ pub async fn Source::run(
     } catch {
       @core.Api(code, _) => code
       @core.Capacity(_) => 410
+      @core.Invalid(_) => 410
       _ => 0
     }
     if code == 401 || code == 403 {
