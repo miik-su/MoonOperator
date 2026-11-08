@@ -1,7 +1,22 @@
 ///|
-/// True means normal reconciliation may proceed. False means a finalizer update
-/// or deletion cleanup occurred and the caller should requeue. Cleanup must be
-/// idempotent: failures/conflicts leave the finalizer in place for the next run.
+pub(all) enum FinalizeResult {
+  Continue
+  FinalizerAdded
+  CleanupPending
+  CleanupComplete
+  NoLongerResponsible
+} derive(Debug, Eq)
+
+///|
+pub extend FinalizeResult with Eq::{equal, not_equal}
+
+///|
+pub extend FinalizeResult with Debug::{to_repr}
+
+///|
+/// Requeue only FinalizerAdded/CleanupPending. The two deletion completion
+/// outcomes must stop normal reconciliation without scheduling another attempt.
+/// Failures/conflicts retain the finalizer and propagate to the worker policy.
 pub async fn finalize(
   client : @client.Client,
   kind : @core.ResourceType,
@@ -9,21 +24,24 @@ pub async fn finalize(
   name : String,
   cleanup : async (@core.Resource) -> Bool,
   cleanup_timeout_ms~ : Int32 = 30000,
-) -> Bool {
+) -> FinalizeResult {
   if cleanup_timeout_ms <= 0 {
     raise @core.Invalid("cleanup deadline must be positive")
   }
   let present = resource.finalizers().contains(name)
   if resource.deleting() {
-    if present &&
-      @async.with_timeout(cleanup_timeout_ms, () => cleanup(resource)) {
-      ignore(client.update(kind, resource.set_finalizer(name, false)))
+    if !present {
+      return NoLongerResponsible
     }
-    return false
+    if !@async.with_timeout(cleanup_timeout_ms, () => cleanup(resource)) {
+      return CleanupPending
+    }
+    ignore(client.update(kind, resource.set_finalizer(name, false)))
+    return CleanupComplete
   }
   if !present {
     ignore(client.update(kind, resource.set_finalizer(name, true)))
-    return false
+    return FinalizerAdded
   }
-  true
+  Continue
 }
