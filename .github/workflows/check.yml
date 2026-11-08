@@ -10,9 +10,10 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Scan fetched Git history for credentials
         run: |
-          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz
+          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/gitleaks/gitleaks/releases/assets/378332058 -o /tmp/gitleaks.tar.gz
           sha256sum --check tools/gitleaks-linux.sha256
           mkdir -p /tmp/gitleaks
           tar -xzf /tmp/gitleaks.tar.gz -C /tmp/gitleaks

@@ -8,6 +8,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
       - name: Install checksum-verified MoonBit SDK
         run: |
           curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
