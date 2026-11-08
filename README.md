@@ -35,14 +35,22 @@ resources, updates spec/status idempotently and repairs drift every 30 seconds.
 Deleting the MoonApp lets Kubernetes garbage-collect its owned children.
 
 Local development uses an explicitly enabled loopback kubectl proxy. Set
-`MOONOPERATOR_KUBECONFIG_JSON` to an absolute JSON kubeconfig file for HTTPS
-bearer authentication. In-cluster ServiceAccount configuration is selected via
-`KUBERNETES_SERVICE_HOST/PORT`; mounted tokens are reread per request. YAML
-kubeconfig, exec auth, client certificates and embedded CA data are unsupported.
-Use absolute CA/tokenFile paths. TLS verification cannot be disabled.
+`MOONOPERATOR_KUBECONFIG` to a JSON or restricted YAML kubeconfig file for HTTPS
+bearer authentication (`MOONOPERATOR_KUBECONFIG_JSON` remains an alias). Relative
+CA/tokenFile paths resolve against that file. In-cluster ServiceAccount config
+is selected via `KUBERNETES_SERVICE_HOST/PORT`; mounted tokens are reread per
+request. YAML aliases/custom tags/duplicate keys, exec auth, client certificates
+and embedded CA data are unsupported. TLS verification cannot be disabled.
 
 Diagnostics: `:8080/healthz`, `/readyz`, `/metrics`; readiness waits for cache
 synchronization. See public `pkg.generated.mbti` files for exact package APIs.
+Metrics include reconcile outcomes/durations, retries, watch reconnects and API
+duration/counts. Structured event logs exclude raw server errors and credentials.
+
+The [experimental WASM host](wasm/README.mbt.md) executes a compiled MoonBit
+validator under pinned Wasmtime limits. [Benchmark and load probes](docs/benchmarks.md)
+are explicit opt-in commands. See [release status](docs/release-status.md) for
+verified CI evidence and remaining production release gates.
 
 Only focused tests are necessary for a change, for example:
 
@@ -52,4 +60,5 @@ moon test transport/http_test.mbt --target native
 moon test examples/moonapp/operator_test.mbt --target native
 ```
 
-License: Apache-2.0. Runtime dependency: moonbitlang/async 0.22.5 (Apache-2.0).
+License: Apache-2.0. Dependencies: moonbitlang/async 0.22.5 (Apache-2.0) and
+moonbit-community/yaml 0.0.8 (MIT). See THIRD_PARTY_NOTICES.md.

@@ -16,6 +16,11 @@ Each numbered item is a separate substantive commit, with focused verification.
 12. MoonApp Deployment/Service operator and manifests.
 13. Observability, experimental extension contract and focused CI/documentation.
 
-Real cluster E2E, longevity measurements and package publication are distinct
-release gates. No unexecuted verification is described as passing. HA/Lease,
-webhooks and a third-party WASM host remain later work; single replica only.
+All 13 implementation stages now have code and focused verification. Follow-up
+commits add actual Kind acceptance, metrics/logs, queue backpressure recovery,
+generation predicates, retry-safe cleanup, typed spec views, multiversion CRDs,
+JSON/YAML configuration, scalar WASM execution and reproducible load observations.
+See release-status.md for exact evidence and remaining gates. Long-duration
+soak/RSS, Mooncakes publication, HA/Lease, webhooks and general JSON plugin ABI
+remain separate work. Single replica only; no unexecuted verification is marked
+as passing.

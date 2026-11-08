@@ -5,12 +5,20 @@ fn field(json : Json, key : String) -> Json { match json { Object(fields) => fie
 async fn main {
   let args = @env.args()
   let json = @json.parse(@fs.read_file(args[1]).text())
-  for key in ["workflow_runs", "jobs", "assets"] {
+  for key in ["workflow_runs", "jobs", "assets", "artifacts"] {
     if field(json, key) is Array(items) {
       for item in items {
         if key != "assets" || (field(item, "name") is String(name) && (name.contains("x86_64-windows.zip") || name.contains("x86_64-linux.tar.xz"))) {
           let summary : Json = { "id": field(item, "id"), "name": field(item, "name"), "status": field(item, "status"), "conclusion": field(item, "conclusion"), "sha": field(item, "head_sha"), "digest": field(item, "digest") }
           println(summary.stringify())
+          if field(item, "steps") is Array(steps) {
+            for step in steps {
+              if field(step, "status") == Json::string("in_progress") || field(step, "conclusion") == Json::string("failure") {
+                let progress : Json = { "step": field(step, "name"), "status": field(step, "status"), "conclusion": field(step, "conclusion") }
+                println(progress.stringify())
+              }
+            }
+          }
         }
       }
     }

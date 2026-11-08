@@ -21,3 +21,4 @@ jobs:
       - run: git diff --exit-code -- '*.mbti'
       - run: moon test queue/queue_test.mbt transport/http_test.mbt watch/watch_test.mbt examples/moonapp/operator_test.mbt --target native
       - run: moon test queue/capacity_test.mbt controller/concurrency_test.mbt controller/finalizer_test.mbt runtime/backpressure_test.mbt runtime/recovery_test.mbt transport/fault_test.mbt --target native
+      - run: moon test client/typed_list_test.mbt transport/kubeconfig_test.mbt transport/cancellation_test.mbt --target native
