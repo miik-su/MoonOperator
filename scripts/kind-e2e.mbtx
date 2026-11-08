@@ -39,6 +39,16 @@ async fn main {
   bundle.check()
   ignore(kubectl(["apply", "-f", "-"], input=bundle.stdout()))
   ignore(kubectl(["wait", "--for=condition=Established", "crd/moonapps.moonoperator.dev", "--timeout=60s"]))
+  let probe : Json = { "apiVersion": "v1", "kind": "List", "items": [
+    { "apiVersion": "v1", "kind": "ServiceAccount", "metadata": { "name": "moonoperator-probe", "namespace": "moonoperator-e2e" } },
+    { "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role", "metadata": { "name": "moonoperator-probe", "namespace": "moonoperator-e2e" }, "rules": [{ "apiGroups": [""], "resources": ["configmaps"], "verbs": ["get", "list", "watch", "create", "update", "patch", "delete"] }] },
+    { "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding", "metadata": { "name": "moonoperator-probe", "namespace": "moonoperator-e2e" }, "subjects": [{ "kind": "ServiceAccount", "name": "moonoperator-probe", "namespace": "moonoperator-e2e" }], "roleRef": { "apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": "moonoperator-probe" } },
+    { "apiVersion": "v1", "kind": "Pod", "metadata": { "name": "client-probe", "namespace": "moonoperator-e2e" }, "spec": { "serviceAccountName": "moonoperator-probe", "restartPolicy": "Never", "containers": [{ "name": "probe", "image": "moonoperator:dev", "imagePullPolicy": "Never", "command": ["/usr/local/bin/client-probe"] }] } },
+  ] }
+  ignore(kubectl(["apply", "-f", "-"], input=probe.stringify()))
+  ignore(kubectl(["wait", "--for=jsonpath={.status.phase}=Succeeded", "pod/client-probe", "--timeout=90s"]))
+  let client_report = kubectl(["logs", "pod/client-probe"])
+  @fs.write_file("cluster-client-report.json", client_report)
   ignore(kubectl(["apply", "-f", "config/operator.yaml"]))
   ignore(kubectl(["rollout", "status", "deployment/moonoperator", "--timeout=120s"]))
   ignore(kubectl(["apply", "-f", "config/moonapp.yaml"]))

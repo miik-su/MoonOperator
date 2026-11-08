@@ -1,0 +1,9 @@
+import {
+  "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/transport",
+  "mik1e80/moonoperator/watch",
+  "moonbitlang/async",
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")

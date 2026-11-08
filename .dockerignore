@@ -6,3 +6,6 @@
 !_build/native/debug/build/cmd/
 !_build/native/debug/build/cmd/moonapp/
 !_build/native/debug/build/cmd/moonapp/moonapp.exe
+!_build/native/debug/build/tests/
+!_build/native/debug/build/tests/cluster_client/
+!_build/native/debug/build/tests/cluster_client/cluster_client.exe

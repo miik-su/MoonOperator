@@ -178,10 +178,11 @@ pub async fn Client::list_page(
   continue_token~ : String = "",
   labels~ : String = "",
   fields~ : String = "",
+  limit~ : Int32 = 500,
 ) -> ResourceList {
   let response = self.execute({
     verb: "GET",
-    path: list_path(kind, ns, continue_token~, labels~, fields~),
+    path: list_path(kind, ns, continue_token~, labels~, fields~, limit~),
     body: Json::null(),
     content_type: "application/json",
   })
@@ -205,6 +206,7 @@ pub async fn Client::list(
   labels~ : String = "",
   fields~ : String = "",
   max_items~ : Int32 = 10000,
+  page_size~ : Int32 = 500,
 ) -> ResourceList {
   let items : Array[@core.Resource] = []
   let seen : Map[String, Bool] = Map([])
@@ -212,7 +214,14 @@ pub async fn Client::list(
     if pages >= 1000 {
       raise @core.Capacity("LIST page limit")
     }
-    let page = self.list_page(kind, ns, continue_token=token, labels~, fields~)
+    let page = self.list_page(
+      kind,
+      ns,
+      continue_token=token,
+      labels~,
+      fields~,
+      limit=page_size,
+    )
     if page.resource_version.is_empty() ||
       (!version.is_empty() && version != page.resource_version) {
       raise @core.Invalid("LIST snapshot resourceVersion changed or missing")

@@ -1,0 +1,13 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/tests/cluster_client"
+
+// Values
+
+// Errors
+type WatchComplete
+
+// Types and methods
+
+// Type aliases
+
+// Traits

@@ -14,7 +14,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install -y libssl-dev
       - run: moon update
-      - run: moon build cmd/moonapp cmd/manifests --target native
+      - run: moon build cmd/moonapp cmd/manifests tests/cluster_client --target native
       - run: docker build -t moonoperator:dev .
       - run: curl -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind
       - run: chmod +x /tmp/kind
@@ -25,9 +25,13 @@ jobs:
         if: always()
         with:
           name: kind-acceptance
-          path: kind-e2e-report.json
+          path: |
+            kind-e2e-report.json
+            cluster-client-report.json
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
+        if: failure()
+      - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs pod/client-probe
         if: failure()
       - run: /tmp/kind delete cluster --name moonoperator-e2e
         if: always()
