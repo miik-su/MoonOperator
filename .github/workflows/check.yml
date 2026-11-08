@@ -42,6 +42,7 @@ jobs:
       - run: moon test queue/capacity_test.mbt controller/concurrency_test.mbt controller/finalizer_test.mbt runtime/backpressure_test.mbt runtime/recovery_test.mbt transport/fault_test.mbt --target native
       - run: moon test client/typed_list_test.mbt transport/kubeconfig_test.mbt transport/cancellation_test.mbt --target native
       - run: moon test core/budget_test.mbt cache/budget_test.mbt transport/origin_test.mbt controller/deadline_test.mbt watch/adversarial_test.mbt --target native
+      - run: moon test core/redaction_test.mbt core/ownership_test.mbt core/validation_test.mbt controller/finalizer_test.mbt examples/moonapp/ownership_test.mbt watch/version_test.mbt runtime/capacity_test.mbt transport/files_wbtest.mbt rbac/rbac_test.mbt --target native
       - run: moon run scripts/sbom.mbtx -- source-sbom.json
       - run: moon run scripts/advisories.mbtx
       - run: git diff --no-index -- docs/evidence/source-sbom.json source-sbom.json
