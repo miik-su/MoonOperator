@@ -12,15 +12,15 @@ jobs:
           fetch-depth: 0
       - name: Scan fetched Git history for credentials
         run: |
-          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz
+          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz
           sha256sum --check tools/gitleaks-linux.sha256
           mkdir -p /tmp/gitleaks
           tar -xzf /tmp/gitleaks.tar.gz -C /tmp/gitleaks
           /tmp/gitleaks/gitleaks git --redact --log-opts=--all .
       - name: Install checksum-verified MoonBit SDK
         run: |
-          curl -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
-          curl -fsSL 'https://cli.moonbitlang.com/cores/core-0.10.17%2Bd971670cd.tar.gz' -o /tmp/core.tar.gz
+          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
+          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/cores/core-0.10.17%2Bd971670cd.tar.gz' -o /tmp/core.tar.gz
           sha256sum --check tools/moonbit-linux.sha256
           mkdir -p "$HOME/.moon/lib"
           tar -xzf /tmp/moonbit.tar.gz -C "$HOME/.moon"
@@ -42,8 +42,11 @@ jobs:
       - run: moon test client/typed_list_test.mbt transport/kubeconfig_test.mbt transport/cancellation_test.mbt --target native
       - run: moon test core/budget_test.mbt cache/budget_test.mbt transport/origin_test.mbt controller/deadline_test.mbt watch/adversarial_test.mbt --target native
       - run: moon run scripts/sbom.mbtx -- source-sbom.json
+      - run: moon run scripts/advisories.mbtx
       - run: git diff --no-index -- docs/evidence/source-sbom.json source-sbom.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: source-dependency-inventory
-          path: source-sbom.json
+          path: |
+            source-sbom.json
+            advisory-report.json

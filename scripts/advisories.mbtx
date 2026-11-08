@@ -1,0 +1,35 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/http", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json" }
+----
+
+///|
+fn field(value : Json, key : String) -> Json {
+  match value { Object(fields) => fields.get(key).unwrap_or(Json::null()); _ => Json::null() }
+}
+
+///|
+async fn main {
+  @async.with_timeout(60000, () => {
+    let config = @json.parse(@fs.read_file("toolchain.json").text())
+    guard field(config, "wasmtime") is String(version) else { fail("missing pinned Wasmtime version") }
+    let query : Json = { "package": { "name": "wasmtime", "ecosystem": "crates.io" }, "version": version }
+    let conn = @http.Client("https://api.osv.dev", headers={ "Content-Type": "application/json" })
+    defer conn.close()
+    conn.request(Post, "/v1/query")
+    conn.write(query.stringify())
+    let response = conn.end_request()
+    guard response.code == 200 else { fail("OSV lookup failed; status is unknown") }
+    let result = @json.parse(conn.read_all().text())
+    guard field(result, "next_page_token") == Json::null() else { fail("OSV response incomplete; review pagination") }
+    let ids : Array[Json] = []
+    if field(result, "vulns") is Array(vulns) {
+      for item in vulns {
+        if field(item, "withdrawn") == Json::null() { ids.push(field(item, "id")) }
+      }
+    }
+    let report : Json = { "query": query, "advisory_ids": ids, "coverage": "OSV crates.io Wasmtime version only. Mooncakes packages, SDK, OS, native TLS and binary provenance are outside this query." }
+    @fs.write_file("advisory-report.json", report.stringify(indent=2) + "\n")
+    println(report.stringify())
+    guard ids.is_empty() else { fail("known Wasmtime advisories require review") }
+  })
+}

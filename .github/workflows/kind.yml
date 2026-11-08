@@ -10,8 +10,8 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - name: Install checksum-verified MoonBit SDK
         run: |
-          curl -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
-          curl -fsSL 'https://cli.moonbitlang.com/cores/core-0.10.17%2Bd971670cd.tar.gz' -o /tmp/core.tar.gz
+          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
+          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/cores/core-0.10.17%2Bd971670cd.tar.gz' -o /tmp/core.tar.gz
           sha256sum --check tools/moonbit-linux.sha256
           mkdir -p "$HOME/.moon/lib"
           tar -xzf /tmp/moonbit.tar.gz -C "$HOME/.moon"
@@ -25,7 +25,7 @@ jobs:
       - run: moon update
       - run: moon build cmd/moonapp cmd/manifests tests/cluster_client --target native
       - run: docker build -t moonoperator:dev .
-      - run: curl -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind
+      - run: curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind
       - run: sha256sum --check tools/kind-linux.sha256
       - run: chmod +x /tmp/kind
       - run: /tmp/kind create cluster --name moonoperator-e2e --wait 120s

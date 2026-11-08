@@ -1,0 +1,11 @@
+{
+  "query": {
+    "package": {
+      "name": "wasmtime",
+      "ecosystem": "crates.io"
+    },
+    "version": "50.0.1"
+  },
+  "advisory_ids": [],
+  "coverage": "OSV crates.io Wasmtime version only. Mooncakes packages, SDK, OS, native TLS and binary provenance are outside this query."
+}
