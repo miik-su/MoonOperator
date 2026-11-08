@@ -25,6 +25,7 @@ jobs:
           mkdir -p "$HOME/.moon/lib"
           tar -xzf /tmp/moonbit.tar.gz -C "$HOME/.moon"
           tar -xzf /tmp/core.tar.gz -C "$HOME/.moon/lib"
+          chmod +x "$HOME/.moon/bin/"* "$HOME/.moon/bin/internal/tcc"
           export PATH="$HOME/.moon/bin:$PATH"
           moon -C "$HOME/.moon/lib/core" bundle --warn-list -a --all
       - run: echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
