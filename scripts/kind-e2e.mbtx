@@ -49,7 +49,12 @@ async fn main {
   ignore(kubectl(["apply", "-f", "-"], input=probe.stringify()))
   ignore(kubectl(["wait", "--for=jsonpath={.status.phase}=Succeeded", "pod/client-probe", "--timeout=90s"]))
   let client_report = kubectl(["logs", "pod/client-probe"])
-  @fs.write_file("cluster-client-report.json", client_report)
+  let mut parsed_report : Json = Json::null()
+  for line in client_report.split("\n") {
+    if line.trim().has_prefix("{") { parsed_report = @json.parse(line) }
+  }
+  assert_eq(field(parsed_report, "real_api_crud_patch_paginate_conflict_forbidden_watch"), Json::boolean(true))
+  @fs.write_file("cluster-client-report.json", parsed_report.stringify())
   ignore(kubectl(["apply", "-f", "config/operator.yaml"]))
   ignore(kubectl(["rollout", "status", "deployment/moonoperator", "--timeout=120s"]))
   ignore(kubectl(["apply", "-f", "config/moonapp.yaml"]))

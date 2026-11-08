@@ -191,10 +191,34 @@ pub async fn Client::list_page(
   }
   let meta = @core.field(response.body, "metadata")
   {
-    items: items.map(@core.Resource::from_json),
+    items: items.map(item => decode_list_item(kind, item)),
     resource_version: @core.text(@core.field(meta, "resourceVersion")),
     continue_token: @core.text(@core.field(meta, "continue")),
   }
+}
+
+///|
+/// Built-in typed LIST items may omit TypeMeta. The collection endpoint supplies
+/// their GVK; explicit conflicting type metadata must still be rejected.
+fn decode_list_item(
+  kind : @core.ResourceType,
+  value : Json,
+) -> @core.Resource raise @core.OperatorError {
+  let value = @core.copy_json(value)
+  guard value is Object(fields) else {
+    raise @core.Invalid("LIST item must be object")
+  }
+  if !fields.contains("apiVersion") {
+    fields["apiVersion"] = Json::string(kind.gvk.api_version())
+  }
+  if !fields.contains("kind") {
+    fields["kind"] = Json::string(kind.gvk.kind)
+  }
+  let resource = @core.Resource::from_json(value)
+  if resource.key().gvk != kind.gvk {
+    raise @core.Invalid("LIST item GVK mismatch")
+  }
+  resource
 }
 
 ///|

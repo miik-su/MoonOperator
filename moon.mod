@@ -8,6 +8,10 @@ repository = "https://github.com/miik-su/MoonOperator"
 
 description = "MoonBit-native Kubernetes Operator framework"
 
+readme = "README.md"
+
+keywords = [ "kubernetes", "operator", "controller", "cloud-native" ]
+
 preferred_target = "native"
 
 import {
