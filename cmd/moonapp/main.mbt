@@ -4,12 +4,12 @@ async fn main {
   let ns = @env.get_env_var("MOONOPERATOR_NAMESPACE").unwrap_or("default")
   let metrics = @observability.Metrics::new()
   let logger = @observability.Logger::stdout()
-  let config = match @env.get_env_var("MOONOPERATOR_KUBECONFIG_JSON") {
-    Some(path) =>
-      @transport.Config::from_kubeconfig(
-        @json.parse(@fs.read_file(path).text()),
-        metrics~,
-      )
+  let config_path = match @env.get_env_var("MOONOPERATOR_KUBECONFIG") {
+    Some(path) => Some(path)
+    None => @env.get_env_var("MOONOPERATOR_KUBECONFIG_JSON")
+  }
+  let config = match config_path {
+    Some(path) => @transport.Config::load_kubeconfig(path, metrics~)
     None =>
       match @env.get_env_var("KUBERNETES_SERVICE_HOST") {
         Some(host) =>

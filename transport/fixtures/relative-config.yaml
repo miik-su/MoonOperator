@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Config
+current-context: test
+contexts:
+  - name: test
+    context:
+      cluster: local
+      user: test-user
+clusters:
+  - name: local
+    cluster:
+      server: https://api.example
+      certificate-authority: certs/ca.crt
+users:
+  - name: test-user
+    user:
+      tokenFile: credentials/token

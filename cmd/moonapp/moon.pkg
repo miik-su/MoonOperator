@@ -8,10 +8,8 @@ import {
   "mik1e80/moonoperator/observability",
   "mik1e80/moonoperator/examples/moonapp" @app,
   "moonbitlang/async",
-  "moonbitlang/async/fs",
   "moonbitlang/async/signal",
   "moonbitlang/core/env",
-  "moonbitlang/core/json",
 }
 
 pkgtype(kind: "executable")

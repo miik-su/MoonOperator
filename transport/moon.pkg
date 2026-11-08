@@ -8,6 +8,7 @@ import {
   "moonbitlang/async/fs",
   "moonbitlang/core/json",
   "moonbitlang/core/encoding/utf8",
+  "moonbit-community/yaml",
 }
 
 import {
