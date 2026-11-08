@@ -24,10 +24,14 @@
 | HA / webhooks | Not implemented; single replica deployment contract |
 | Benchmarks / load | Fixed dataset report and 10s fault load probe recorded; long soak/RSS still pending |
 | Package publication | Offline `moon package` succeeds; Mooncakes publication pending |
+| Follow-up security review | Redacted Resource debug, explicit finalizer results, scoped ownership/adoption, mandatory watch RVs, typed capacity failure policy, bounded file/LIST reads and API type validation verified by focused regressions |
+| Container delivery | Release production image excludes probes; separate acceptance image; pinned Ubuntu digest/archive snapshot and recorded package inventory verified in Kind CI |
+| Diagnostics ingress | Local loopback default, explicit cluster interface and NetworkPolicy manifest; traffic enforcement requires a capable CNI and remains unverified in default Kind |
 
 Single cooperative event loop only, not OS-thread-safe sharing. Use separate
 Store instances for independently watched namespaces of the same GVK: replace
 publishes one whole GVK snapshot. Default cache/queue capacity is 10,000 objects.
+Cache and LIST snapshots default to 64 MiB encoded bytes and 1 MiB per object.
 Restart recovery starts from LIST; queue state is not persisted. Retry-After on
 429/503 delays the next Client request; writes are not implicitly replayed.
 Schema is a bounded OpenAPI subset, not a complete OpenAPI validator. CRD generator

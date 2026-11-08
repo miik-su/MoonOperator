@@ -57,9 +57,22 @@ docker build --target production -t moonoperator:dev .
 
 ## 验证范围与未完成发布门槛
 
-本地已运行新增/受影响文件的原生定向回归及 moon check、fmt、info；未运行全量测试。
+本地对下列 10 个文件的汇总定向回归为 **11 个测试全部通过**：
+
+```sh
+moon test core/redaction_test.mbt core/ownership_test.mbt core/validation_test.mbt controller/finalizer_test.mbt examples/moonapp/ownership_test.mbt watch/version_test.mbt runtime/capacity_test.mbt transport/files_wbtest.mbt rbac/rbac_test.mbt client/budget_test.mbt --target native
+```
+
+另运行受影响的分页、队列背压、恢复、路径和生命周期回归及 moon check、fmt、info；未运行全量测试。
 CI 继续验证限定的原生回归、真实 Kind 客户端/生命周期和受限 WASM 探针。
-最终 CI 链接与对应提交会补充到本记录；失败不记为通过。
+包含全部代码与镜像修改的 `21b5cbb` 已通过：
+
+- [原生关键检查](https://github.com/miik-su/MoonOperator/actions/runs/42489317248)：包括本轮定向回归、脱敏历史扫描和依赖检查。
+- [Kind release 镜像验收](https://github.com/miik-su/MoonOperator/actions/runs/42489317303)：生产镜像无探针断言、真实 API 与 MoonApp 生命周期；生成了 runtime-packages.txt。
+- [WASM 探针](https://github.com/miik-su/MoonOperator/actions/runs/42489317200)。
+
+本地 Gitleaks 已检查当时全部 65 个提交，未发现匹配；源码依赖清单重新生成后与已提交文件一致。
+后续文档提交不改变上述代码，检查结果按精确来源提交记录，失败不记为通过。
 
 长期 RSS/soak、更广 Kubernetes/认证矩阵、策略型 CNI 流量验证、完整分发物
 SBOM/OS 漏洞扫描与 Mooncakes 发布仍是已有发布门槛，本轮不宣称达到稳定 1.0。

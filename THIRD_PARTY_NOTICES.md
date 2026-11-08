@@ -9,3 +9,12 @@ MoonBit core/runtime are toolchain components; preserve their notices in binary
 distribution. async uses platform TLS (SChannel or OpenSSL); distributors must
 include the notices appropriate to their selected runtime. Kubernetes client-go
 and controller-runtime are architecture references, not vendored dependencies.
+
+The production container uses the digest-pinned Ubuntu 24.04 base in Dockerfile
+and packages from the dated Ubuntu archive snapshot. The image contains its
+installed package/version inventory at /usr/share/moonoperator-runtime-packages.txt;
+CI retains that inventory. Package copyright/license metadata remains separate
+from this repository's Apache-2.0 source license. The fixed ca-certificates
+bootstrap stage extracts trust data only; runtime CA/TLS packages are installed
+from the pinned snapshot. The example manifest references an external NGINX
+unprivileged image by digest; that image is not vendored into MoonOperator.
