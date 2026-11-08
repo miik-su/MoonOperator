@@ -81,6 +81,9 @@ pub async fn Source::run(
         logger.emit(CacheSynchronized)
       }
       (self.watch)(state.version(), event => {
+        if event is Failure(code) {
+          raise @core.Api(code, "WatchStatusError")
+        }
         if event.resource() is Some(resource) && resource.key().gvk != kind.gvk {
           raise @core.Invalid("watch resource kind mismatch")
         }

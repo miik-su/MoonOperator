@@ -31,4 +31,35 @@ test "byte budget is atomic and stale tombstones preserve accounting" {
   assert_eq(store.bytes(), 0)
   store.apply(Added(other))
   assert_eq(store.bytes(), other.byte_size())
+  let larger = other.with_field("spec", { "extra": "longer data" })
+  assert_true(
+    try store.apply(Modified(larger)) catch {
+      @core.Capacity(_) => true
+      _ => false
+    } noraise {
+      _ => false
+    },
+  )
+  assert_eq(store.bytes(), other.byte_size())
+  assert_eq(store.get(other.key()).unwrap().json(), other.json())
+  let tiny = @cache.Store::new(max_object_bytes=size - 1)
+  assert_true(
+    try tiny.replace(r.key().gvk, [r]) catch {
+      @core.Capacity(_) => true
+      _ => false
+    } noraise {
+      _ => false
+    },
+  )
+  assert_eq(tiny.bytes(), 0)
+  assert_false(tiny.ready(r.key().gvk))
+  let invalid = @cache.Store::new(max_bytes=-1)
+  assert_true(
+    try invalid.replace(r.key().gvk, []) catch {
+      @core.Invalid(_) => true
+      _ => false
+    } noraise {
+      _ => false
+    },
+  )
 }

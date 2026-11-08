@@ -12,7 +12,11 @@ async test "finalizer is retained on failed cleanup and removed after success" {
     @core.Resource::from_json({
       "apiVersion": "demo.dev/v1",
       "kind": "App",
-      "metadata": { "name": "x", "namespace": "demo" },
+      "metadata": {
+        "name": "x",
+        "namespace": "demo",
+        "finalizers": ["other.dev/cleanup"],
+      },
     }),
   )
   assert_false(
@@ -67,5 +71,8 @@ async test "finalizer is retained on failed cleanup and removed after success" {
   )
   assert_false(
     client.get(kind, "demo", "x").finalizers().contains("demo.dev/cleanup"),
+  )
+  assert_true(
+    client.get(kind, "demo", "x").finalizers().contains("other.dev/cleanup"),
   )
 }

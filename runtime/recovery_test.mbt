@@ -25,7 +25,7 @@ async test "informer relists after expired RV and fails closed on forbidden" {
       versions.push(rv)
       if versions.length() == 1 {
         on_event(Bookmark("bookmark-rv"))
-        raise @core.Api(410, "Expired")
+        on_event(Failure(410))
       }
       raise @core.Api(403, "Forbidden")
     },
@@ -41,5 +41,33 @@ async test "informer relists after expired RV and fails closed on forbidden" {
   assert_true(forbidden)
   assert_eq(lists.val, 2)
   assert_eq(versions, ["list-1", "list-2"])
+  assert_false(store.ready(kind.gvk))
+}
+
+///|
+async test "permanent LIST errors terminate without reconnect loops" {
+  let kind : @core.ResourceType = {
+    gvk: { group: "", version: "v1", kind: "Pod", },
+    plural: "pods",
+    scope: Namespaced,
+  }
+  let attempts = Ref(0)
+  let source = @runtime.Source::new(
+    () => {
+      attempts.val += 1
+      raise @core.Api(400, "bad selector")
+    },
+    (_, _) => fail("watch must not start"),
+  )
+  let store = @cache.Store::new()
+  assert_true(
+    try source.run(kind, store, @queue.Queue::new()) catch {
+      @core.Api(400, _) => true
+      _ => false
+    } noraise {
+      _ => false
+    },
+  )
+  assert_eq(attempts.val, 1)
   assert_false(store.ready(kind.gvk))
 }
