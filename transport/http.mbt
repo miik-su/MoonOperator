@@ -77,7 +77,9 @@ pub async fn Config::send(
         }
       }
     }
-    let body = if bytes.length() == 0 {
+    let body = if bytes.length() == 0 ||
+      response.code < 200 ||
+      response.code >= 300 {
       Json::null()
     } else {
       @json.parse(
@@ -92,7 +94,7 @@ pub async fn Config::send(
           _ => None
         } noraise {
           Number(n, ..) =>
-            if n >= 0.0 && n <= 3600.0 {
+            if n == n.floor() && n >= 0.0 && n <= 3600.0 {
               Some(n.to_int())
             } else {
               None
