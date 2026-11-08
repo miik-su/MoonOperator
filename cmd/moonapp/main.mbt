@@ -44,6 +44,8 @@ async fn main {
         () => store.ready(@app.app_type.gvk),
         () => queue.length(),
         metrics~,
+        cache_objects=() => store.length(),
+        cache_bytes=() => store.bytes(),
       )
     })
     group.spawn_bg(() => {

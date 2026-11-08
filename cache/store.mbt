@@ -34,6 +34,18 @@ pub fn Store::bytes(self : Store) -> Int32 {
 }
 
 ///|
+pub fn Store::length(self : Store) -> Int32 {
+  self.objects.length()
+}
+
+///|
+fn Store::validate_budget(self : Store) -> Unit raise @core.OperatorError {
+  if self.capacity < 0 || self.max_bytes < 0 || self.max_object_bytes < 0 {
+    raise @core.Invalid("cache budgets must be nonnegative")
+  }
+}
+
+///|
 pub fn Store::ready(self : Store, gvk : @core.GVK) -> Bool {
   self.synced.get(gvk).unwrap_or(false)
 }
@@ -50,6 +62,7 @@ pub fn Store::replace(
   gvk : @core.GVK,
   items : Array[@core.Resource],
 ) -> Unit raise @core.OperatorError {
+  self.validate_budget()
   let staged : Map[@core.Key, @core.Resource] = Map([])
   let sizes : Map[@core.Key, Int32] = Map([])
   let mut total = 0
@@ -116,6 +129,7 @@ pub fn Store::apply(
   self : Store,
   event : @watch.Event,
 ) -> Unit raise @core.OperatorError {
+  self.validate_budget()
   match event {
     Added(r) | Modified(r) => {
       let size = r.byte_size(max_bytes=self.max_object_bytes)
