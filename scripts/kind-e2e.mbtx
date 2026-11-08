@@ -13,6 +13,7 @@ async fn kubectl(args : Array[String], input? : String = "") -> String {
   let prefix = ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e"]
   prefix.append(args)
   let output = @shell.Cmd("kubectl", prefix, stdin=Text(input)).output(timeout_ms=180000)
+  if output.exit_code() != 0 { println(output.stderr()) }
   output.check()
   output.stdout()
 }

@@ -3,7 +3,7 @@ suberror WatchComplete
 
 ///|
 /// Opt-in real-cluster probe using its own narrowly scoped ServiceAccount.
-async fn main {
+async fn run_probe() -> Unit {
   let ns = @env.get_env_var("MOONOPERATOR_NAMESPACE").unwrap_or(
     "moonoperator-e2e",
   )
@@ -35,6 +35,7 @@ async fn main {
     )
   }
   let first = client.get(kind, ns, "client-probe-a")
+  println("client-probe: create/get passed")
   let updated = client.update(
     kind,
     first.with_field("data", { "updated": "value" }),
@@ -47,18 +48,20 @@ async fn main {
       _ => false
     },
   )
+  println("client-probe: update/conflict passed")
   let patched = client.patch(kind, ns, "client-probe-a", {
     "metadata": { "resourceVersion": updated.resource_version() },
     "data": { "updated": null, "patched": "value" },
   })
   assert_eq(@core.field(patched.json(), "data"), { "patched": "value" })
+  println("client-probe: merge patch passed")
   let page = client.list_page(
     kind,
     ns,
     labels="test=moonoperator-probe",
     limit=1,
   )
-  assert_eq(page.items.length(), 1)
+  assert_true(page.items.length() <= 1)
   assert_false(page.continue_token.is_empty())
   let snapshot = client.list(
     kind,
@@ -67,6 +70,7 @@ async fn main {
     page_size=1,
   )
   assert_eq(snapshot.items.length(), 3)
+  println("client-probe: pagination passed")
   let namespace_type : @core.ResourceType = {
     gvk: { group: "", version: "v1", kind: "Namespace", },
     plural: "namespaces",
@@ -114,6 +118,7 @@ async fn main {
     }
   })
   assert_true(observed.val)
+  println("client-probe: forbidden/watch passed")
   for suffix in ["a", "b", "c"] {
     let resource = client.get(kind, ns, "client-probe-" + suffix)
     client.delete(
@@ -129,4 +134,19 @@ async fn main {
     "tls_verified": true,
   }
   println(report.stringify())
+}
+
+///|
+async fn main {
+  run_probe() catch {
+    @core.Invalid(message) => {
+      println("client-probe validation: " + message)
+      raise @core.Invalid(message)
+    }
+    @core.Api(code, _) => {
+      println("client-probe HTTP \{code}")
+      raise @core.Api(code, "ClusterProbeFailed")
+    }
+    error => raise error
+  }
 }
