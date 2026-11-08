@@ -1,0 +1,49 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+----
+
+///|
+fn field(value : Json, key : String) -> Json {
+  match value { Object(fields) => fields.get(key).unwrap_or(Json::null()); _ => Json::null() }
+}
+
+///|
+async fn main {
+  let result = @shell.Cmd("moon", ["tree", "--json"], stdout=Capture).output()
+  result.check()
+  let tree = @json.parse(result.stdout())
+  guard field(tree, "status") == Json::string("success") else { fail("dependency resolution failed") }
+  guard field(tree, "modules") is Array(modules) else { fail("missing module graph") }
+  let expected : Map[String, (String, String)] = {
+    "mik1e80/moonoperator": ("0.1.0", "Apache-2.0"),
+    "moonbitlang/async": ("0.22.5", "Apache-2.0"),
+    "moonbit-community/yaml": ("0.0.8", "MIT"),
+  }
+  guard modules.length() == expected.length() else { fail("review new dependencies before updating inventory") }
+  let components : Array[Json] = []
+  let dependencies : Array[Json] = []
+  for index, entry in modules {
+    guard field(entry, "name") is String(name) else { fail("missing module name") }
+    guard expected.get(name) is Some((version, license)) else { fail("unreviewed dependency") }
+    guard field(entry, "version") == Json::string(version) else { fail("dependency version changed") }
+    let path = if index == 0 { "moon.mod" } else { ".mooncakes/" + name + "/moon.mod" }
+    let manifest = @fs.read_file(path).text()
+    guard manifest.contains("license = \"" + license + "\"") else { fail("review dependency license change") }
+    components.push({ "type": "library", "bom-ref": name, "name": name, "version": version, "purl": "pkg:generic/" + name + "@" + version, "licenses": [{ "license": { "id": license } }] })
+    let children : Array[String] = []
+    if field(tree, "edges") is Array(edges) {
+      for edge in edges {
+        if field(edge, "from") == Json::number(index.to_double()) {
+          guard field(edge, "name") is String(child) else { fail("missing edge name") }
+          children.push(child)
+        }
+      }
+    }
+    dependencies.push({ "ref": name, "dependsOn": children })
+  }
+  let bom : Json = { "bomFormat": "CycloneDX", "specVersion": "1.6", "version": 1, "components": components, "dependencies": dependencies, "metadata": { "properties": [{ "name": "moonoperator:scope", "value": "Resolved Mooncakes source modules only; excludes SDK/runtime, platform TLS, container OS and optional Wasmtime executable." }] } }
+  let args = @env.args()
+  let output = if args.length() > 1 { args[1] } else { "source-sbom.json" }
+  @fs.write_file(output, bom.stringify(indent=2) + "\n")
+  println("Wrote reviewed source dependency inventory to " + output)
+}
