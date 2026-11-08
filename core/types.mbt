@@ -199,6 +199,7 @@ pub fn Registry::register(
   self : Registry,
   resource_type : ResourceType,
 ) -> Unit raise OperatorError {
+  resource_type.validate()
   if self.types.contains(resource_type.gvk) {
     raise Invalid("duplicate GVK registration")
   }

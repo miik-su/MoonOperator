@@ -7,6 +7,8 @@ import {
 }
 
 // Values
+pub fn api_group_valid(String) -> Bool
+
 pub fn conditions_upsert(Json, Json) -> Json raise OperatorError
 
 pub fn copy_json(Json) -> Json
@@ -105,6 +107,7 @@ pub fn ResourceType::equal(Self, Self) -> Bool
 pub fn ResourceType::not_equal(Self, Self) -> Bool
 #deprecated
 pub fn ResourceType::to_repr(Self) -> @debug.Repr
+pub fn ResourceType::validate(Self) -> Unit raise OperatorError
 
 pub(all) enum Scope {
   Namespaced

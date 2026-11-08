@@ -68,6 +68,7 @@ pub fn collection_path(
   kind : @core.ResourceType,
   ns : String,
 ) -> String raise @core.OperatorError {
+  kind.validate()
   let prefix = if kind.gvk.group.is_empty() {
     "/api/"
   } else {

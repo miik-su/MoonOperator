@@ -18,10 +18,10 @@ pub fn manifests(
   }
   let encoded : Array[Json] = []
   for rule in rules {
-    if rule.group == "*" ||
+    if !@core.api_group_valid(rule.group) ||
       rule.resources.is_empty() ||
       rule.verbs.is_empty() ||
-      rule.resources.any(r => r.contains("*")) {
+      rule.resources.any(r => r.is_empty() || r.contains("*")) {
       raise @core.Invalid("explicit API groups and resources required")
     }
     for verb in rule.verbs {

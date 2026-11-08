@@ -36,6 +36,8 @@ pub fn Resource::controlled_by(
   dependent_type~ : ResourceType,
   owner_type~ : ResourceType,
 ) -> Resource raise OperatorError {
+  dependent_type.validate()
+  owner_type.validate()
   let uid = text(field(owner.metadata(), "uid"))
   if uid.is_empty() ||
     self.key().gvk != dependent_type.gvk ||
