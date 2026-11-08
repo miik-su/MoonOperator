@@ -16,6 +16,31 @@ async test "MoonApp creates children idempotently and repairs deployment drift" 
   ignore(@moonapp.reconcile(client, app.key()))
   assert_eq(fake.write_count(), writes)
   let deployment = client.get(@moonapp.deployment_type, "demo", "demo")
+  let pod = @core.field(
+    @core.field(@core.field(deployment.json(), "spec"), "template"),
+    "spec",
+  )
+  assert_eq(
+    @core.field(@core.field(pod, "securityContext"), "runAsNonRoot"),
+    true,
+  )
+  guard @core.field(pod, "containers") is Array(containers) else {
+    fail("missing containers")
+  }
+  assert_eq(
+    @core.field(
+      @core.field(containers[0], "securityContext"),
+      "allowPrivilegeEscalation",
+    ),
+    false,
+  )
+  assert_eq(
+    @core.field(
+      @core.field(@core.field(containers[0], "resources"), "limits"),
+      "memory",
+    ),
+    "128Mi",
+  )
   let spec = @core.field(deployment.json(), "spec")
   if spec is Object(fields) {
     fields["replicas"] = Json::number(1.0)

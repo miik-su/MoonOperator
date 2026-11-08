@@ -67,10 +67,22 @@ pub fn desired(
       "template": {
         "metadata": { "labels": labels },
         "spec": {
+          "securityContext": {
+            "runAsNonRoot": true,
+            "seccompProfile": { "type": "RuntimeDefault" },
+          },
           "containers": [
             {
               "name": "app",
               "image": image,
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "capabilities": { "drop": ["ALL"] },
+              },
+              "resources": {
+                "requests": { "cpu": "50m", "memory": "32Mi" },
+                "limits": { "cpu": "500m", "memory": "128Mi" },
+              },
               "ports": [{ "containerPort": @core.field(spec, "port") }],
             },
           ],
