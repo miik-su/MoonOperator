@@ -35,7 +35,7 @@ pub struct Parser {
 }
 pub fn Parser::feed(Self, Bytes) -> Array[Event] raise
 pub fn Parser::finish(Self) -> Unit raise @core.OperatorError
-pub fn Parser::new(max_event_bytes? : Int32) -> Self
+pub fn Parser::new(max_event_bytes? : Int32) -> Self raise @core.OperatorError
 
 pub struct State {
   mut rv : String
@@ -47,6 +47,7 @@ pub fn State::disconnected(Self, Int32, Int32) -> Int32
 pub fn State::listed(Self, String) -> Unit raise @core.OperatorError
 pub fn State::needs_list(Self) -> Bool
 pub fn State::new() -> Self
+pub fn State::require_list(Self) -> Unit
 pub fn State::version(Self) -> String
 
 // Type aliases

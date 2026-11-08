@@ -21,6 +21,12 @@ pub fn State::version(self : State) -> String {
 }
 
 ///|
+pub fn State::require_list(self : State) -> Unit {
+  self.rv = ""
+  self.relist = true
+}
+
+///|
 /// Only a successfully installed complete LIST may unlock watching.
 pub fn State::listed(
   self : State,
@@ -47,8 +53,7 @@ pub fn State::checkpoint(self : State, event : Event) -> Unit {
 /// Capped exponential delay with caller-supplied random sample in 0..1000.
 pub fn State::disconnected(self : State, code : Int32, jitter : Int32) -> Int32 {
   if code == 410 {
-    self.rv = ""
-    self.relist = true
+    self.require_list()
   }
   let exponent = if self.failures > 8 { 8 } else { self.failures }
   let base = 100 * (1 << exponent)
@@ -111,6 +116,7 @@ pub async fn stream(
       Some(chunk) =>
         for
           event in (parser.feed(chunk) catch {
+            @core.Capacity(reason) => raise @core.Capacity(reason)
             _ => raise @core.Invalid("malformed watch record")
           }) {
           match event {

@@ -39,7 +39,7 @@ pub fn Source::new(
 async fn enqueue(queue : @queue.Queue, key : @core.Key) -> Unit {
   for ;; {
     let accepted = try queue.add(key) catch {
-      @core.Capacity(_) => false
+      @core.QueueCapacity(_) => false
       error => raise error
     } noraise {
       _ => true
@@ -62,7 +62,10 @@ pub async fn Source::run(
   logger~ : @observability.Logger = @observability.Logger::silent(),
 ) -> Unit {
   let state = @watch.State::new()
+  let mut malformed = 0
   for ;; {
+    let mut watching = false
+    let mut relist = false
     let code = try {
       if state.needs_list() {
         metrics.increment("watch_relist")
@@ -80,12 +83,17 @@ pub async fn Source::run(
         state.listed(snapshot.resource_version)
         logger.emit(CacheSynchronized)
       }
+      watching = true
       (self.watch)(state.version(), event => {
         if event is Failure(code) {
           raise @core.Api(code, "WatchStatusError")
         }
         if event.resource() is Some(resource) && resource.key().gvk != kind.gvk {
           raise @core.Invalid("watch resource kind mismatch")
+        }
+        if event.resource() is Some(resource) &&
+          resource.resource_version().is_empty() {
+          raise @core.Invalid("watch resourceVersion required")
         }
         let previous = event
           .resource()
@@ -96,12 +104,27 @@ pub async fn Source::run(
           enqueue(queue, resource.key())
         }
         state.checkpoint(event)
+        malformed = 0
       })
       0
     } catch {
       @core.Api(code, _) => code
-      @core.Capacity(_) => 410
-      @core.Invalid(_) => 410
+      @core.Invalid(_) as error => {
+        malformed += 1
+        if !watching || malformed >= 3 {
+          store.invalidate(kind.gvk)
+          raise error
+        }
+        relist = true
+        0
+      }
+      @core.Capacity(_)
+      | @core.CacheCapacity(_)
+      | @core.ListCapacity(_)
+      | @core.QueueCapacity(_) as error => {
+        store.invalidate(kind.gvk)
+        raise error
+      }
       _ => 0
     }
     if code != 0 && code != 410 && !@core.retryable(code) {
@@ -110,6 +133,10 @@ pub async fn Source::run(
     }
     if code == 410 {
       store.invalidate(kind.gvk)
+    }
+    if relist {
+      store.invalidate(kind.gvk)
+      state.require_list()
     }
     let sample = match @env.rand(1) {
       Some(bytes) => bytes[0].to_int() * 1000 / 255

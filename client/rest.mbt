@@ -237,7 +237,7 @@ pub async fn Client::list(
   let seen : Map[String, Bool] = Map([])
   for token = "", version = "", pages = 0 {
     if pages >= 1000 {
-      raise @core.Capacity("LIST page limit")
+      raise @core.ListCapacity("LIST page limit")
     }
     let page = self.list_page(
       kind,
@@ -252,7 +252,7 @@ pub async fn Client::list(
       raise @core.Invalid("LIST snapshot resourceVersion changed or missing")
     }
     if items.length() + page.items.length() > max_items {
-      raise @core.Capacity("LIST object limit")
+      raise @core.ListCapacity("LIST object limit")
     }
     items.append(page.items)
     if page.continue_token.is_empty() {

@@ -47,7 +47,11 @@ pub async fn Controller::step(self : Controller, now : Int64) -> Bool {
       }
       self.logger.emit(ReconcileFailure, code~)
       match error {
-        @core.Invalid(_) | @core.Capacity(_) => Terminal
+        @core.Invalid(_)
+        | @core.Capacity(_)
+        | @core.CacheCapacity(_)
+        | @core.QueueCapacity(_)
+        | @core.ListCapacity(_) => Terminal
         @core.Api(code, _) =>
           if @core.retryable(code) {
             Retry

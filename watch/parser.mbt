@@ -15,7 +15,12 @@ pub struct Parser {
 }
 
 ///|
-pub fn Parser::new(max_event_bytes~ : Int32 = 1048576) -> Parser {
+pub fn Parser::new(
+  max_event_bytes~ : Int32 = 1048576,
+) -> Parser raise @core.OperatorError {
+  if max_event_bytes <= 0 {
+    raise @core.Invalid("watch capacity must be positive")
+  }
   { pending: Buffer(), max_event_bytes, }
 }
 
@@ -55,9 +60,9 @@ pub fn Parser::finish(self : Parser) -> Unit raise @core.OperatorError {
 fn decode_event(value : Json) -> Event raise @core.OperatorError {
   let object = @core.field(value, "object")
   match @core.text(@core.field(value, "type")) {
-    "ADDED" => Added(@core.Resource::from_json(object))
-    "MODIFIED" => Modified(@core.Resource::from_json(object))
-    "DELETED" => Deleted(@core.Resource::from_json(object))
+    "ADDED" => Added(watched_resource(object))
+    "MODIFIED" => Modified(watched_resource(object))
+    "DELETED" => Deleted(watched_resource(object))
     "BOOKMARK" => {
       let rv = match
         @core.field(@core.field(object, "metadata"), "resourceVersion") {
@@ -81,6 +86,15 @@ fn decode_event(value : Json) -> Event raise @core.OperatorError {
       }
     _ => raise @core.Invalid("unknown watch event type")
   }
+}
+
+///|
+fn watched_resource(value : Json) -> @core.Resource raise @core.OperatorError {
+  let resource = @core.Resource::from_json(value)
+  if resource.resource_version().is_empty() {
+    raise @core.Invalid("watch resourceVersion required")
+  }
+  resource
 }
 
 ///|

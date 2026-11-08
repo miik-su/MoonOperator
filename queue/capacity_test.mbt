@@ -1,5 +1,15 @@
 ///|
 test "capacity counts distinct keys and due timers never discard admitted work" {
+  for capacity in [0, -1] {
+    assert_true(
+      try @queue.Queue::new(capacity~) catch {
+        @core.Invalid(_) => true
+        _ => false
+      } noraise {
+        _ => false
+      },
+    )
+  }
   let a : @core.Key = {
     gvk: { group: "", version: "v1", kind: "Pod", },
     ns: "",
@@ -15,7 +25,7 @@ test "capacity counts distinct keys and due timers never discard admitted work" 
   assert_eq(q.pending(), 2)
   assert_true(
     try q.add(c) catch {
-      @core.Capacity(_) => true
+      @core.QueueCapacity(_) => true
       _ => false
     } noraise {
       _ => false

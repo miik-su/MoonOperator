@@ -46,6 +46,17 @@ fn Store::validate_budget(self : Store) -> Unit raise @core.OperatorError {
 }
 
 ///|
+fn Store::resource_size(
+  self : Store,
+  resource : @core.Resource,
+) -> Int32 raise @core.OperatorError {
+  resource.byte_size(max_bytes=self.max_object_bytes) catch {
+    @core.Capacity(reason) => raise @core.CacheCapacity(reason)
+    error => raise error
+  }
+}
+
+///|
 pub fn Store::ready(self : Store, gvk : @core.GVK) -> Bool {
   self.synced.get(gvk).unwrap_or(false)
 }
@@ -78,16 +89,16 @@ pub fn Store::replace(
     if resource.key().gvk != gvk {
       raise @core.Invalid("snapshot kind mismatch")
     }
-    let size = resource.byte_size(max_bytes=self.max_object_bytes)
+    let size = self.resource_size(resource)
     let previous = sizes.get(resource.key()).unwrap_or(0)
     if size > self.max_bytes - (total - previous) {
-      raise @core.Capacity("cache byte capacity")
+      raise @core.CacheCapacity("cache byte capacity")
     }
     total = total - previous + size
     sizes[resource.key()] = size
     staged[resource.key()] = resource
     if staged.length() > self.capacity {
-      raise @core.Capacity("cache capacity")
+      raise @core.CacheCapacity("cache capacity")
     }
   }
   self.objects = staged
@@ -132,14 +143,14 @@ pub fn Store::apply(
   self.validate_budget()
   match event {
     Added(r) | Modified(r) => {
-      let size = r.byte_size(max_bytes=self.max_object_bytes)
+      let size = self.resource_size(r)
       let previous = self.sizes.get(r.key()).unwrap_or(0)
       if size > self.max_bytes - (self.used_bytes - previous) {
-        raise @core.Capacity("cache byte capacity")
+        raise @core.CacheCapacity("cache byte capacity")
       }
       if !self.objects.contains(r.key()) &&
         self.objects.length() >= self.capacity {
-        raise @core.Capacity("cache capacity")
+        raise @core.CacheCapacity("cache capacity")
       }
       self.objects[r.key()] = r
       self.sizes[r.key()] = size

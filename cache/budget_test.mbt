@@ -34,7 +34,7 @@ test "byte budget is atomic and stale tombstones preserve accounting" {
   let larger = other.with_field("spec", { "extra": "longer data" })
   assert_true(
     try store.apply(Modified(larger)) catch {
-      @core.Capacity(_) => true
+      @core.CacheCapacity(_) => true
       _ => false
     } noraise {
       _ => false
@@ -45,7 +45,7 @@ test "byte budget is atomic and stale tombstones preserve accounting" {
   let tiny = @cache.Store::new(max_object_bytes=size - 1)
   assert_true(
     try tiny.replace(r.key().gvk, [r]) catch {
-      @core.Capacity(_) => true
+      @core.CacheCapacity(_) => true
       _ => false
     } noraise {
       _ => false

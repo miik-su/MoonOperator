@@ -26,7 +26,7 @@ pub fn Queue::done(Self, @core.Key) -> Unit
 pub fn Queue::forget(Self, @core.Key) -> Unit
 pub fn Queue::get(Self, Int64) -> @core.Key? raise @core.OperatorError
 pub fn Queue::length(Self) -> Int32
-pub fn Queue::new(capacity? : Int32) -> Self
+pub fn Queue::new(capacity? : Int32) -> Self raise @core.OperatorError
 pub fn Queue::pending(Self) -> Int32
 pub fn Queue::retry(Self, @core.Key, Int64) -> Int32 raise @core.OperatorError
 pub fn Queue::shutdown(Self) -> Unit

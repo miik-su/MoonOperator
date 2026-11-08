@@ -5,6 +5,9 @@ pub(all) suberror OperatorError {
   Invalid(String)
   Api(Int32, String)
   Capacity(String)
+  CacheCapacity(String)
+  QueueCapacity(String)
+  ListCapacity(String)
   Transport(String)
 } derive(Debug)
 

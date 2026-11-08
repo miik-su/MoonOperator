@@ -12,7 +12,10 @@ pub struct Queue {
 }
 
 ///|
-pub fn Queue::new(capacity~ : Int32 = 10000) -> Queue {
+pub fn Queue::new(capacity~ : Int32 = 10000) -> Queue raise @core.OperatorError {
+  if capacity <= 0 {
+    raise @core.Invalid("queue capacity must be positive")
+  }
   {
     admitted: Map([]),
     dirty: Map([]),
@@ -37,7 +40,7 @@ pub fn Queue::add(
     return
   }
   if !self.admitted.contains(key) && self.admitted.length() >= self.capacity {
-    raise @core.Capacity("workqueue capacity")
+    raise @core.QueueCapacity("workqueue capacity")
   }
   self.delayed.remove(key)
   self.admitted[key] = true
@@ -100,7 +103,7 @@ pub fn Queue::add_after(
     return
   }
   if !self.admitted.contains(key) && self.admitted.length() >= self.capacity {
-    raise @core.Capacity("delayed queue capacity")
+    raise @core.QueueCapacity("delayed queue capacity")
   }
   self.admitted[key] = true
   match self.delayed.get(key) {
