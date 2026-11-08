@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "mik1e80/moonoperator/wasm"
+
+import {
+  "mik1e80/moonoperator/core",
+}
+
+// Values
+
+// Errors
+pub(all) suberror PluginError {
+  ModuleLoad
+  GuestTrap
+  FuelExhausted
+  MemoryLimit
+  Deadline
+  InvalidAbi
+  InvalidResult
+}
+
+// Types and methods
+pub struct Host {
+  executable : String
+  module_path : String
+  fuel : Int32
+  memory_bytes : Int32
+  timeout_ms : Int32
+}
+pub fn Host::new(String, String, fuel? : Int32, memory_bytes? : Int32, timeout_ms? : Int32) -> Self raise @core.OperatorError
+pub async fn Host::validate(Self, Json) -> Json
+
+// Type aliases
+
+// Traits

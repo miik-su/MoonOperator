@@ -1,0 +1,9 @@
+import {
+  "mik1e80/moonoperator/core",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/shell",
+  "moonbitlang/core/json",
+}
+
+supported_targets = "native+wasm"

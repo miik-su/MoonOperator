@@ -1,0 +1,25 @@
+name: Experimental WASM host probe
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  wasm-host:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/install-moonbit.sh
+      - run: bash /tmp/install-moonbit.sh '0.10.17+d971670cd'
+      - run: echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y libssl-dev
+      - run: moon update
+      - run: curl -fsSL https://github.com/bytecodealliance/wasmtime/releases/download/v50.0.1/wasmtime-v50.0.1-x86_64-linux.tar.xz -o /tmp/wasmtime.tar.xz
+      - run: sha256sum --check tools/wasmtime-linux.sha256
+      - run: tar -xJf /tmp/wasmtime.tar.xz -C /tmp
+      - run: moon build examples/wasm_validator --target wasm
+      - run: moon run tests/wasm_host --target native -- /tmp/wasmtime-v50.0.1-x86_64-linux/wasmtime _build/wasm/debug/build/examples/wasm_validator/wasm_validator.wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasm-host-evidence
+          path: wasm-host-report.json

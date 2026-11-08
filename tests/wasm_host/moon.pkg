@@ -1,0 +1,11 @@
+import {
+  "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/wasm",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")
+
+supported_targets = "native+wasm"
