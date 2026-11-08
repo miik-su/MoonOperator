@@ -25,7 +25,7 @@ pub async fn Client::create(Self, @core.ResourceType, @core.Resource) -> @core.R
 pub async fn Client::delete(Self, @core.ResourceType, String, String, uid? : String) -> Unit
 pub async fn Client::execute(Self, Request) -> Response
 pub async fn Client::get(Self, @core.ResourceType, String, String) -> @core.Resource
-pub async fn Client::list(Self, @core.ResourceType, String, labels? : String, fields? : String, max_items? : Int32, page_size? : Int32) -> ResourceList
+pub async fn Client::list(Self, @core.ResourceType, String, labels? : String, fields? : String, max_items? : Int32, page_size? : Int32, max_bytes? : Int32, max_object_bytes? : Int32) -> ResourceList
 pub async fn Client::list_page(Self, @core.ResourceType, String, continue_token? : String, labels? : String, fields? : String, limit? : Int32) -> ResourceList
 pub fn Client::new(async (Request) -> Response) -> Self
 pub async fn Client::patch(Self, @core.ResourceType, String, String, Json, status? : Bool) -> @core.Resource

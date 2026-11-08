@@ -233,9 +233,15 @@ pub async fn Client::list(
   fields~ : String = "",
   max_items~ : Int32 = 10000,
   page_size~ : Int32 = 500,
+  max_bytes~ : Int32 = 67108864,
+  max_object_bytes~ : Int32 = 1048576,
 ) -> ResourceList {
+  if max_items <= 0 || page_size <= 0 || max_bytes <= 0 || max_object_bytes <= 0 {
+    raise @core.Invalid("LIST budgets must be positive")
+  }
   let items : Array[@core.Resource] = []
   let seen : Map[String, Bool] = Map([])
+  let mut retained = 0
   for token = "", version = "", pages = 0 {
     if pages >= 1000 {
       raise @core.ListCapacity("LIST page limit")
@@ -254,6 +260,16 @@ pub async fn Client::list(
     }
     if items.length() + page.items.length() > max_items {
       raise @core.ListCapacity("LIST object limit")
+    }
+    for resource in page.items {
+      let size = resource.byte_size(max_bytes=max_object_bytes) catch {
+        @core.Capacity(_) => raise @core.ListCapacity("LIST object byte limit")
+        error => raise error
+      }
+      if size > max_bytes - retained {
+        raise @core.ListCapacity("LIST snapshot byte limit")
+      }
+      retained += size
     }
     items.append(page.items)
     if page.continue_token.is_empty() {
