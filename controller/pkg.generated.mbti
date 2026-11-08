@@ -9,7 +9,7 @@ import {
 }
 
 // Values
-pub async fn finalize(@client.Client, @core.ResourceType, @core.Resource, String, async (@core.Resource) -> Bool) -> Bool
+pub async fn finalize(@client.Client, @core.ResourceType, @core.Resource, String, async (@core.Resource) -> Bool, cleanup_timeout_ms? : Int32) -> Bool
 
 // Errors
 
@@ -20,8 +20,9 @@ pub struct Controller {
   metrics : @observability.Metrics
   logger : @observability.Logger
   mut stopped : Bool
+  timeout_ms : Int32
 }
-pub fn Controller::new(@queue.Queue, async (@core.Key) -> Outcome, metrics? : @observability.Metrics, logger? : @observability.Logger) -> Self
+pub fn Controller::new(@queue.Queue, async (@core.Key) -> Outcome, metrics? : @observability.Metrics, logger? : @observability.Logger, timeout_ms? : Int32) -> Self
 pub async fn Controller::run(Self, () -> Bool, workers? : Int32) -> Unit
 pub async fn Controller::step(Self, Int64) -> Bool
 pub fn Controller::stop(Self) -> Unit
@@ -40,6 +41,7 @@ pub(all) enum Outcome {
   Complete
   RequeueAfter(Int32)
   Retry
+  Terminal
 }
 
 type Registration

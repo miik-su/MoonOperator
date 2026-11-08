@@ -40,6 +40,28 @@ async test "finalizer is retained on failed cleanup and removed after success" {
   assert_true(
     client.get(kind, "demo", "x").finalizers().contains("demo.dev/cleanup"),
   )
+  assert_true(
+    try
+      @controller.finalize(
+        client,
+        kind,
+        deleting,
+        "demo.dev/cleanup",
+        _ => {
+          @async.sleep(10000)
+          true
+        },
+        cleanup_timeout_ms=10,
+      )
+    catch {
+      _ => true
+    } noraise {
+      _ => false
+    },
+  )
+  assert_true(
+    client.get(kind, "demo", "x").finalizers().contains("demo.dev/cleanup"),
+  )
   assert_false(
     @controller.finalize(client, kind, deleting, "demo.dev/cleanup", _ => true),
   )

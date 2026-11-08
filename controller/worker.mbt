@@ -3,6 +3,7 @@ pub(all) enum Outcome {
   Complete
   RequeueAfter(Int32)
   Retry
+  Terminal
 }
 
 ///|
@@ -12,6 +13,7 @@ pub struct Controller {
   metrics : @observability.Metrics
   logger : @observability.Logger
   mut stopped : Bool
+  timeout_ms : Int32
 }
 
 ///|
@@ -20,30 +22,51 @@ pub fn Controller::new(
   reconcile : async (@core.Key) -> Outcome,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
   logger~ : @observability.Logger = @observability.Logger::silent(),
+  timeout_ms~ : Int32 = 30000,
 ) -> Controller {
-  { queue, reconcile, metrics, logger, stopped: false, }
+  { queue, reconcile, metrics, logger, stopped: false, timeout_ms, }
 }
 
 ///|
 /// Release each claimed key on both normal completion and failure.
 pub async fn Controller::step(self : Controller, now : Int64) -> Bool {
+  if self.timeout_ms <= 0 {
+    raise @core.Invalid("reconcile deadline must be positive")
+  }
   guard self.queue.get(now) is Some(key) else { return false }
   defer self.queue.done(key)
   let started = @async.now()
-  let result = (self.reconcile)(key) catch {
+  let mut failed = false
+  let result = @async.with_timeout(self.timeout_ms, () => (self.reconcile)(key)) catch {
     error => {
+      failed = true
       self.metrics.increment("reconcile_failure")
       let code = match error {
         @core.Api(code, _) => code
         _ => 0
       }
       self.logger.emit(ReconcileFailure, code~)
-      Retry
+      match error {
+        @core.Invalid(_) | @core.Capacity(_) => Terminal
+        @core.Api(code, _) =>
+          if @core.retryable(code) {
+            Retry
+          } else {
+            Terminal
+          }
+        _ => Retry
+      }
     }
   }
   let finished = now + (@async.now() - started)
   self.metrics.observe("reconcile", finished - now)
   match result {
+    Terminal => {
+      if !failed {
+        self.metrics.increment("reconcile_failure")
+      }
+      self.queue.forget(key)
+    }
     Complete => {
       self.metrics.increment("reconcile_success")
       self.queue.forget(key)

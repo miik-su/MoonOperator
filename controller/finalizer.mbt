@@ -8,10 +8,15 @@ pub async fn finalize(
   resource : @core.Resource,
   name : String,
   cleanup : async (@core.Resource) -> Bool,
+  cleanup_timeout_ms~ : Int32 = 30000,
 ) -> Bool {
+  if cleanup_timeout_ms <= 0 {
+    raise @core.Invalid("cleanup deadline must be positive")
+  }
   let present = resource.finalizers().contains(name)
   if resource.deleting() {
-    if present && cleanup(resource) {
+    if present &&
+      @async.with_timeout(cleanup_timeout_ms, () => cleanup(resource)) {
       ignore(client.update(kind, resource.set_finalizer(name, false)))
     }
     return false
