@@ -25,8 +25,11 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install -y libssl-dev
       - run: moon update
-      - run: moon build cmd/moonapp cmd/manifests tests/cluster_client --target native
-      - run: docker build -t moonoperator:dev .
+      - run: moon build cmd/moonapp cmd/manifests tests/cluster_client --target native --release
+      - run: docker build --target production -t moonoperator:dev .
+      - run: docker build --target acceptance -t moonoperator-probe:dev .
+      - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
+      - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
       - name: Download pinned Kind release
         run: |
           curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
@@ -34,8 +37,8 @@ jobs:
       - run: chmod +x /tmp/kind
       - run: /tmp/kind create cluster --name moonoperator-e2e --wait 120s
       - run: kubectl --context kind-moonoperator-e2e version -o json > kind-version.json
-      - run: /tmp/kind load docker-image moonoperator:dev --name moonoperator-e2e
-      - run: moon run scripts/kind-e2e.mbtx -- _build/native/debug/build/cmd/manifests/manifests.exe
+      - run: /tmp/kind load docker-image moonoperator:dev moonoperator-probe:dev --name moonoperator-e2e
+      - run: moon run scripts/kind-e2e.mbtx -- _build/native/release/build/cmd/manifests/manifests.exe
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -44,6 +47,7 @@ jobs:
             kind-e2e-report.json
             cluster-client-report.json
             kind-version.json
+            runtime-packages.txt
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
         if: failure()
