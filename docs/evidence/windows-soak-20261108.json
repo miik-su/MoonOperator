@@ -1,0 +1,9 @@
+{
+  "duration_ms": "10001",
+  "iterations": 1623643,
+  "objects": 1000,
+  "queue_pending_end": 0,
+  "cache_objects_end": 1000,
+  "faults_and_duplicates": true,
+  "memory_rss": "not measured"
+}

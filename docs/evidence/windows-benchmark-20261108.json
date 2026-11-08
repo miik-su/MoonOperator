@@ -1,0 +1,60 @@
+{
+  "toolchain": "0.10.17+d971670cd",
+  "target": "native-release",
+  "dataset_objects": 1000,
+  "workers": 1,
+  "platform": "Windows",
+  "cpu": "not exposed to process",
+  "memory_measurement": "not measured; no RSS claim",
+  "observations": [
+    {
+      "name": "resource_copy_serialize",
+      "iterations": 1000,
+      "total_us": 5056.9,
+      "mean_us": 5.0569,
+      "checksum": 189000
+    },
+    {
+      "name": "json_parse",
+      "iterations": 1000,
+      "total_us": 6842.599999999999,
+      "mean_us": 6.842599999999999,
+      "checksum": 189000
+    },
+    {
+      "name": "cache_get_1000_objects",
+      "iterations": 10000,
+      "total_us": 3032.5,
+      "mean_us": 0.30325,
+      "checksum": 20000
+    },
+    {
+      "name": "cache_label_query_1000_objects",
+      "iterations": 100,
+      "total_us": 112687,
+      "mean_us": 1126.87,
+      "checksum": 100000
+    },
+    {
+      "name": "watch_event_decode",
+      "iterations": 1000,
+      "total_us": 9988.300000000001,
+      "mean_us": 9.9883,
+      "checksum": 1000
+    },
+    {
+      "name": "queue_add_claim_done",
+      "iterations": 10000,
+      "total_us": 10554.1,
+      "mean_us": 1.05541,
+      "checksum": 20000
+    },
+    {
+      "name": "moonapp_noop_fake_reconcile",
+      "iterations": 1000,
+      "total_us": 157873.19999999998,
+      "mean_us": 157.87319999999997,
+      "writes": 0
+    }
+  ]
+}

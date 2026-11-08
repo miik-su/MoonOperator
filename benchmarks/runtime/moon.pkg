@@ -1,0 +1,16 @@
+import {
+  "mik1e80/moonoperator/core",
+  "mik1e80/moonoperator/cache",
+  "mik1e80/moonoperator/queue",
+  "mik1e80/moonoperator/watch",
+  "mik1e80/moonoperator/examples/moonapp",
+  "mik1e80/moonoperator/testing",
+  "moonbitlang/core/bench",
+  "moonbitlang/core/json",
+  "moonbitlang/core/env",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+}
+
+pkgtype(kind: "executable")
