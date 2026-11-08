@@ -29,10 +29,7 @@ pub async fn Config::open(
     let token = if self.token_file.is_empty() {
       self.token
     } else {
-      if @fs.file_size(self.token_file) > 16384L {
-        raise @core.Capacity("bearer token file limit")
-      }
-      @fs.read_file(self.token_file).text().trim().to_owned()
+      @utf8.decode(read_bounded_file(self.token_file, 16384)).trim().to_owned()
     }
     if !safe_header(token) || token.length() > 16384 {
       raise @core.Invalid("invalid bearer token")

@@ -109,10 +109,10 @@ pub async fn Config::load_kubeconfig(
   path : String,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Config {
-  if @fs.file_size(path) > 1048576L {
-    raise @core.Capacity("kubeconfig file limit")
-  }
-  let config = Config::parse_kubeconfig(@fs.read_file(path).text(), metrics~)
+  let config = Config::parse_kubeconfig(
+    @utf8.decode(read_bounded_file(path, 1048576)),
+    metrics~,
+  )
   let absolute = @fs.realpath(path).replace_all(old="\\", new="/")
   let parent = match absolute.rev_split_once("/") {
     Some((dir, _)) => dir.to_owned()
