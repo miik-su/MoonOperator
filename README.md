@@ -39,6 +39,10 @@ Default namespace is `default`; set `MOONOPERATOR_NAMESPACE` to override both
 the manifest generator and operator. MoonApp creates owned Deployment/Service
 resources, updates spec/status idempotently and repairs drift every 30 seconds.
 Deleting the MoonApp lets Kubernetes garbage-collect its owned children.
+Existing same-name children are never adopted by default. The generated workload
+requires a non-root image and applies seccomp, dropped capabilities, disabled
+privilege escalation and resource limits. The bundled example uses a pinned
+non-root NGINX image on port 8080; arbitrary images must meet this contract.
 
 Local development uses an explicitly enabled loopback kubectl proxy. Set
 `MOONOPERATOR_KUBECONFIG` to a JSON or restricted YAML kubeconfig file for HTTPS
@@ -48,10 +52,16 @@ is selected via `KUBERNETES_SERVICE_HOST/PORT`; mounted tokens are reread per
 request. YAML aliases/custom tags/duplicate keys, exec auth, client certificates
 and embedded CA data are unsupported. TLS verification cannot be disabled.
 
-Diagnostics: `:8080/healthz`, `/readyz`, `/metrics`; readiness waits for cache
+Diagnostics default to `127.0.0.1:8080/healthz`, `/readyz`, `/metrics`; readiness waits for cache
 synchronization. See public `pkg.generated.mbti` files for exact package APIs.
 Metrics include reconcile outcomes/durations, retries, watch reconnects and API
 duration/counts. Structured event logs exclude raw server errors and credentials.
+The cluster manifest explicitly exposes port 8080 on the pod interface. Apply
+`config/diagnostics-networkpolicy.yaml` in the operator namespace. For monitoring,
+label both the monitoring namespace `moonoperator.dev/diagnostics-access=true`
+and its client pod `moonoperator.dev/diagnostics-client=true`. A NetworkPolicy
+capable CNI is required; default Kind does not prove traffic enforcement.
+See [review changes and migration](docs/review-followup-20261108.md).
 
 The [experimental WASM host](wasm/README.mbt.md) executes a compiled MoonBit
 validator under pinned Wasmtime limits. [Benchmark and load probes](docs/benchmarks.md)

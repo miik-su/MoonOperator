@@ -31,6 +31,12 @@ HA/Lease, admission/conversion webhooks and a general JSON guest ABI are outside
 this single-replica release scope. Scalar Wasmtime hosting remains experimental.
 
 The native Docker image can be built after
-`moon build cmd/moonapp tests/cluster_client --target native`; install CRD/RBAC
+`moon build cmd/moonapp --target native --release`; install CRD/RBAC
 using cmd/manifests and config/operator.yaml in the same namespace. CI creates
 and deletes only the explicitly named disposable Kind cluster.
+
+Default Docker builds select the production stage; it excludes client-probe.
+The separate acceptance stage requires a release build of tests/cluster_client.
+Ubuntu is digest-pinned and runtime APT packages use a dated archive snapshot.
+CI retains the exact installed package list alongside Kind version evidence.
+See review-followup-20261108.md for the current review changes and API migration.

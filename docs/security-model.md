@@ -31,3 +31,16 @@ committed SHA-256 values before execution. Actions use full commit SHAs.
 Dependabot covers Actions and Docker; Mooncakes updates require manual review.
 The generated CycloneDX inventory covers resolved source modules only.
 See [the audit record](security-audit-20261108.md) for verification and exclusions.
+
+Resource Debug output redacts all fields, including metadata and custom kinds.
+MoonApp refuses implicit adoption and preserves noncontrolling owner references.
+Ownership checks require declared resource scopes. Watch resource events require
+nonempty string RVs before application. Cache/LIST capacity failures stop the
+informer; queue pressure yields; repeated malformed watch data is limited to
+three attempts. File limits are enforced while reading a single opened handle.
+
+Local diagnostics bind to 127.0.0.1 by default. The cluster manifest explicitly
+binds to the pod interface and is accompanied by an ingress NetworkPolicy.
+The policy requires a CNI that enforces NetworkPolicy and a correctly labeled
+monitoring namespace AND pod. Diagnostics have no built-in authentication; use
+a trusted proxy if access must cross the trusted monitoring boundary.

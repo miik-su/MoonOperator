@@ -1,5 +1,13 @@
 # 0.1.0 (unreleased)
 
+Follow-up code review: redact Resource Debug, explicit FinalizeResult outcomes,
+scope-aware owner references, deny implicit MoonApp adoption, preserve unrelated
+owners, require watch RVs, separate cache/queue/LIST capacity failures, bound
+malformed-event recovery and LIST bytes, validate constructors/API types/RBAC,
+read credentials under a handle byte budget, release-only production image with
+separate probes, pinned Ubuntu/APT inputs, local diagnostics and NetworkPolicy,
+and non-root workload defaults. API migration: docs/api-design.md.
+
 Security review 2026-11-08: bounded JSON traversal before copying, strict
 kubeconfig and request targets, redirect refusal, atomic cache byte budgets and
 gauges, reconcile/cleanup deadlines, permanent-error outcomes, strict watch
