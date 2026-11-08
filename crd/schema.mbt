@@ -14,6 +14,10 @@ fn validate_at(
   if depth > 64 {
     raise @core.Invalid("schema nesting limit")
   }
+  if input == Json::null() &&
+    @core.field(schema, "nullable") == Json::boolean(true) {
+    return input
+  }
   let kind = @core.text(@core.field(schema, "type"))
   let valid = match (kind, input) {
     ("object", Object(_))
@@ -34,6 +38,13 @@ fn validate_at(
   match input {
     Object(fields) => {
       if @core.field(schema, "properties") is Object(properties) {
+        if @core.field(schema, "additionalProperties") == Json::boolean(false) {
+          for key, _ in fields {
+            if !properties.contains(key) {
+              raise @core.Invalid("unknown field: " + key)
+            }
+          }
+        }
         for key, property in properties {
           match fields.get(key) {
             Some(value) => fields[key] = validate_at(property, value, depth + 1)
@@ -57,12 +68,32 @@ fn validate_at(
       }
       input
     }
-    Array(items) =>
+    Array(items) => {
+      if @core.field(schema, "minItems") is Number(minimum, ..) &&
+        items.length().to_double() < minimum {
+        raise @core.Invalid("too few array items")
+      }
+      if @core.field(schema, "maxItems") is Number(maximum, ..) &&
+        items.length().to_double() > maximum {
+        raise @core.Invalid("too many array items")
+      }
       Json::array(
         items.map(item => {
           validate_at(@core.field(schema, "items"), item, depth + 1)
         }),
       )
+    }
+    String(value) => {
+      if @core.field(schema, "minLength") is Number(minimum, ..) &&
+        value.char_length().to_double() < minimum {
+        raise @core.Invalid("string below minLength")
+      }
+      if @core.field(schema, "maxLength") is Number(maximum, ..) &&
+        value.char_length().to_double() > maximum {
+        raise @core.Invalid("string above maxLength")
+      }
+      input
+    }
     Number(n, ..) => {
       if @core.field(schema, "minimum") is Number(minimum, ..) && n < minimum {
         raise @core.Invalid("below minimum")

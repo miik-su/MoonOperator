@@ -8,11 +8,20 @@ import {
 // Values
 pub fn definition(@core.ResourceType, String, Json) -> Json raise @core.OperatorError
 
+pub fn definition_with_versions(@core.ResourceType, String, Array[Version]) -> Json raise @core.OperatorError
+
 pub fn validate(Json, Json) -> Json raise @core.OperatorError
 
 // Errors
 
 // Types and methods
+pub(all) struct Version {
+  name : String
+  schema : Json
+  served : Bool
+  storage : Bool
+  status_subresource : Bool
+}
 
 // Type aliases
 
