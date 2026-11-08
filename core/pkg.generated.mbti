@@ -72,9 +72,9 @@ pub fn Registry::register(Self, ResourceType) -> Unit raise OperatorError
 
 pub struct Resource {
   value : Json
-} derive(@debug.Debug)
+}
 pub fn Resource::byte_size(Self, max_bytes? : Int32) -> Int32 raise OperatorError
-pub fn Resource::controlled_by(Self, Self) -> Self raise OperatorError
+pub fn Resource::controlled_by(Self, Self, dependent_type~ : ResourceType, owner_type~ : ResourceType) -> Self raise OperatorError
 pub fn Resource::deleting(Self) -> Bool
 pub fn Resource::finalizers(Self) -> Array[String]
 pub fn Resource::from_json(Json) -> Self raise OperatorError
@@ -89,6 +89,7 @@ pub fn[T : @json.FromJson] Resource::spec_as(Self) -> T raise @json.JsonDecodeEr
 pub fn Resource::to_repr(Self) -> @debug.Repr
 pub fn Resource::with_field(Self, String, Json) -> Self raise OperatorError
 pub fn Resource::with_metadata(Self, String, Json) -> Self raise OperatorError
+pub impl @debug.Debug for Resource
 
 pub(all) struct ResourceType {
   gvk : GVK

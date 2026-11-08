@@ -53,7 +53,13 @@ pub(all) struct Key {
 /// A private owned JSON tree. Accessors return copies, never aliases into cache.
 pub struct Resource {
   value : Json
-} derive(Debug)
+}
+
+///|
+/// All resource fields may contain secrets, including custom kinds and metadata.
+pub impl Debug for Resource with fn to_repr(_) {
+  @debug.Repr("Resource(<redacted>)")
+}
 
 ///|
 pub fn copy_json(value : Json) -> Json {

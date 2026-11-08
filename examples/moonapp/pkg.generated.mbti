@@ -14,7 +14,7 @@ pub let deployment_type : @core.ResourceType
 
 pub fn desired(@core.Resource) -> Array[(@core.ResourceType, @core.Resource)] raise
 
-pub async fn reconcile(@client.Client, @core.Key) -> @controller.Outcome
+pub async fn reconcile(@client.Client, @core.Key, adopt_unowned? : Bool) -> @controller.Outcome
 
 pub let service_type : @core.ResourceType
 

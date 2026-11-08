@@ -77,7 +77,7 @@ pub fn desired(
         },
       },
     },
-  }).controlled_by(app)
+  }).controlled_by(app, dependent_type=deployment_type, owner_type=app_type)
   let service = @core.Resource::from_json({
     "apiVersion": "v1",
     "kind": "Service",
@@ -91,7 +91,7 @@ pub fn desired(
         },
       ],
     },
-  }).controlled_by(app)
+  }).controlled_by(app, dependent_type=service_type, owner_type=app_type)
   [(deployment_type, deployment), (service_type, service)]
 }
 
@@ -140,6 +140,7 @@ fn overlay(actual : Json, expected : Json) -> Json {
 pub async fn reconcile(
   client : @client.Client,
   key : @core.Key,
+  adopt_unowned~ : Bool = false,
 ) -> @controller.Outcome {
   let app = client.get(app_type, key.ns, key.name) catch {
     @core.Api(404, _) => return Complete
@@ -158,8 +159,29 @@ pub async fn reconcile(
     match existing {
       None => ignore(client.create(kind, expected))
       Some(actual) => {
-        // Refuse to adopt a same-name resource controlled by someone else.
-        let owned = actual.controlled_by(app)
+        let references = @core.field(actual.metadata(), "ownerReferences")
+        let ours = match references {
+          Array(refs) =>
+            refs.any(entry => {
+              @core.field(entry, "controller") == Json::boolean(true) &&
+              @core.field(entry, "uid") == @core.field(app.metadata(), "uid")
+            })
+          _ => false
+        }
+        if !ours && !adopt_unowned {
+          raise @core.Invalid("refusing to adopt an existing resource")
+        }
+        // Explicit adoption still rejects a foreign controlling owner.
+        let owned = actual.controlled_by(
+          app,
+          dependent_type=kind,
+          owner_type=app_type,
+        )
+        // Owner references have merge-by-identity semantics, not array replacement.
+        let expected = expected.with_metadata(
+          "ownerReferences",
+          @core.field(owned.metadata(), "ownerReferences"),
+        )
         let merged = overlay(owned.json(), expected.json())
         if !contains_desired(actual.json(), expected.json()) {
           ignore(client.update(kind, @core.Resource::from_json(merged)))

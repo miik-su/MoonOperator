@@ -33,10 +33,27 @@ pub fn Resource::set_finalizer(
 pub fn Resource::controlled_by(
   self : Resource,
   owner : Resource,
+  dependent_type~ : ResourceType,
+  owner_type~ : ResourceType,
 ) -> Resource raise OperatorError {
   let uid = text(field(owner.metadata(), "uid"))
-  if uid.is_empty() || self.key().ns != owner.key().ns {
-    raise Invalid("owner UID and same namespace required")
+  if uid.is_empty() ||
+    self.key().gvk != dependent_type.gvk ||
+    owner.key().gvk != owner_type.gvk {
+    raise Invalid("owner UID and matching resource types required")
+  }
+  for (resource, kind) in [(self, dependent_type), (owner, owner_type)] {
+    if (kind.scope == Cluster && !resource.key().ns.is_empty()) ||
+      (kind.scope == Namespaced && resource.key().ns.is_empty()) {
+      raise Invalid("resource namespace does not match declared scope")
+    }
+  }
+  if owner_type.scope == Namespaced &&
+    (dependent_type.scope == Cluster || self.key().ns != owner.key().ns) {
+    raise Invalid("namespaced owners require a dependent in the same namespace")
+  }
+  if text(field(self.metadata(), "uid")) == uid {
+    raise Invalid("resource cannot own itself")
   }
   let refs = match field(self.metadata(), "ownerReferences") {
     Array(items) => items
