@@ -7,9 +7,17 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
-      - run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/install-moonbit.sh
-      - run: bash /tmp/install-moonbit.sh '0.10.17+d971670cd'
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Install checksum-verified MoonBit SDK
+        run: |
+          curl -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
+          curl -fsSL 'https://cli.moonbitlang.com/cores/core-0.10.17%2Bd971670cd.tar.gz' -o /tmp/core.tar.gz
+          sha256sum --check tools/moonbit-linux.sha256
+          mkdir -p "$HOME/.moon/lib"
+          tar -xzf /tmp/moonbit.tar.gz -C "$HOME/.moon"
+          tar -xzf /tmp/core.tar.gz -C "$HOME/.moon/lib"
+          export PATH="$HOME/.moon/bin:$PATH"
+          moon -C "$HOME/.moon/lib/core" bundle --warn-list -a --all
       - run: echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - run: sudo apt-get update
       - run: sudo apt-get install -y libssl-dev
@@ -17,17 +25,20 @@ jobs:
       - run: moon build cmd/moonapp cmd/manifests tests/cluster_client --target native
       - run: docker build -t moonoperator:dev .
       - run: curl -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind
+      - run: sha256sum --check tools/kind-linux.sha256
       - run: chmod +x /tmp/kind
       - run: /tmp/kind create cluster --name moonoperator-e2e --wait 120s
+      - run: kubectl --context kind-moonoperator-e2e version -o json > kind-version.json
       - run: /tmp/kind load docker-image moonoperator:dev --name moonoperator-e2e
       - run: moon run scripts/kind-e2e.mbtx -- _build/native/debug/build/cmd/manifests/manifests.exe
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: kind-acceptance
           path: |
             kind-e2e-report.json
             cluster-client-report.json
+            kind-version.json
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
         if: failure()
