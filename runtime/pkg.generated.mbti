@@ -12,7 +12,7 @@ import {
 }
 
 // Values
-pub async fn inform(@transport.Config, @core.ResourceType, String, @cache.Store, @queue.Queue, metrics? : @observability.Metrics, predicate? : (@core.Resource?, @watch.Event) -> Bool) -> Unit
+pub async fn inform(@transport.Config, @core.ResourceType, String, @cache.Store, @queue.Queue, metrics? : @observability.Metrics, predicate? : (@core.Resource?, @watch.Event) -> Bool, logger? : @observability.Logger) -> Unit
 
 // Errors
 
@@ -22,7 +22,7 @@ pub struct Source {
   watch : async (String, async (@watch.Event) -> Unit) -> Unit
 }
 pub fn Source::new(async () -> @client.ResourceList, async (String, async (@watch.Event) -> Unit) -> Unit) -> Self
-pub async fn Source::run(Self, @core.ResourceType, @cache.Store, @queue.Queue, metrics? : @observability.Metrics, predicate? : (@core.Resource?, @watch.Event) -> Bool) -> Unit
+pub async fn Source::run(Self, @core.ResourceType, @cache.Store, @queue.Queue, metrics? : @observability.Metrics, predicate? : (@core.Resource?, @watch.Event) -> Bool, logger? : @observability.Logger) -> Unit
 
 // Type aliases
 

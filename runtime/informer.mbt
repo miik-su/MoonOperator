@@ -9,12 +9,13 @@ pub async fn inform(
   queue : @queue.Queue,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
   predicate~ : (@core.Resource?, @watch.Event) -> Bool = @watch.changed,
+  logger~ : @observability.Logger = @observability.Logger::silent(),
 ) -> Unit {
   let client = config.client()
   let source = Source::new(() => client.list(kind, ns), (rv, on_event) => {
     @watch.stream(config, @watch.watch_path(kind, ns, rv), on_event)
   })
-  source.run(kind, store, queue, metrics~, predicate~)
+  source.run(kind, store, queue, metrics~, predicate~, logger~)
 }
 
 ///|
@@ -58,6 +59,7 @@ pub async fn Source::run(
   queue : @queue.Queue,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
   predicate~ : (@core.Resource?, @watch.Event) -> Bool = @watch.changed,
+  logger~ : @observability.Logger = @observability.Logger::silent(),
 ) -> Unit {
   let state = @watch.State::new()
   for ;; {
@@ -76,6 +78,7 @@ pub async fn Source::run(
           enqueue(queue, resource.key())
         }
         state.listed(snapshot.resource_version)
+        logger.emit(CacheSynchronized)
       }
       (self.watch)(state.version(), event => {
         if event.resource() is Some(resource) && resource.key().gvk != kind.gvk {
@@ -110,6 +113,7 @@ pub async fn Source::run(
       None => 500
     }
     metrics.increment("watch_reconnect")
+    logger.emit(WatchReconnect, code~)
     @async.sleep(state.disconnected(code, sample))
   }
 }

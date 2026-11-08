@@ -9,6 +9,20 @@ pub async fn serve(String, () -> Bool, () -> Int32, metrics? : Metrics) -> Unit
 // Errors
 
 // Types and methods
+pub(all) enum LogEvent {
+  ReconcileFailure
+  WatchReconnect
+  CacheSynchronized
+}
+
+pub struct Logger {
+  sink : (Json) -> Unit
+}
+pub fn Logger::emit(Self, LogEvent, code? : Int32) -> Unit
+pub fn Logger::new((Json) -> Unit) -> Self
+pub fn Logger::silent() -> Self
+pub fn Logger::stdout() -> Self
+
 pub struct Metrics {
   counters : Map[String, Int64]
   durations : Map[String, (Int64, Int64)]

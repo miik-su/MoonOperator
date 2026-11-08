@@ -10,6 +10,7 @@ pub struct Controller {
   queue : @queue.Queue
   reconcile : async (@core.Key) -> Outcome
   metrics : @observability.Metrics
+  logger : @observability.Logger
   mut stopped : Bool
 }
 
@@ -18,8 +19,9 @@ pub fn Controller::new(
   queue : @queue.Queue,
   reconcile : async (@core.Key) -> Outcome,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
+  logger~ : @observability.Logger = @observability.Logger::silent(),
 ) -> Controller {
-  { queue, reconcile, metrics, stopped: false, }
+  { queue, reconcile, metrics, logger, stopped: false, }
 }
 
 ///|
@@ -29,8 +31,13 @@ pub async fn Controller::step(self : Controller, now : Int64) -> Bool {
   defer self.queue.done(key)
   let started = @async.now()
   let result = (self.reconcile)(key) catch {
-    _ => {
+    error => {
       self.metrics.increment("reconcile_failure")
+      let code = match error {
+        @core.Api(code, _) => code
+        _ => 0
+      }
+      self.logger.emit(ReconcileFailure, code~)
       Retry
     }
   }

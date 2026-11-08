@@ -3,6 +3,7 @@ async fn main {
   @signal.set_global_cancellation_signals([SIGINT, SIGTERM])
   let ns = @env.get_env_var("MOONOPERATOR_NAMESPACE").unwrap_or("default")
   let metrics = @observability.Metrics::new()
+  let logger = @observability.Logger::stdout()
   let config = match @env.get_env_var("MOONOPERATOR_KUBECONFIG_JSON") {
     Some(path) =>
       @transport.Config::from_kubeconfig(
@@ -32,6 +33,7 @@ async fn main {
     queue,
     key => @app.reconcile(client, key),
     metrics~,
+    logger~,
   )
   defer controller.stop()
   println("MoonApp operator starting (single replica)")
@@ -53,6 +55,7 @@ async fn main {
         queue,
         metrics~,
         predicate=@watch.generation_changed,
+        logger~,
       )
     })
     controller.run(() => store.ready(@app.app_type.gvk), workers=2)
