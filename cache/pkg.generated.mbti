@@ -15,12 +15,17 @@ pub struct Store {
   mut objects : Map[@core.Key, @core.Resource]
   synced : Map[@core.GVK, Bool]
   capacity : Int32
+  max_bytes : Int32
+  max_object_bytes : Int32
+  mut sizes : Map[@core.Key, Int32]
+  mut used_bytes : Int32
 }
 pub fn Store::apply(Self, @watch.Event) -> Unit raise @core.OperatorError
+pub fn Store::bytes(Self) -> Int32
 pub fn Store::get(Self, @core.Key) -> @core.Resource?
 pub fn Store::invalidate(Self, @core.GVK) -> Unit
 pub fn Store::list(Self, @core.GVK, ns? : String, labels? : Map[String, String]) -> Array[@core.Resource]
-pub fn Store::new(capacity? : Int32) -> Self
+pub fn Store::new(capacity? : Int32, max_bytes? : Int32, max_object_bytes? : Int32) -> Self
 pub fn Store::ready(Self, @core.GVK) -> Bool
 pub fn Store::replace(Self, @core.GVK, Array[@core.Resource]) -> Unit raise @core.OperatorError
 
