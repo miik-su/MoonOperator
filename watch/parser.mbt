@@ -59,9 +59,11 @@ fn decode_event(value : Json) -> Event raise @core.OperatorError {
     "MODIFIED" => Modified(@core.Resource::from_json(object))
     "DELETED" => Deleted(@core.Resource::from_json(object))
     "BOOKMARK" => {
-      let rv = @core.text(
-        @core.field(@core.field(object, "metadata"), "resourceVersion"),
-      )
+      let rv = match
+        @core.field(@core.field(object, "metadata"), "resourceVersion") {
+        String(rv) => rv
+        _ => raise @core.Invalid("bookmark resourceVersion must be a string")
+      }
       if rv.is_empty() {
         raise @core.Invalid("bookmark resourceVersion required")
       }
@@ -70,7 +72,7 @@ fn decode_event(value : Json) -> Event raise @core.OperatorError {
     "ERROR" =>
       match @core.field(object, "code") {
         Number(code, ..) =>
-          if code >= 100.0 && code <= 599.0 {
+          if code >= 100.0 && code <= 599.0 && code.to_int().to_double() == code {
             Failure(code.to_int())
           } else {
             raise @core.Invalid("invalid watch status code")
