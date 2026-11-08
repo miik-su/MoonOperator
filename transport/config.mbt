@@ -77,7 +77,8 @@ pub fn Config::from_kubeconfig(
   input : Json,
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
 ) -> Config raise @core.OperatorError {
-  let context_name = @core.text(@core.field(input, "current-context"))
+  ignore(@core.json_size(input, max_bytes=1048576, max_depth=64))
+  let context_name = config_string(input, "current-context", required=true)
   let context = named_entry(
     @core.field(input, "contexts"),
     context_name,
@@ -85,16 +86,34 @@ pub fn Config::from_kubeconfig(
   )
   let cluster = named_entry(
     @core.field(input, "clusters"),
-    @core.text(@core.field(context, "cluster")),
+    config_string(context, "cluster", required=true),
     "cluster",
   )
   let user = named_entry(
     @core.field(input, "users"),
-    @core.text(@core.field(context, "user")),
+    config_string(context, "user", required=true),
     "user",
   )
-  if @core.field(cluster, "insecure-skip-tls-verify") == Json::boolean(true) ||
-    @core.field(user, "exec") != Json::null() ||
+  let insecure = @core.field(cluster, "insecure-skip-tls-verify")
+  if insecure != Json::null() && insecure != Json::boolean(false) {
+    raise @core.Invalid("TLS verification must remain enabled")
+  }
+  for name in ["client-key", "client-key-data", "username", "password"] {
+    if @core.field(user, name) != Json::null() {
+      raise @core.Invalid("unsupported kubeconfig credential method")
+    }
+  }
+  for name in ["proxy-url", "tls-server-name"] {
+    if @core.field(cluster, name) != Json::null() {
+      raise @core.Invalid("unsupported kubeconfig endpoint override")
+    }
+  }
+  let token = config_string(user, "token")
+  let token_file = config_string(user, "tokenFile")
+  if !token.is_empty() && !token_file.is_empty() {
+    raise @core.Invalid("ambiguous kubeconfig bearer credentials")
+  }
+  if @core.field(user, "exec") != Json::null() ||
     @core.field(user, "auth-provider") != Json::null() ||
     @core.field(user, "client-certificate") != Json::null() ||
     @core.field(user, "client-certificate-data") != Json::null() ||
@@ -104,10 +123,10 @@ pub fn Config::from_kubeconfig(
     )
   }
   Config::new(
-    @core.text(@core.field(cluster, "server")),
-    token=@core.text(@core.field(user, "token")),
-    token_file=@core.text(@core.field(user, "tokenFile")),
-    ca_file=@core.text(@core.field(cluster, "certificate-authority")),
+    config_string(cluster, "server", required=true),
+    token~,
+    token_file~,
+    ca_file=config_string(cluster, "certificate-authority"),
     metrics~,
   )
 }
@@ -118,14 +137,51 @@ fn named_entry(
   name : String,
   field : String,
 ) -> Json raise @core.OperatorError {
+  let names : Map[String, Bool] = Map([])
+  let mut found : Json? = None
   if items is Array(items) {
     for item in items {
-      if @core.text(@core.field(item, "name")) == name {
-        return @core.field(item, field)
+      let entry_name = config_string(item, "name", required=true)
+      if names.contains(entry_name) {
+        raise @core.Invalid("duplicate kubeconfig entry name")
+      }
+      names[entry_name] = true
+      let value = @core.field(item, field)
+      guard value is Object(_) else {
+        raise @core.Invalid("kubeconfig entry must be an object")
+      }
+      if entry_name == name {
+        found = Some(value)
       }
     }
   }
+  if found is Some(value) {
+    return value
+  }
   raise @core.Invalid("kubeconfig context/cluster/user not found")
+}
+
+///|
+fn config_string(
+  input : Json,
+  name : String,
+  required~ : Bool = false,
+) -> String raise @core.OperatorError {
+  match @core.field(input, name) {
+    String(value) => {
+      if required && value.is_empty() {
+        raise @core.Invalid("empty kubeconfig reference")
+      }
+      value
+    }
+    Null =>
+      if required {
+        raise @core.Invalid("missing kubeconfig reference")
+      } else {
+        ""
+      }
+    _ => raise @core.Invalid("kubeconfig string field has invalid type")
+  }
 }
 
 ///|
