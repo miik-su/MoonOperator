@@ -40,6 +40,16 @@ async fn main {
   bundle.check()
   ignore(kubectl(["apply", "-f", "-"], input=bundle.stdout()))
   ignore(kubectl(["wait", "--for=condition=Established", "crd/moonapps.moonoperator.dev", "--timeout=60s"]))
+  let identity = "system:serviceaccount:moonoperator-e2e:moonoperator"
+  for (verb, resource, expected) in [("get", "moonapps", "yes"), ("create", "deployments.apps", "yes"), ("update", "moonapps/finalizers", "yes"), ("get", "secrets", "no"), ("update", "networkpolicies.networking.k8s.io", "no"), ("delete", "deployments.apps", "no")] {
+    let result = @shell.Cmd("kubectl", ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e", "auth", "can-i", verb, resource, "--as", identity], stdout=Capture).output(timeout_ms=10000)
+    assert_eq(result.stdout().trim().to_owned(), expected)
+  }
+  let invalid : Json = { "apiVersion": "moonoperator.dev/v1", "kind": "MoonApp", "metadata": { "name": "invalid-image", "namespace": "moonoperator-e2e" }, "spec": { "image": "" } }
+  let rejected = @shell.Cmd("kubectl", ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e", "apply", "--dry-run=server", "-f", "-"], stdin=Text(invalid.stringify()), stdout=Capture, stderr=Capture).output(timeout_ms=10000)
+  assert_true(rejected.exit_code() != 0)
+  assert_true(rejected.stderr().contains("image"))
+  assert_true(rejected.stderr().contains("at least") || rejected.stderr().contains("Too short"))
   let probe : Json = { "apiVersion": "v1", "kind": "List", "items": [
     { "apiVersion": "v1", "kind": "ServiceAccount", "metadata": { "name": "moonoperator-probe", "namespace": "moonoperator-e2e" } },
     { "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role", "metadata": { "name": "moonoperator-probe", "namespace": "moonoperator-e2e" }, "rules": [{ "apiGroups": [""], "resources": ["configmaps"], "verbs": ["get", "list", "watch", "create", "update", "patch", "delete"] }] },
@@ -60,6 +70,16 @@ async fn main {
   ignore(kubectl(["rollout", "status", "deployment/moonoperator", "--timeout=120s"]))
   ignore(kubectl(["apply", "-f", "config/moonapp.yaml"]))
   replicas(3.0)
+  for attempt in 0..<60 {
+    let app = @json.parse(kubectl(["get", "moonapp", "demo-app", "-o", "json"]))
+    let status = field(app, "status")
+    if field(status, "observedGeneration") == field(field(app, "metadata"), "generation") && field(status, "conditions") is Array(conditions) && conditions.any(c => field(c, "type") == Json::string("ResourcesApplied") && field(c, "status") == Json::string("True")) {
+      assert_true(conditions.any(c => field(c, "type") == Json::string("Ready") && field(c, "status") == Json::string("Unknown")))
+      break
+    }
+    if attempt == 59 { fail("current generation conditions were not published") }
+    @async.sleep(500)
+  }
   ignore(kubectl(["get", "service", "demo-app"]))
   ignore(kubectl(["patch", "moonapp", "demo-app", "--type=merge", "-p", "{\"spec\":{\"replicas\":2}} "]))
   replicas(2.0)
@@ -73,6 +93,7 @@ async fn main {
   ignore(kubectl(["delete", "moonapp", "demo-app", "--wait=true"]))
   ignore(kubectl(["wait", "--for=delete", "deployment/demo-app", "--timeout=90s"]))
   ignore(kubectl(["wait", "--for=delete", "service/demo-app", "--timeout=90s"]))
-  @fs.write_file("kind-e2e-report.json", "{\"suite\":\"kind-moonapp\",\"create_update_drift_restart_gc\":true}\n")
+  let report : Json = { "suite": "kind-moonapp", "create_update_drift_restart_gc": true, "empty_image_rejected_by_admission": true, "rbac_positive_negative": true, "generation_conditions": true, "ready_not_overclaimed": true }
+  @fs.write_file("kind-e2e-report.json", report.stringify(indent=2))
   println("Kind MoonApp create/update/drift/restart/GC verified")
 }
