@@ -5,7 +5,7 @@ permissions:
 jobs:
   moonapp:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -25,20 +25,36 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install -y libssl-dev
       - run: moon update
-      - run: moon build cmd/moonapp cmd/manifests tests/cluster_client --target native --release
+      - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client --target native --release
       - run: docker build --target production -t moonoperator:dev .
       - run: docker build --target acceptance -t moonoperator-probe:dev .
       - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
+      - name: Verify distributed license files
+        run: |
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/NOTICE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/THIRD_PARTY_NOTICES.md
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/yaml-LICENSE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/async-LICENSE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
       - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
       - name: Download pinned Kind release
         run: |
           curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
       - run: sha256sum --check tools/kind-linux.sha256
       - run: chmod +x /tmp/kind
-      - run: /tmp/kind create cluster --name moonoperator-e2e --wait 120s
+      - run: /tmp/kind create cluster --name moonoperator-e2e --config config/kind-calico.yaml --wait 120s
+      - name: Install checksum-verified Calico for policy enforcement
+        run: |
+          curl --retry 3 --retry-all-errors --max-time 120 -fsSL https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/calico.yaml -o /tmp/calico.yaml
+          sha256sum --check tools/calico.sha256
+          kubectl --context kind-moonoperator-e2e apply --server-side -f /tmp/calico.yaml
+          kubectl --context kind-moonoperator-e2e -n kube-system rollout status daemonset/calico-node --timeout=240s
+          kubectl --context kind-moonoperator-e2e wait --for=condition=Ready nodes --all --timeout=180s
       - run: kubectl --context kind-moonoperator-e2e version -o json > kind-version.json
       - run: /tmp/kind load docker-image moonoperator:dev moonoperator-probe:dev --name moonoperator-e2e
       - run: moon run scripts/kind-e2e.mbtx -- _build/native/release/build/cmd/manifests/manifests.exe
+      - run: moon run scripts/network-policy.mbtx
       - name: Display cluster acceptance results
         if: always()
         run: moon run scripts/report-summary.mbtx -- kind '${{ job.status }}'
@@ -52,6 +68,7 @@ jobs:
             kind-version.json
             runtime-packages.txt
             test-results-summary.md
+            network-policy-report.json
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
         if: failure()

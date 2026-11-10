@@ -1,0 +1,45 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json" }
+----
+
+fn field(value : Json, key : String) -> Json { match value { Object(f) => f.get(key).unwrap_or(Json::null()); _ => Json::null() } }
+async fn kubectl(args : Array[String], input? : String = "") -> String {
+  let command = ["--context", "kind-moonoperator-e2e"]
+  command.append(args)
+  let result = @shell.Cmd("kubectl", command, stdin=Text(input), stdout=Capture).output(timeout_ms=180000)
+  result.check()
+  result.stdout()
+}
+async fn verify(url : String, expected : String) -> Unit {
+  for _ in 0..<12 {
+    let result = @shell.Cmd("kubectl", ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-monitor", "exec", "policy-probe", "--", "/usr/local/bin/diagnostic-probe", url, expected], stdout=Capture, stderr=Discard).output(timeout_ms=5000)
+    if result.exit_code() == 0 { return }
+    @async.sleep(1000)
+  }
+  fail("NetworkPolicy did not reach expected " + expected + " state")
+}
+async fn main {
+  let ns : Json = { "apiVersion": "v1", "kind": "Namespace", "metadata": { "name": "moonoperator-monitor", "labels": { "moonoperator.dev/diagnostics-access": "true" } } }
+  ignore(kubectl(["apply", "-f", "-"], input=ns.stringify()))
+  let pod : Json = { "apiVersion": "v1", "kind": "Pod", "metadata": { "name": "policy-probe", "namespace": "moonoperator-monitor", "labels": { "moonoperator.dev/diagnostics-client": "true" } }, "spec": { "restartPolicy": "Never", "automountServiceAccountToken": false, "containers": [{ "name": "probe", "image": "moonoperator-probe:dev", "imagePullPolicy": "Never", "command": ["/usr/bin/sleep", "600"] }] } }
+  ignore(kubectl(["apply", "-f", "-"], input=pod.stringify()))
+  ignore(kubectl(["-n", "moonoperator-monitor", "wait", "--for=condition=Ready", "pod/policy-probe", "--timeout=120s"]))
+  let pods = @json.parse(kubectl(["-n", "moonoperator-e2e", "get", "pods", "-l", "app=moonoperator", "-o", "json"]))
+  guard field(pods, "items") is Array(items) && !items.is_empty() else { fail("operator pod missing") }
+  guard field(field(items[0], "status"), "podIP") is String(ip) else { fail("operator IP missing") }
+  let url = "http://" + ip + ":8080/metrics"
+  // Same pod and target throughout: each denied case is bracketed by working
+  // connections, ruling out a permanently broken route or stopped server.
+  verify(url, "allow")
+  ignore(kubectl(["-n", "moonoperator-monitor", "label", "pod", "policy-probe", "moonoperator.dev/diagnostics-client-"]))
+  verify(url, "deny")
+  ignore(kubectl(["-n", "moonoperator-monitor", "label", "pod", "policy-probe", "moonoperator.dev/diagnostics-client=true"]))
+  verify(url, "allow")
+  ignore(kubectl(["label", "namespace", "moonoperator-monitor", "moonoperator.dev/diagnostics-access-"]))
+  verify(url, "deny")
+  ignore(kubectl(["label", "namespace", "moonoperator-monitor", "moonoperator.dev/diagnostics-access=true"]))
+  verify(url, "allow")
+  let report : Json = { "cni": "Calico 3.33.0", "same_pod_target": true, "allowed_before_and_after": true, "missing_pod_label_denied": true, "missing_namespace_label_denied": true }
+  @fs.write_file("network-policy-report.json", report.stringify(indent=2))
+  println(report.stringify())
+}
