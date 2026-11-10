@@ -1,4 +1,9 @@
 *
+!LICENSE
+!NOTICE
+!THIRD_PARTY_NOTICES.md
+!third_party/
+!third_party/**
 !_build/
 !_build/native/
 !_build/native/release/
@@ -6,6 +11,8 @@
 !_build/native/release/build/cmd/
 !_build/native/release/build/cmd/moonapp/
 !_build/native/release/build/cmd/moonapp/moonapp.exe
+!_build/native/release/build/cmd/diagnostic_probe/
+!_build/native/release/build/cmd/diagnostic_probe/diagnostic_probe.exe
 !_build/native/release/build/tests/
 !_build/native/release/build/tests/cluster_client/
 !_build/native/release/build/tests/cluster_client/cluster_client.exe
