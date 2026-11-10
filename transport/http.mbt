@@ -108,17 +108,10 @@ pub async fn Config::send(
     }
     let retry_after_seconds = match response.headers.get("Retry-After") {
       Some(value) =>
-        try @json.parse(value) catch {
-          _ => None
-        } noraise {
-          Number(n, ..) =>
-            if n == n.floor() && n >= 0.0 && n <= 3600.0 {
-              Some(n.to_int())
-            } else {
-              None
-            }
-          _ => None
-        }
+        retry_after(
+          value,
+          now_unix_seconds=@env.now().reinterpret_as_int64() / 1000L,
+        )
       None => None
     }
     { code: response.code, body, retry_after_seconds, }

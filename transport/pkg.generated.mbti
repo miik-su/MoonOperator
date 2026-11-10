@@ -9,6 +9,7 @@ import {
 }
 
 // Values
+pub fn retry_after(String, now_unix_seconds~ : Int64) -> Int32?
 
 // Errors
 
