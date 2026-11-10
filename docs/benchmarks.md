@@ -1,5 +1,9 @@
 # Reproducible bounded observations
 
+See [the results dashboard](test-results.md) for readable tables, input models,
+source revisions and permanent raw snapshots. New CI runs publish their own
+summaries and downloadable observations; historical snapshots are not overwritten.
+
 Run `moon run benchmarks/runtime --target native --release`. The JSON report
 records compiler, target, runtime platform, dataset size (1,000 objects), worker
 count and per-operation iteration counts. It measures resource serialization,

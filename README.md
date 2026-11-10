@@ -15,6 +15,13 @@ queue, and idempotent reconciliation. See [the roadmap](docs/roadmap.md).
 This is an early implementation, single replica only. See
 [compatibility and verification](docs/compatibility.md) before deployment.
 
+## Test data and results
+
+See [测试数据与结果展示 / Test inputs and results](docs/test-results.md) for
+benchmark tables, ten-second load observations, WASM case outcomes, archived
+Kind reports and reproducible synthetic input models. Each CI run also displays
+its own Markdown summary and downloadable raw reports.
+
 ## Quick start
 
 MoonBit 0.10.17+d971670cd / moon 0.1.20261023, native target:
