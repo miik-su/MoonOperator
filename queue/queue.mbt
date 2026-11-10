@@ -4,9 +4,11 @@ pub struct Queue {
   admitted : Map[@core.Key, Bool]
   dirty : Map[@core.Key, Bool]
   processing : Map[@core.Key, Bool]
-  delayed : Map[@core.Key, Int64]
+  delayed : Map[@core.Key, Int32]
+  timers : Array[Timer]
+  mut sequence : Int64
   retries : Map[@core.Key, Int32]
-  ready : Array[@core.Key]
+  ready : @deque.Deque[@core.Key]
   capacity : Int32
   mut closed : Bool
 }
@@ -21,8 +23,10 @@ pub fn Queue::new(capacity~ : Int32 = 10000) -> Queue raise @core.OperatorError 
     dirty: Map([]),
     processing: Map([]),
     delayed: Map([]),
+    timers: [],
+    sequence: 0L,
     retries: Map([]),
-    ready: [],
+    ready: @deque.Deque([]),
     capacity,
     closed: false,
   }
@@ -42,11 +46,11 @@ pub fn Queue::add(
   if !self.admitted.contains(key) && self.admitted.length() >= self.capacity {
     raise @core.QueueCapacity("workqueue capacity")
   }
-  self.delayed.remove(key)
+  self.cancel_timer(key)
   self.admitted[key] = true
   self.dirty[key] = true
   if !self.processing.contains(key) {
-    self.ready.push(key)
+    self.ready.push_back(key)
   }
 }
 
@@ -55,20 +59,11 @@ pub fn Queue::get(
   self : Queue,
   now : Int64,
 ) -> @core.Key? raise @core.OperatorError {
-  let due : Array[@core.Key] = []
-  for key, at in self.delayed {
-    if at <= now {
-      due.push(key)
-    }
-  }
-  for key in due {
+  while !self.timers.is_empty() && self.timers[0].at <= now {
+    let key = self.timers[0].key
     self.add(key)
   }
-  if self.ready.is_empty() {
-    return None
-  }
-  let key = self.ready[0]
-  ignore(self.ready.remove(0))
+  guard self.ready.pop_front() is Some(key) else { return None }
   self.dirty.remove(key)
   self.processing[key] = true
   Some(key)
@@ -81,7 +76,7 @@ pub fn Queue::done(self : Queue, key : @core.Key) -> Unit {
   }
   self.processing.remove(key)
   if self.dirty.contains(key) {
-    self.ready.push(key)
+    self.ready.push_back(key)
   } else if !self.delayed.contains(key) {
     self.admitted.remove(key)
     self.retries.remove(key)
@@ -107,8 +102,17 @@ pub fn Queue::add_after(
   }
   self.admitted[key] = true
   match self.delayed.get(key) {
-    Some(old) => if at < old { self.delayed[key] = at }
-    None => self.delayed[key] = at
+    Some(index) =>
+      if at < self.timers[index].at {
+        self.timers[index] = { ..self.timers[index], at, }
+        ignore(self.sift_up(index))
+      }
+    None => {
+      self.delayed[key] = self.timers.length()
+      self.timers.push({ key, at, order: self.sequence, })
+      self.sequence += 1L
+      ignore(self.sift_up(self.timers.length() - 1))
+    }
   }
 }
 
@@ -140,6 +144,7 @@ pub fn Queue::shutdown(self : Queue) -> Unit {
     }
   }
   self.delayed.clear()
+  self.timers.clear()
 }
 
 ///|

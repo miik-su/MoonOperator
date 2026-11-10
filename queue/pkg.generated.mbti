@@ -3,6 +3,7 @@ package "mik1e80/moonoperator/queue"
 
 import {
   "mik1e80/moonoperator/core",
+  "moonbitlang/core/deque",
 }
 
 // Values
@@ -14,9 +15,11 @@ pub struct Queue {
   admitted : Map[@core.Key, Bool]
   dirty : Map[@core.Key, Bool]
   processing : Map[@core.Key, Bool]
-  delayed : Map[@core.Key, Int64]
+  delayed : Map[@core.Key, Int32]
+  timers : Array[Timer]
+  mut sequence : Int64
   retries : Map[@core.Key, Int32]
-  ready : Array[@core.Key]
+  ready : @deque.Deque[@core.Key]
   capacity : Int32
   mut closed : Bool
 }
@@ -30,6 +33,8 @@ pub fn Queue::new(capacity? : Int32) -> Self raise @core.OperatorError
 pub fn Queue::pending(Self) -> Int32
 pub fn Queue::retry(Self, @core.Key, Int64) -> Int32 raise @core.OperatorError
 pub fn Queue::shutdown(Self) -> Unit
+
+type Timer
 
 // Type aliases
 
