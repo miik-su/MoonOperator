@@ -34,6 +34,12 @@ pub fn Store::bytes(self : Store) -> Int32 {
 }
 
 ///|
+/// Object count, total encoded bytes, and per-object bytes for LIST admission.
+pub fn Store::limits(self : Store) -> (Int32, Int32, Int32) {
+  (self.capacity, self.max_bytes, self.max_object_bytes)
+}
+
+///|
 pub fn Store::length(self : Store) -> Int32 {
   self.objects.length()
 }

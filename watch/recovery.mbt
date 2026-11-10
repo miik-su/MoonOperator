@@ -94,6 +94,7 @@ pub async fn stream(
   config : @transport.Config,
   path : String,
   on_event : async (Event) -> Unit,
+  on_open~ : () -> Unit = () => (),
 ) -> Unit {
   let (response, conn) = config.open({
     verb: "GET",
@@ -105,6 +106,7 @@ pub async fn stream(
   if response.code != 200 {
     raise @core.Api(response.code, "WatchRequestFailed")
   }
+  on_open()
   let parser = Parser::new()
   for ;; {
     let chunk = @async.with_timeout(75000, () => conn.read_some(max_len=8192))

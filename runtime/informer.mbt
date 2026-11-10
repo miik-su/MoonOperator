@@ -10,12 +10,19 @@ pub async fn inform(
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
   predicate~ : (@core.Resource?, @watch.Event) -> Bool = @watch.changed,
   logger~ : @observability.Logger = @observability.Logger::silent(),
+  progress~ : @observability.Progress = @observability.Progress::new(),
 ) -> Unit {
   let client = config.client()
-  let source = Source::new(() => client.list(kind, ns), (rv, on_event) => {
-    @watch.stream(config, @watch.watch_path(kind, ns, rv), on_event)
-  })
-  source.run(kind, store, queue, metrics~, predicate~, logger~)
+  let (max_items, max_bytes, max_object_bytes) = store.limits()
+  let source = Source::new(
+    () => client.list(kind, ns, max_items~, max_bytes~, max_object_bytes~),
+    (rv, on_event) => {
+      @watch.stream(config, @watch.watch_path(kind, ns, rv), on_event, on_open=() => {
+        progress.opened()
+      })
+    },
+  )
+  source.run(kind, store, queue, metrics~, predicate~, logger~, progress~)
 }
 
 ///|
@@ -60,6 +67,7 @@ pub async fn Source::run(
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
   predicate~ : (@core.Resource?, @watch.Event) -> Bool = @watch.changed,
   logger~ : @observability.Logger = @observability.Logger::silent(),
+  progress~ : @observability.Progress = @observability.Progress::new(),
 ) -> Unit {
   let state = @watch.State::new()
   let mut malformed = 0
@@ -81,6 +89,7 @@ pub async fn Source::run(
           enqueue(queue, resource.key())
         }
         state.listed(snapshot.resource_version)
+        progress.listed(@async.now())
         logger.emit(CacheSynchronized)
       }
       watching = true
@@ -104,6 +113,7 @@ pub async fn Source::run(
           enqueue(queue, resource.key())
         }
         state.checkpoint(event)
+        progress.event(@async.now())
         malformed = 0
       })
       0
@@ -127,6 +137,7 @@ pub async fn Source::run(
       }
       _ => 0
     }
+    progress.disconnected(@async.now())
     if code != 0 && code != 410 && !@core.retryable(code) {
       store.invalidate(kind.gvk)
       raise @core.Api(code, "InformerPermanentFailure")

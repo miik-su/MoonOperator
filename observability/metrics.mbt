@@ -14,7 +14,8 @@ pub fn Metrics::new() -> Metrics {
 pub fn Metrics::increment(self : Metrics, name : String) -> Unit {
   if ![
       "reconcile_success", "reconcile_failure", "reconcile_requeue", "watch_reconnect",
-      "watch_relist", "queue_retry", "api_request", "api_error",
+      "watch_relist", "queue_retry", "api_request", "api_error", "diagnostic_timeout",
+      "diagnostic_rate_limited",
     ].contains(name) {
     return
   }
@@ -49,7 +50,8 @@ pub fn Metrics::prometheus(self : Metrics) -> String {
   for
     name in [
       "reconcile_success", "reconcile_failure", "reconcile_requeue", "watch_reconnect",
-      "watch_relist", "queue_retry", "api_request", "api_error",
+      "watch_relist", "queue_retry", "api_request", "api_error", "diagnostic_timeout",
+      "diagnostic_rate_limited",
     ] {
     out.write_string(
       "# TYPE moonoperator_\{name}_total counter\nmoonoperator_\{name}_total \{self.count(name)}\n",

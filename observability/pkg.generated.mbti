@@ -4,7 +4,7 @@ package "mik1e80/moonoperator/observability"
 // Values
 pub fn route(String, Bool, Int32, cache_objects? : Int32, cache_bytes? : Int32) -> (Int32, String)
 
-pub async fn serve(String, () -> Bool, () -> Int32, metrics? : Metrics, cache_objects? : () -> Int32, cache_bytes? : () -> Int32) -> Unit
+pub async fn serve(String, () -> Bool, () -> Int32, metrics? : Metrics, cache_objects? : () -> Int32, cache_bytes? : () -> Int32, request_timeout_ms? : Int32, max_connections? : Int32, requests_per_second? : Int32, progress? : () -> String) -> Unit
 
 // Errors
 
@@ -32,6 +32,20 @@ pub fn Metrics::increment(Self, String) -> Unit
 pub fn Metrics::new() -> Self
 pub fn Metrics::observe(Self, String, Int64) -> Unit
 pub fn Metrics::prometheus(Self) -> String
+
+pub struct Progress {
+  mut last_list : Int64?
+  mut last_event : Int64?
+  mut disconnected_since : Int64?
+  mut connected : Bool
+}
+pub fn Progress::disconnected(Self, Int64) -> Unit
+pub fn Progress::event(Self, Int64) -> Unit
+pub fn Progress::fresh(Self, Int64, Int32) -> Bool
+pub fn Progress::listed(Self, Int64) -> Unit
+pub fn Progress::new() -> Self
+pub fn Progress::opened(Self) -> Unit
+pub fn Progress::prometheus(Self, Int64) -> String
 
 // Type aliases
 

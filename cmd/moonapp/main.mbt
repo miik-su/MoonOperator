@@ -27,8 +27,24 @@ async fn main {
       }
   }
   let client = config.client()
-  let store = @cache.Store::new()
-  let queue = @queue.Queue::new()
+  let store = @cache.Store::new(
+    capacity=1024,
+    max_bytes=8388608,
+    max_object_bytes=262144,
+  )
+  let queue = @queue.Queue::new(capacity=1024)
+  let progress = @observability.Progress::new()
+  let max_disconnected_ms = match
+    @env.get_env_var("MOONOPERATOR_MAX_DISCONNECTED_MS") {
+    None => 180000
+    Some(value) =>
+      match @json.parse(value) {
+        Number(n, ..) if n == n.floor() && n >= 0.0 && n <= 3600000.0 =>
+          n.to_int()
+        _ =>
+          fail("disconnect readiness threshold must be 0..3600000 milliseconds")
+      }
+  }
   let controller = @controller.Controller::new(
     queue,
     key => @app.reconcile(client, key),
@@ -43,11 +59,15 @@ async fn main {
         @env.get_env_var("MOONOPERATOR_DIAGNOSTICS_ADDRESS").unwrap_or(
           "127.0.0.1:8080",
         ),
-        () => store.ready(@app.app_type.gvk),
+        () => {
+          store.ready(@app.app_type.gvk) &&
+          progress.fresh(@async.now(), max_disconnected_ms)
+        },
         () => queue.length(),
         metrics~,
         cache_objects=() => store.length(),
         cache_bytes=() => store.bytes(),
+        progress=() => progress.prometheus(@async.now()),
       )
     })
     group.spawn_bg(() => {
@@ -60,6 +80,7 @@ async fn main {
         metrics~,
         predicate=@watch.generation_changed,
         logger~,
+        progress~,
       )
     })
     controller.run(() => store.ready(@app.app_type.gvk), workers=2)
