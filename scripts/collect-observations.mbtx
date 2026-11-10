@@ -1,0 +1,36 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+----
+
+///|
+async fn main {
+  let args = @env.args()
+  guard args.length() >= 2 else { fail("usage: collect-observations.mbtx OUTPUT_DIR [DISPLAY_DATE]") }
+  let output = args[1]
+  let commit = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
+  commit.check()
+  let status = @shell.Cmd("git", ["status", "--porcelain"], stdout=Capture).output()
+  status.check()
+  let provenance : Json = {
+    "source_commit": commit.stdout().trim().to_owned(),
+    "worktree_modified": !status.stdout().trim().is_empty(),
+    "display_date": if args.length() > 2 { args[2] } else { "see CI run" },
+    "ci_run_url": match @env.get_env_var("GITHUB_RUN_ID") {
+      Some(id) => "https://github.com/miik-su/MoonOperator/actions/runs/" + id
+      None => "local run"
+    },
+  }
+  @fs.mkdir(output, recursive=true, allow_exist=true)
+  // Sequential probes share output filenames; each child must succeed before
+  // its report is accepted. Always pin the load observation to ten seconds.
+  for (target_package, prefix) in [("benchmarks/runtime", "benchmark"), ("tests/soak", "soak")] {
+    let result = @shell.Cmd("moon", ["run", target_package, "--target", "native", "--release"], env={ "MOONOPERATOR_SOAK_SECONDS": "10" }, stdout=Capture).output(timeout_ms=120000)
+    result.check()
+    let report = @json.parse(@fs.read_file(prefix + "-report.json").text())
+    let input = @json.parse(@fs.read_file(prefix + "-input.json").text())
+    let envelope : Json = { "provenance": provenance, "command": "moon run " + target_package + " --target native --release", "result": report, "input_file": prefix + "-input.json" }
+    @fs.write_file(output + "/" + prefix + ".json", envelope.stringify(indent=2) + "\n")
+    @fs.write_file(output + "/" + prefix + "-input.json", input.stringify(indent=2) + "\n")
+    println("Saved " + prefix + " input and measured result to " + output)
+  }
+}

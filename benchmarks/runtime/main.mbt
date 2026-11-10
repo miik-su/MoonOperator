@@ -113,6 +113,17 @@ async fn main {
     "memory_measurement": "not measured; no RSS claim",
     "observations": observations,
   }
+  let input : Json = {
+    "resource_template": resource.json(),
+    "resource_count": 1000,
+    "name_pattern": "p{index}, index=0..999",
+    "label_selector": { "app": "bench" },
+    "watch_event": { "type": "ADDED", "object": resource.json() },
+    "watch_encoding": "UTF-8 NDJSON",
+    "noop_reconcile_app": app.json(),
+    "external_services": "none; fake API for reconciliation",
+  }
+  @fs.write_file("benchmark-input.json", input.stringify(indent=2))
   @fs.write_file("benchmark-report.json", report.stringify(indent=2))
   println(report.stringify(indent=2))
 }

@@ -32,7 +32,13 @@ jobs:
       - run: tar -xJf /tmp/wasmtime.tar.xz -C /tmp
       - run: moon build examples/wasm_validator --target wasm
       - run: moon run tests/wasm_host --target native -- /tmp/wasmtime-v50.0.1-x86_64-linux/wasmtime _build/wasm/debug/build/examples/wasm_validator/wasm_validator.wasm
+      - name: Display WASM case results
+        if: always()
+        run: moon run scripts/report-summary.mbtx -- wasm '${{ job.status }}'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
         with:
           name: wasm-host-evidence
-          path: wasm-host-report.json
+          path: |
+            wasm-host-report.json
+            test-results-summary.md

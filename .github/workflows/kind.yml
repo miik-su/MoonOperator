@@ -39,6 +39,9 @@ jobs:
       - run: kubectl --context kind-moonoperator-e2e version -o json > kind-version.json
       - run: /tmp/kind load docker-image moonoperator:dev moonoperator-probe:dev --name moonoperator-e2e
       - run: moon run scripts/kind-e2e.mbtx -- _build/native/release/build/cmd/manifests/manifests.exe
+      - name: Display cluster acceptance results
+        if: always()
+        run: moon run scripts/report-summary.mbtx -- kind '${{ job.status }}'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -48,6 +51,7 @@ jobs:
             cluster-client-report.json
             kind-version.json
             runtime-packages.txt
+            test-results-summary.md
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
         if: failure()

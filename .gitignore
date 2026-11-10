@@ -6,3 +6,7 @@ target/
 *.kubeconfig
 .tools/
 *-report.json
+/benchmark-input.json
+/soak-input.json
+/test-results-summary.md
+/ci-evidence/

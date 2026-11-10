@@ -1,0 +1,67 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+----
+
+///|
+fn field(value : Json, key : String) -> Json {
+  match value { Object(fields) => fields.get(key).unwrap_or(Json::null()); _ => Json::null() }
+}
+
+///|
+fn cell(value : Json) -> String {
+  let s = match value { String(s) => s; Null => "not recorded"; _ => value.stringify() }
+  s.replace_all(old="|", new="\\|").replace_all(old="\n", new=" ").replace_all(old="\r", new=" ")
+}
+
+///|
+async fn read(path : String) -> Json {
+  if !@fs.exists(path) { return Json::null() }
+  @json.parse(@fs.read_file(path).text())
+}
+
+///|
+async fn main {
+  let args = @env.args()
+  guard args.length() >= 2 else { fail("usage: report-summary.mbtx native|kind|wasm [JOB_STATUS] [OBSERVATION_DIR]") }
+  let suite = args[1]
+  let state = if args.length() > 2 { args[2] } else { "local observation" }
+  let directory = if args.length() > 3 { args[3] } else if suite == "native" { "ci-evidence" } else { "." }
+  let out = StringBuilder()
+  out.write_string("## MoonOperator " + suite + "\n\nStatus before report upload: **" + cell(Json::string(state)) + "**. GitHub shows the final workflow status. Missing evidence is not a pass.\n\n")
+  if @env.get_env_var("GITHUB_SHA") is Some(sha) { out.write_string("Source commit: `" + sha + "`.\n\n") }
+  match suite {
+    "native" => {
+      let bench = field(read(directory + "/benchmark.json"), "result")
+      out.write_string("Dataset: " + cell(field(bench, "dataset_objects")) + " synthetic objects; platform: " + cell(field(bench, "platform")) + "; target: " + cell(field(bench, "target")) + ".\n\n| Observation | Iterations | Mean (µs/op) |\n| --- | ---: | ---: |\n")
+      if field(bench, "observations") is Array(items) {
+        for item in items { out.write_string("| " + cell(field(item, "name")) + " | " + cell(field(item, "iterations")) + " | " + cell(field(item, "mean_us")) + " |\n") }
+      }
+      let soak = field(read(directory + "/soak.json"), "result")
+      out.write_string("\n| Bounded load result | Value |\n| --- | ---: |\n")
+      for key in ["duration_ms", "iterations", "objects", "reconcile_failures", "queue_retries", "queue_pending_end", "cache_objects_end", "cache_encoded_bytes_end"] {
+        out.write_string("| " + key + " | " + cell(field(soak, key)) + " |\n")
+      }
+      out.write_string("\nSingle-run timings and a ten-second load observation; RSS is not measured. Download native-observations for inputs, raw results and source provenance.\n")
+    }
+    "kind" => {
+      out.write_string("| Acceptance evidence | Recorded value |\n| --- | --- |\n")
+      for (file, key) in [("kind-e2e-report.json", "create_update_drift_restart_gc"), ("cluster-client-report.json", "real_api_crud_patch_paginate_conflict_forbidden_watch"), ("cluster-client-report.json", "tls_verified")] {
+        out.write_string("| " + key + " | " + cell(field(read(directory + "/" + file), key)) + " |\n")
+      }
+      out.write_string("\nKubernetes server: " + cell(field(field(read(directory + "/kind-version.json"), "serverVersion"), "gitVersion")) + ". Download kind-acceptance for reports and runtime package versions. NetworkPolicy traffic enforcement is outside default Kind verification.\n")
+    }
+    "wasm" => {
+      let report = read(directory + "/wasm-host-report.json")
+      out.write_string("Wasmtime: " + cell(field(report, "wasmtime")) + ".\n\n| Case | Expected | Observed | Passed |\n| --- | --- | --- | --- |\n")
+      if field(report, "cases") is Array(items) {
+        for item in items { out.write_string("| " + cell(field(item, "name")) + " | " + cell(field(item, "expected")) + " | " + cell(field(item, "actual")) + " | " + cell(field(item, "passed")) + " |\n") }
+      } else { out.write_string("| Detailed cases | not recorded | not recorded | not recorded |\n") }
+      out.write_string("\nDownload wasm-host-evidence for inputs and per-case outcomes. This is a bounded experimental validator probe, not a general isolation proof.\n")
+    }
+    _ => fail("unknown suite")
+  }
+  let markdown = out.to_string()
+  @fs.write_file("test-results-summary.md", markdown)
+  if @env.get_env_var("GITHUB_STEP_SUMMARY") is Some(path) { @fs.write_file(path, markdown, append=true) }
+  println("Wrote " + suite + " test result summary")
+}

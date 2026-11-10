@@ -33,14 +33,19 @@ async fn main {
   let gvk = resources[0].key().gvk
   store.replace(gvk, resources)
   let attempts : Map[@core.Key, Int32] = Map([])
-  let controller = @controller.Controller::new(queue, key => {
-    let n = attempts.get(key).unwrap_or(0)
-    attempts[key] = n + 1
-    if n % 31 == 0 {
-      raise @core.Transport("injected transient failure")
-    }
-    Complete
-  })
+  let metrics = @observability.Metrics::new()
+  let controller = @controller.Controller::new(
+    queue,
+    key => {
+      let n = attempts.get(key).unwrap_or(0)
+      attempts[key] = n + 1
+      if n % 31 == 0 {
+        raise @core.Transport("injected transient failure")
+      }
+      Complete
+    },
+    metrics~,
+  )
   let started = @async.now()
   let mut iterations = 0
   while @async.now() - started < seconds.to_int64() * 1000L {
@@ -75,8 +80,24 @@ async fn main {
     "queue_pending_end": queue.pending(),
     "cache_objects_end": store.list(gvk).length(),
     "faults_and_duplicates": true,
+    "reconcile_failures": metrics.count("reconcile_failure"),
+    "reconcile_successes": metrics.count("reconcile_success"),
+    "queue_retries": metrics.count("queue_retry"),
+    "cache_encoded_bytes_end": store.bytes(),
     "memory_rss": "not measured",
   }
+  let input : Json = {
+    "resource_template": resources[0].json(),
+    "resource_count": 1000,
+    "name_pattern": "p{index}, index=0..999",
+    "duration_seconds": seconds,
+    "duplicate_policy": "enqueue each key twice per iteration",
+    "failure_policy": "Transport failure when per-key reconcile attempt count modulo 31 is zero (count starts at zero)",
+    "queue_capacity": 1000,
+    "cache_capacity": 1000,
+    "external_services": "none; synthetic cooperative event loop",
+  }
+  @fs.write_file("soak-input.json", input.stringify(indent=2))
   @fs.write_file("soak-report.json", report.stringify(indent=2))
   println(report.stringify())
 }
