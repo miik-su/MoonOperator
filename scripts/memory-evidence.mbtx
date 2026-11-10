@@ -1,0 +1,28 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+----
+fn field(value : Json, key : String) -> Json { match value { Object(f) => f.get(key).unwrap_or(Json::null()); _ => Json::null() } }
+async fn main {
+  let records : Array[Json] = []
+  let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
+  source.check()
+  for (profile, limit, bytes) in [("operator", "128m", 134217728), ("10k", "512m", 536870912)] {
+    let created = @shell.Cmd("docker", ["create", "--memory", limit, "--memory-swap", limit, "--entrypoint", "/usr/local/bin/memory-probe", "moonoperator-probe:dev", profile], stdout=Capture).output(timeout_ms=10000)
+    created.check()
+    let id = created.stdout().trim().to_owned()
+    guard id.length() == 64 && id.all(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) else { fail("unexpected new container identifier") }
+    {
+      defer { ignore(@shell.Cmd("docker", ["rm", "-f", id], stdout=Capture).output(timeout_ms=10000)) }
+      let run = @shell.Cmd("docker", ["start", "--attach", id], stdout=Capture).output(timeout_ms=120000)
+      let inspected = @shell.Cmd("docker", ["inspect", "--format", "{{json .State}}", id], stdout=Capture).output(timeout_ms=10000)
+      inspected.check()
+      let state = @json.parse(inspected.stdout())
+      let result = @json.parse(run.stdout()) catch { _ => Json::null() }
+      records.push({ "profile": profile, "memory_limit_bytes": bytes, "swap_disabled": true, "container_state": state, "observation": result })
+      let report : Json = { "source_commit": source.stdout().trim().to_owned(), "scope": "short fresh-process snapshot replacement; no 1h/24h stability or GC live-heap claim", "profiles": records }
+      @fs.write_file("memory-evidence-report.json", report.stringify(indent=2))
+      guard run.exit_code() == 0 && field(state, "OOMKilled") == Json::boolean(false) && result != Json::null() else { fail("memory profile failed; actual container state retained in report") }
+    }
+  }
+  println("Fresh-process RSS and container OOM observations recorded")
+}

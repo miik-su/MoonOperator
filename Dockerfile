@@ -17,6 +17,7 @@ ENTRYPOINT ["/usr/local/bin/moonoperator"]
 FROM runtime AS acceptance
 COPY _build/native/release/build/tests/cluster_client/cluster_client.exe /usr/local/bin/client-probe
 COPY _build/native/release/build/cmd/diagnostic_probe/diagnostic_probe.exe /usr/local/bin/diagnostic-probe
+COPY _build/native/release/build/tests/memory_profile/memory_profile.exe /usr/local/bin/memory-probe
 
 # Default builds select production; test-only tooling is in a sibling stage.
 FROM runtime AS production

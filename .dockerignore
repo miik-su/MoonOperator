@@ -16,3 +16,5 @@
 !_build/native/release/build/tests/
 !_build/native/release/build/tests/cluster_client/
 !_build/native/release/build/tests/cluster_client/cluster_client.exe
+!_build/native/release/build/tests/memory_profile/
+!_build/native/release/build/tests/memory_profile/memory_profile.exe

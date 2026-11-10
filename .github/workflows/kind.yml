@@ -25,9 +25,10 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install -y libssl-dev
       - run: moon update
-      - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client --target native --release
+      - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client tests/memory_profile --target native --release
       - run: docker build --target production -t moonoperator:dev .
       - run: docker build --target acceptance -t moonoperator-probe:dev .
+      - run: moon run scripts/memory-evidence.mbtx
       - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
       - name: Verify distributed license files
         run: |
@@ -69,6 +70,7 @@ jobs:
             runtime-packages.txt
             test-results-summary.md
             network-policy-report.json
+            memory-evidence-report.json
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
         if: failure()
