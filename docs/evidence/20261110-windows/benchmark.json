@@ -1,0 +1,70 @@
+{
+  "provenance": {
+    "source_commit": "e8e639679e97a2942934c4096f4d6055b39fc5a1",
+    "worktree_modified": false,
+    "display_date": "2026-11-10",
+    "ci_run_url": "local run"
+  },
+  "command": "moon run benchmarks/runtime --target native --release",
+  "result": {
+    "toolchain": "0.10.17+d971670cd",
+    "target": "native-release",
+    "dataset_objects": 1000,
+    "workers": 1,
+    "platform": "Windows",
+    "cpu": "not exposed to process",
+    "memory_measurement": "not measured; no RSS claim",
+    "observations": [
+      {
+        "name": "resource_copy_serialize",
+        "iterations": 1000,
+        "total_us": 9689.5,
+        "mean_us": 9.6895,
+        "checksum": 189000
+      },
+      {
+        "name": "json_parse",
+        "iterations": 1000,
+        "total_us": 12329.2,
+        "mean_us": 12.3292,
+        "checksum": 189000
+      },
+      {
+        "name": "cache_get_1000_objects",
+        "iterations": 10000,
+        "total_us": 6559.599999999999,
+        "mean_us": 0.65596,
+        "checksum": 20000
+      },
+      {
+        "name": "cache_label_query_1000_objects",
+        "iterations": 100,
+        "total_us": 187341.1,
+        "mean_us": 1873.411,
+        "checksum": 100000
+      },
+      {
+        "name": "watch_event_decode",
+        "iterations": 1000,
+        "total_us": 15063.699999999999,
+        "mean_us": 15.063699999999999,
+        "checksum": 1000
+      },
+      {
+        "name": "queue_add_claim_done",
+        "iterations": 10000,
+        "total_us": 15009.5,
+        "mean_us": 1.50095,
+        "checksum": 20000
+      },
+      {
+        "name": "moonapp_noop_fake_reconcile",
+        "iterations": 1000,
+        "total_us": 567320.3999999999,
+        "mean_us": 567.3204,
+        "writes": 0
+      }
+    ]
+  },
+  "input_file": "benchmark-input.json"
+}

@@ -1,0 +1,23 @@
+{
+  "provenance": {
+    "source_commit": "e8e639679e97a2942934c4096f4d6055b39fc5a1",
+    "worktree_modified": false,
+    "display_date": "2026-11-10",
+    "ci_run_url": "local run"
+  },
+  "command": "moon run tests/soak --target native --release",
+  "result": {
+    "duration_ms": 10015,
+    "iterations": 496409,
+    "objects": 1000,
+    "queue_pending_end": 0,
+    "cache_objects_end": 1000,
+    "faults_and_duplicates": true,
+    "reconcile_failures": "16617",
+    "reconcile_successes": "480617",
+    "queue_retries": "16617",
+    "cache_encoded_bytes_end": 107890,
+    "memory_rss": "not measured"
+  },
+  "input_file": "soak-input.json"
+}

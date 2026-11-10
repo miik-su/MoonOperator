@@ -1,0 +1,15 @@
+{
+  "source_commit": "21b5cbb297ca7cbbfd8641aa4911bddc8f01d668",
+  "workflow_run": "https://github.com/miik-su/MoonOperator/actions/runs/42489317303",
+  "artifact_id": 13620932754,
+  "artifact_name": "kind-acceptance",
+  "verified_zip_sha256": "761afcd4a5436ab1a41060d39630ae0b7eec13b8e50d1823a848f3ab0167ac9d",
+  "original_to_archived_names": {
+    "kind-e2e-report.json": "moonapp.json",
+    "cluster-client-report.json": "client.json",
+    "kind-version.json": "kubernetes-version.json",
+    "runtime-packages.txt": "runtime-packages.txt"
+  },
+  "observation_date": "2026-11-08",
+  "publication_date": "2026-11-10"
+}

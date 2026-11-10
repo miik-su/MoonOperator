@@ -1,0 +1,105 @@
+{
+  "guest": "MoonBit",
+  "wasmtime": "50.0.1",
+  "normal_invalid_trap_fuel_memory_capability_abi_deadline": true,
+  "cases": [
+    {
+      "name": "valid-input",
+      "input": {
+        "replicas": 3
+      },
+      "expected": "valid",
+      "actual": "valid",
+      "passed": true
+    },
+    {
+      "name": "invalid-range",
+      "input": {
+        "replicas": 101
+      },
+      "expected": "invalid",
+      "actual": "invalid",
+      "passed": true
+    },
+    {
+      "name": "invalid-type",
+      "input": {
+        "replicas": "bad"
+      },
+      "expected": "Invalid",
+      "actual": "Invalid",
+      "passed": true
+    },
+    {
+      "name": "invalid.wat",
+      "fixture": "tests/wasm_host/fixtures/invalid.wat",
+      "input": {
+        "replicas": 3
+      },
+      "expected": "load",
+      "actual": "load",
+      "passed": true
+    },
+    {
+      "name": "trap.wat",
+      "fixture": "tests/wasm_host/fixtures/trap.wat",
+      "input": {
+        "replicas": 3
+      },
+      "expected": "trap",
+      "actual": "trap",
+      "passed": true
+    },
+    {
+      "name": "spin.wat",
+      "fixture": "tests/wasm_host/fixtures/spin.wat",
+      "input": {
+        "replicas": 3
+      },
+      "expected": "fuel",
+      "actual": "fuel",
+      "passed": true
+    },
+    {
+      "name": "memory.wat",
+      "fixture": "tests/wasm_host/fixtures/memory.wat",
+      "input": {
+        "replicas": 3
+      },
+      "expected": "memory",
+      "actual": "memory",
+      "passed": true
+    },
+    {
+      "name": "capability.wat",
+      "fixture": "tests/wasm_host/fixtures/capability.wat",
+      "input": {
+        "replicas": 3
+      },
+      "expected": "load",
+      "actual": "load",
+      "passed": true
+    },
+    {
+      "name": "abi.wat",
+      "fixture": "tests/wasm_host/fixtures/abi.wat",
+      "input": {
+        "replicas": 3
+      },
+      "expected": "abi",
+      "actual": "abi",
+      "passed": true
+    },
+    {
+      "name": "deadline",
+      "fixture": "tests/wasm_host/fixtures/spin.wat",
+      "input": {
+        "replicas": 3
+      },
+      "timeout_ms": 10,
+      "expected": "deadline",
+      "actual": "deadline",
+      "passed": true
+    }
+  ]
+}
