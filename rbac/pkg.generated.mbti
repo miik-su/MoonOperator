@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn diagnostics_policy(String) -> Json raise @core.OperatorError
+
 pub fn manifests(String, String, Array[Rule], cluster? : Bool) -> Array[Json] raise @core.OperatorError
 
 // Errors

@@ -27,6 +27,8 @@ fn main raise {
     {
       group: "moonoperator.dev",
       resources: ["moonapps/finalizers"],
+      // Required by OwnerReferencesPermissionEnforcement for blockOwnerDeletion,
+      // even though MoonApp itself uses GC rather than a cleanup finalizer.
       verbs: ["update"],
     },
     {
@@ -37,6 +39,7 @@ fn main raise {
     { group: "", resources: ["services"], verbs: ["get", "create", "update"], },
   ])
   items.push(crd)
+  items.push(@rbac.diagnostics_policy(ns))
   let bundle : Json = { "apiVersion": "v1", "kind": "List", "items": items }
   println(bundle.stringify(indent=2))
 }
