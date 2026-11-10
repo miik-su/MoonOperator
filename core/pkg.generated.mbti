@@ -19,7 +19,11 @@ pub fn json_size(Json, max_bytes? : Int32, max_depth? : Int32, max_nodes? : Int3
 
 pub fn retryable(Int32) -> Bool
 
+pub fn rfc3339(Int64) -> String raise OperatorError
+
 pub fn text(Json) -> String
+
+pub fn unix_seconds(Int32, Int32, Int32, Int32, Int32, Int32) -> Int64?
 
 // Errors
 pub(all) suberror OperatorError {

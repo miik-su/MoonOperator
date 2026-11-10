@@ -33,7 +33,7 @@ async test "MoonApp refuses implicit adoption and preserves unrelated owners" {
       _ => false
     },
   )
-  assert_eq(fake.write_count(), writes)
+  assert_eq(fake.write_count(), writes + 1) // One safe status update; no child adoption.
   assert_eq(
     client.get(@moonapp.deployment_type, "demo", "demo").json(),
     unowned.json(),
@@ -61,5 +61,5 @@ async test "MoonApp refuses implicit adoption and preserves unrelated owners" {
       _ => false
     },
   )
-  assert_eq(fake.write_count(), writes)
+  assert_eq(fake.write_count(), writes + 1) // Surface ownership failure through status.
 }

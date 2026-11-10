@@ -85,6 +85,8 @@ pub fn conditions_upsert(
   conditions : Json,
   condition : Json,
 ) -> Json raise OperatorError {
+  ignore(json_size(conditions))
+  ignore(json_size(condition))
   let kind = text(field(condition, "type"))
   let status = text(field(condition, "status"))
   if kind.is_empty() ||

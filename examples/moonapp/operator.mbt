@@ -25,7 +25,7 @@ pub fn spec_schema() -> Json {
     "type": "object",
     "required": ["image"],
     "properties": {
-      "image": { "type": "string" },
+      "image": { "type": "string", "minLength": 1 },
       "replicas": {
         "type": "integer",
         "default": 1,
@@ -161,6 +161,66 @@ pub async fn reconcile(
   if app.deleting() {
     return Complete
   } // OwnerReference garbage collection owns children.
+  let mut spec_accepted = false
+  let failure : Error? = try {
+    ignore(@crd.validate(spec_schema(), @core.field(app.json(), "spec")))
+    spec_accepted = true
+    apply_resources(client, app, adopt_unowned~)
+    None
+  } catch {
+    error => Some(error)
+  }
+  if failure is Some(error) {
+    let (accepted, reason, message) = match error {
+      @core.Invalid(_) =>
+        (
+          spec_accepted,
+          if spec_accepted {
+            "OwnershipConflict"
+          } else {
+            "InvalidSpec"
+          },
+          "Check the spec and child resource ownership",
+        )
+      @core.Api(403, _) =>
+        (
+          true, "Forbidden", "ServiceAccount permissions do not allow the requested operation",
+        )
+      @core.Api(409, _) =>
+        (
+          true, "Conflict", "A resource changed concurrently; reconciliation will retry",
+        )
+      @core.Api(_, _) =>
+        (true, "ApiFailure", "A Kubernetes API operation failed")
+      _ =>
+        (
+          true, "ReconcileFailure", "Reconciliation failed; consult the safe operator event log",
+        )
+    }
+    // Do not replace an original failure if status writing also fails.
+    publish_status(client, app, accepted~, applied=false, reason~, message~) catch {
+      _ => ()
+    }
+    raise error
+  }
+  publish_status(
+    client,
+    app,
+    accepted=true,
+    applied=true,
+    reason="ResourcesApplied",
+    message="Desired Deployment and Service API resources have been applied",
+  )
+  RequeueAfter(30000)
+}
+
+///|
+async fn apply_resources(
+  client : @client.Client,
+  app : @core.Resource,
+  adopt_unowned~ : Bool,
+) -> Unit {
+  let key = app.key()
   for (kind, expected) in desired(app) {
     let existing = try client.get(kind, key.ns, key.name) catch {
       @core.Api(404, _) => None
@@ -201,15 +261,4 @@ pub async fn reconcile(
       }
     }
   }
-  let status : Json = {
-    "observedGeneration": @core.field(app.metadata(), "generation"),
-    "phase": "ResourcesApplied",
-  }
-  if @core.field(app.json(), "status") != status {
-    ignore(
-      client.update(app_type, app.with_field("status", status), status=true),
-    )
-  }
-  // Periodic resync repairs child drift even when no MoonApp event occurs.
-  RequeueAfter(30000)
 }
