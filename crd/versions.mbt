@@ -22,7 +22,16 @@ pub fn definition_with_versions(
   let mut storage_count = 0
   let mut preferred_served = false
   let encoded : Array[Json] = []
+  let schema = versions[0].schema
+  ignore(@core.json_size(schema, max_depth=64))
   for version in versions {
+    ignore(@core.json_size(version.schema, max_depth=64))
+    if version.schema != schema ||
+      version.status_subresource != versions[0].status_subresource {
+      raise @core.Invalid(
+        "without conversion all version schemas and subresource semantics must match",
+      )
+    }
     if version.name.is_empty() ||
       names.contains(version.name) ||
       (version.storage && !version.served) ||

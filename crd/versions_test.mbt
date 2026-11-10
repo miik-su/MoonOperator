@@ -18,6 +18,28 @@ test "CRD multiversion requires one storage version" {
     fail("versions missing")
   }
   assert_eq(versions.length(), 2)
+  let incompatible_schemas : Array[Json] = [
+    { "type": "object", "properties": { "x": { "type": "integer" } } },
+    {
+      "type": "object",
+      "properties": { "x": { "type": "string", "default": "different" } },
+    },
+  ]
+  for incompatible in incompatible_schemas {
+    assert_true(
+      try
+        @crd.definition_with_versions(kind, "app", [
+          v1,
+          { ..v2, schema: incompatible, },
+        ])
+      catch {
+        @core.Invalid(_) => true
+        _ => false
+      } noraise {
+        _ => false
+      },
+    )
+  }
   assert_true(
     try
       @crd.definition_with_versions(kind, "app", [v1, { ..v2, storage: true, }])
