@@ -60,6 +60,14 @@ async fn main {
         out.write_string("| " + key + " | " + cell(field(policy, key)) + " |\n")
       }
       out.write_string("\nA missing policy report is not an enforcement pass. RBAC expected/actual details are preserved in rbac-report.json.\n")
+      out.write_string("\n### Explicit ownership adoption\n\n| Mode | Default refused | Explicit result | Passed |\n| --- | --- | --- | --- |\n")
+      if read(directory + "/adoption-report.json") is Array(items) {
+        for item in items {
+          out.write_string("| " + cell(field(item, "mode")) + " | " + cell(field(item, "default_adoption_refused")) + " | " + cell(field(item, "explicit_adoption")) + " | " + cell(field(item, "passed")) + " |\n")
+        }
+      } else {
+        out.write_string("| not recorded | not recorded | not recorded | not recorded |\n")
+      }
     }
     "memory" => {
       let report = read(directory + "/memory-evidence-report.json")

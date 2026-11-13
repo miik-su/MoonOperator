@@ -83,6 +83,7 @@ async fn adoption(mode : String) -> Unit {
       "403 without delete permission"
     },
     "passed": true,
+    "admission_plugin": "OwnerReferencesPermissionEnforcement explicitly enabled",
   }
   println(report.stringify())
 }

@@ -104,9 +104,13 @@ async fn main {
         raise error
       }
     }
-    let report = @json.parse(kubectl(["logs", "pod/" + pod_name]).trim().to_owned())
+    let mut report : Json = Json::null()
+    for line in kubectl(["logs", "pod/" + pod_name]).split("\n") {
+      if line.trim().has_prefix("{") { report = @json.parse(line) }
+    }
     assert_eq(field(report, "passed"), Json::boolean(true))
     adoption_reports.push(report)
+    @fs.write_file("adoption-report.json", Json::array(adoption_reports).stringify(indent=2))
   }
   @fs.write_file("adoption-report.json", Json::array(adoption_reports).stringify(indent=2))
   ignore(kubectl(["apply", "-f", "config/operator.yaml"]))

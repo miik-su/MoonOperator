@@ -44,3 +44,9 @@ matches accordingly. `Client::list` adds `max_bytes` (64 MiB default) and
 access still exposes data to application code and must not be logged. MoonApp
 reconciliation refuses unowned same-name children unless `adopt_unowned=true` is
 explicitly selected; foreign controllers remain forbidden in either mode.
+When the API server enables OwnerReferencesPermissionEnforcement, updating an
+existing child's owner references also needs delete permission on that child;
+blocking owner deletion needs update on the owner's finalizers subresource.
+The example Role includes the latter, but deliberately excludes dependent delete.
+Optional adoption therefore needs a separately reviewed, narrowly scoped grant
+on enforcing clusters. The plugin is not default-on in Kubernetes 1.37.

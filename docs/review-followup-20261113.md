@@ -13,13 +13,16 @@ The repository is `miik-su/MoonOperator`; the Mooncakes module namespace remains
 | RBAC failure omitted the actual operation | Fully qualified groups and explicit finalizers subresource; expected/actual records | [Six real authorization decisions](evidence/20261113-linux/rbac.json) |
 | NetworkPolicy was only generated | Checksum-verified Calico plus real traffic allow/deny/recovery | [Policy result](evidence/20261113-linux/network-policy.json), Kubernetes 1.37.0 only |
 | Authentication negative paths lacked acceptance | Local real-socket token rotation after HTTP 401; Linux trust/hostname rejection | [Native CI](https://github.com/miik-su/MoonOperator/actions/runs/43366355163); 401 is simulated expiry, not real JWT aging |
-| Optional adoption needs additional permission | Separate default-refusal and explicit deny/allow fixtures; extra delete rights restricted to named test resources | Latest probe is still under investigation; no passing adoption claim yet |
+| Optional adoption under ownership admission needs additional permission | Separate default-refusal and explicit deny/allow fixtures; extra delete rights restricted to named test resources | Default Kubernetes 1.37 did not enable this plugin; CI now explicitly enables it, with rerun pending |
 | Full regression / long soak evidence absent | Manual-only workflow, recorded counts/toolchain/source; Int64 long-run counters and bounded minute RSS sampling | Entry points added; full regression and one-hour/24-hour runs remain unexecuted |
 
 The normal example Role retains `update moonapps/finalizers`, needed when setting
 `blockOwnerDeletion=true`. It does not gain dependent delete permissions merely
 to enable optional adoption. Kubernetes admission distinguishes changing a
-dependent's owner references from setting blocking ownership on an owner:
+dependent's owner references from setting blocking ownership on an owner when
+`OwnerReferencesPermissionEnforcement` is enabled. It is absent from Kubernetes
+1.37's default-on list, so this is an environment-dependent admission contract:
+[upstream plugin defaults](https://github.com/kubernetes/kubernetes/blob/v1.37.0/pkg/kubeapiserver/options/plugins.go),
 [upstream admission implementation](https://github.com/kubernetes/kubernetes/blob/v1.37.0/plugin/pkg/admission/gc/gc_admission.go).
 
 ## Public functionality and data boundaries
