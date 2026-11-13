@@ -73,6 +73,34 @@ async fn main {
   }
   assert_eq(field(parsed_report, "real_api_crud_patch_paginate_conflict_forbidden_watch"), Json::boolean(true))
   @fs.write_file("cluster-client-report.json", parsed_report.stringify())
+  let adoption_reports : Array[Json] = []
+  for (mode, name) in [("deny", "adoption-denied"), ("allow", "adoption-allowed")] {
+    let labels : Json = { "app.kubernetes.io/instance": name, "app.kubernetes.io/managed-by": "moonoperator" }
+    let meta : Json = { "name": name, "namespace": "moonoperator-e2e", "labels": labels, "annotations": { "moonoperator.dev/fixture": "preserve" } }
+    let image = "registry.k8s.io/pause:3.10"
+    let fixtures : Array[Json] = [
+      { "apiVersion": "v1", "kind": "ServiceAccount", "metadata": meta },
+      { "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding", "metadata": meta, "subjects": [{ "kind": "ServiceAccount", "name": name, "namespace": "moonoperator-e2e" }], "roleRef": { "apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": "moonoperator" } },
+      { "apiVersion": "moonoperator.dev/v1", "kind": "MoonApp", "metadata": meta, "spec": { "image": image, "replicas": 0, "port": 8080 } },
+      { "apiVersion": "apps/v1", "kind": "Deployment", "metadata": meta, "spec": { "replicas": 0, "selector": { "matchLabels": labels }, "template": { "metadata": { "labels": labels }, "spec": { "containers": [{ "name": "app", "image": image }] } } } },
+      { "apiVersion": "v1", "kind": "Service", "metadata": meta, "spec": { "selector": labels, "ports": [{ "port": 8080, "targetPort": 8080 }] } },
+    ]
+    if mode == "allow" {
+      fixtures.push({ "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role", "metadata": meta, "rules": [{ "apiGroups": ["apps"], "resources": ["deployments"], "resourceNames": [name], "verbs": ["delete"] }, { "apiGroups": [""], "resources": ["services"], "resourceNames": [name], "verbs": ["delete"] }] })
+      let binding_meta : Json = { "name": name + "-extra", "namespace": "moonoperator-e2e" }
+      fixtures.push({ "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding", "metadata": binding_meta, "subjects": [{ "kind": "ServiceAccount", "name": name, "namespace": "moonoperator-e2e" }], "roleRef": { "apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": name } })
+    }
+    let fixture_list : Json = { "apiVersion": "v1", "kind": "List", "items": fixtures }
+    ignore(kubectl(["apply", "-f", "-"], input=fixture_list.stringify()))
+    let pod_name = name + "-probe"
+    let pod : Json = { "apiVersion": "v1", "kind": "Pod", "metadata": { "name": pod_name, "namespace": "moonoperator-e2e" }, "spec": { "restartPolicy": "Never", "serviceAccountName": name, "containers": [{ "name": "probe", "image": "moonoperator-probe:dev", "imagePullPolicy": "Never", "command": ["/usr/local/bin/client-probe"], "env": [{ "name": "MOONOPERATOR_ADOPTION_PROBE", "value": mode }] }] } }
+    ignore(kubectl(["apply", "-f", "-"], input=pod.stringify()))
+    ignore(kubectl(["wait", "--for=jsonpath={.status.phase}=Succeeded", "pod/" + pod_name, "--timeout=90s"]))
+    let report = @json.parse(kubectl(["logs", "pod/" + pod_name]).trim().to_owned())
+    assert_eq(field(report, "passed"), Json::boolean(true))
+    adoption_reports.push(report)
+  }
+  @fs.write_file("adoption-report.json", Json::array(adoption_reports).stringify(indent=2))
   ignore(kubectl(["apply", "-f", "config/operator.yaml"]))
   ignore(kubectl(["apply", "-f", "config/diagnostics-networkpolicy.yaml"]))
   ignore(kubectl(["rollout", "status", "deployment/moonoperator", "--timeout=120s"]))
@@ -101,7 +129,7 @@ async fn main {
   ignore(kubectl(["delete", "moonapp", "demo-app", "--wait=true"]))
   ignore(kubectl(["wait", "--for=delete", "deployment/demo-app", "--timeout=90s"]))
   ignore(kubectl(["wait", "--for=delete", "service/demo-app", "--timeout=90s"]))
-  let report : Json = { "suite": "kind-moonapp", "create_update_drift_restart_gc": true, "empty_image_rejected_by_admission": true, "rbac_positive_negative": true, "generation_conditions": true, "ready_not_overclaimed": true }
+  let report : Json = { "suite": "kind-moonapp", "create_update_drift_restart_gc": true, "empty_image_rejected_by_admission": true, "rbac_positive_negative": true, "generation_conditions": true, "ready_not_overclaimed": true, "explicit_adoption_permissions": true }
   @fs.write_file("kind-e2e-report.json", report.stringify(indent=2))
   println("Kind MoonApp create/update/drift/restart/GC verified")
 }

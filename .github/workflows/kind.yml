@@ -79,6 +79,7 @@ jobs:
             test-results-summary.md
             network-policy-report.json
             rbac-report.json
+            adoption-report.json
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
         if: failure()

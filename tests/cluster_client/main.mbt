@@ -138,6 +138,10 @@ async fn run_probe() -> Unit {
 
 ///|
 async fn main {
+  if @env.get_env_var("MOONOPERATOR_ADOPTION_PROBE") is Some(mode) {
+    adoption(mode)
+    return
+  }
   run_probe() catch {
     @core.Invalid(message) => {
       println("client-probe validation: " + message)
