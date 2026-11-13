@@ -7,10 +7,15 @@ roadmap.md; compatibility.md states the supported subset for each capability.
 Latest bounded evidence is archived in
 [the November 13 follow-up](review-followup-20261113.md) and
 [permanent Linux snapshots](evidence/20261113-linux/README.md).
-Source 695c58c passed native, WASM and Kind, including independent memory jobs
-and Calico enforcement. Source 186a7fb passed native and WASM, while its new
-optional-adoption Kind probe failed; that failure is being investigated and is
-not replaced by an older green result.
+Final code source 31d7390 passed
+[native](https://github.com/miik-su/MoonOperator/actions/runs/43416752124),
+[WASM](https://github.com/miik-su/MoonOperator/actions/runs/43416752053) and
+[Kind](https://github.com/miik-su/MoonOperator/actions/runs/43416752043), including
+independent six-case memory observations, Calico enforcement and scoped
+ownership-adoption admission. [Same-source raw reports](evidence/20261113-linux/31d7390/README.md)
+are permanent. Earlier optional-adoption probes failed because the test assumed
+an admission plugin that Kubernetes 1.37 does not enable by default; the final
+acceptance explicitly enables it and proves both denied and permitted paths.
 
 Historical public evidence:
 

@@ -11,7 +11,7 @@
 | 2.1 Resource Debug 泄密 | 所有资源（含自定义资源与 metadata）输出固定 redacted 文本，不派生原始 Json 调试输出 | core/redaction_test：Secret 和自定义类型的模拟凭据不出现在输出 |
 | 2.2 Finalizer 空转 | Bool 改为 Continue、FinalizerAdded、CleanupPending、CleanupComplete、NoLongerResponsible | controller/finalizer_test：清理成功/失败/超时、无自身 finalizer、剩余其他 finalizer；完成后不要求重排 |
 | 2.3 / 2.7 OwnerReference 作用域 | API 显式接收双方 ResourceType，允许 namespaced → cluster owner，拒绝跨 namespace、cluster → namespaced、类型/声明不匹配与自引用 | core/ownership_test 覆盖合法组合、拒绝组合及引用保留 |
-| 2.4 MoonApp 接管及引用覆盖 | 默认拒绝已有无主资源；仅显式 adopt_unowned=true 可接管；任何模式均拒绝其他控制器；比较/覆盖前合并保留其他非控制型引用 | examples/moonapp/ownership_test：默认零写入、显式接管、保留引用、再次协调零写入、拒绝外部控制器 |
+| 2.4 MoonApp 接管及引用覆盖 | 默认拒绝已有无主资源；仅显式 adopt_unowned=true 可接管；任何模式均拒绝其他控制器；比较/覆盖前合并保留其他非控制型引用 | examples/moonapp/ownership_test：默认不写子资源（发布一次安全状态）、显式接管、保留引用、再次协调零写入、拒绝外部控制器 |
 | 2.5 Watch RV | ADDED/MODIFIED/DELETED 必须非空字符串 RV，注入 Source 也先验证再应用 | watch/version_test：缺失/空/数字/正常 RV；runtime/capacity_test：非法资源不进入缓存 |
 | 2.6 容量无限 LIST | 新增 CacheCapacity、QueueCapacity、ListCapacity；缓存/LIST/一般容量立即撤销 readiness 并上抛；队列满在入队处等待 | runtime/capacity_test：超额快照仅请求一次；backpressure_test 保留队列背压行为 |
 | 2.6 持续非法事件 | 无效 LIST 直接失败；非法 Watch 受控重建，连续三次后失败，成功事件重置预算；不伪造 HTTP 410 | runtime/capacity_test 验证三次上限；recovery_test 保留真正 410 relist |

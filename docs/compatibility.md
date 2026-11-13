@@ -28,9 +28,11 @@
 | Container delivery | Release production image excludes probes; separate acceptance image; pinned Ubuntu digest/archive snapshot and recorded package inventory verified in Kind CI |
 | Diagnostics ingress | Loopback default; explicit cluster interface; actual Calico 3.33.0 allow/deny/recovery passed on Kubernetes 1.37.0; other CNIs unverified |
 
-The latest optional-adoption acceptance is not yet passing. See
-[current follow-up](review-followup-20261113.md) rather than inferring a pass
-from historical lifecycle acceptance. Full regression is manual-only and unrun.
+Optional-adoption acceptance passed for final code source 31d7390 with explicit
+OwnerReferencesPermissionEnforcement: default refusal, 403 without dependent
+delete permission and success with fixture-named grants. The normal example
+Role was not broadened. See [same-source final evidence](evidence/20261113-linux/31d7390/README.md).
+Full regression is manual-only and unrun.
 
 Single cooperative event loop only, not OS-thread-safe sharing. Use separate
 Store instances for independently watched namespaces of the same GVK: replace

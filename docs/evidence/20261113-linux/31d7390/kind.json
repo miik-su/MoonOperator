@@ -1,0 +1,9 @@
+{
+  "suite": "kind-moonapp",
+  "create_update_drift_restart_gc": true,
+  "empty_image_rejected_by_admission": true,
+  "rbac_positive_negative": true,
+  "generation_conditions": true,
+  "ready_not_overclaimed": true,
+  "explicit_adoption_permissions": true
+}

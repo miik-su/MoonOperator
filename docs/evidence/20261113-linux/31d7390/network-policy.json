@@ -1,0 +1,7 @@
+{
+  "cni": "Calico 3.33.0",
+  "same_pod_target": true,
+  "allowed_before_and_after": true,
+  "missing_pod_label_denied": true,
+  "missing_namespace_label_denied": true
+}

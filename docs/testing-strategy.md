@@ -23,4 +23,14 @@ failures, oversized responses, peer closure on cancellation, four-worker key
 exclusion/draining, YAML configuration, finalizer failures, safe logs and schema
 versions. Experimental WASM execution is a separate opt-in probe. Fixed dataset
 benchmarks and a 10-second bounded fault load report are recorded in evidence/;
-no hours-long soak or RSS result is claimed.
+no hours-long soak result is claimed. Short Linux RSS observations now exist in
+[the November 13 archive](evidence/20261113-linux/README.md); encoded cache
+budgets, process peak RSS and container limits remain separate measurements.
+
+The manual `release-validation.yml` workflow is excluded from push checks. Its
+full-native option invokes `moon run scripts/release-validation.mbtx -- full`
+and retains stdout, stderr, toolchain, source SHA, exit code and test totals.
+Its soak option supports 60 seconds or one hour. For a suitable local runner,
+`moon run scripts/release-validation.mbtx -- soak 86400` requests 24 hours with
+bounded progress samples. These are available entry points, not completed runs;
+the current review continues to honor focused-only testing.

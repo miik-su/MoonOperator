@@ -4,6 +4,10 @@ Review baseline: `556882744e7989920a7bf30a70ab7935d54df00b`.
 The repository is `miik-su/MoonOperator`; the Mooncakes module namespace remains
 `mik1e80/moonoperator` pending account confirmation. No package was published.
 
+Final code source `31d7390e2e60c6e41853c916636b45e4d8f720ab` passed all three
+focused workflows. [Same-source CI and raw final evidence](evidence/20261113-linux/31d7390/README.md)
+include ownership admission, Calico, RBAC and all six memory cases.
+
 ## Implemented changes and evidence
 
 | Review finding | Change | Evidence / limit |
@@ -13,7 +17,7 @@ The repository is `miik-su/MoonOperator`; the Mooncakes module namespace remains
 | RBAC failure omitted the actual operation | Fully qualified groups and explicit finalizers subresource; expected/actual records | [Six real authorization decisions](evidence/20261113-linux/rbac.json) |
 | NetworkPolicy was only generated | Checksum-verified Calico plus real traffic allow/deny/recovery | [Policy result](evidence/20261113-linux/network-policy.json), Kubernetes 1.37.0 only |
 | Authentication negative paths lacked acceptance | Local real-socket token rotation after HTTP 401; Linux trust/hostname rejection | [Native CI](https://github.com/miik-su/MoonOperator/actions/runs/43366355163); 401 is simulated expiry, not real JWT aging |
-| Optional adoption under ownership admission needs additional permission | Separate default-refusal and explicit deny/allow fixtures; extra delete rights restricted to named test resources | Default Kubernetes 1.37 did not enable this plugin; CI now explicitly enables it, with rerun pending |
+| Optional adoption under ownership admission needs additional permission | Separate default-refusal and explicit deny/allow fixtures; extra delete rights restricted to named test resources | Explicit enforcement rerun passed: [default refusal, 403 and named-grant success](evidence/20261113-linux/31d7390/adoption.json) |
 | Full regression / long soak evidence absent | Manual-only workflow, recorded counts/toolchain/source; Int64 long-run counters and bounded minute RSS sampling | Entry points added; full regression and one-hour/24-hour runs remain unexecuted |
 
 The normal example Role retains `update moonapps/finalizers`, needed when setting

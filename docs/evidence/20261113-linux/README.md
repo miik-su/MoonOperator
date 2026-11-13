@@ -1,5 +1,9 @@
 # Linux bounded evidence · 2026-11-13
 
+The [final same-source snapshot](31d7390/README.md) contains successful native,
+WASM and Kind links, including the subsequently corrected admission probe.
+The earlier snapshots below remain available for comparison.
+
 These files are unchanged JSON/package-list payloads extracted from public CI
 artifacts; report filenames are shortened for permanent version control.
 
