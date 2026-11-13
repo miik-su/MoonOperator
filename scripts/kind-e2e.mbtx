@@ -41,9 +41,17 @@ async fn main {
   ignore(kubectl(["apply", "-f", "-"], input=bundle.stdout()))
   ignore(kubectl(["wait", "--for=condition=Established", "crd/moonapps.moonoperator.dev", "--timeout=60s"]))
   let identity = "system:serviceaccount:moonoperator-e2e:moonoperator"
-  for (verb, resource, expected) in [("get", "moonapps", "yes"), ("create", "deployments.apps", "yes"), ("update", "moonapps/finalizers", "yes"), ("get", "secrets", "no"), ("update", "networkpolicies.networking.k8s.io", "no"), ("delete", "deployments.apps", "no")] {
-    let result = @shell.Cmd("kubectl", ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e", "auth", "can-i", verb, resource, "--as", identity], stdout=Capture).output(timeout_ms=10000)
-    assert_eq(result.stdout().trim().to_owned(), expected)
+  let permission_results : Array[Json] = []
+  for (verb, resource, subresource, expected) in [("get", "moonapps.moonoperator.dev", "", "yes"), ("create", "deployments.apps", "", "yes"), ("update", "moonapps.moonoperator.dev", "finalizers", "yes"), ("get", "secrets", "", "no"), ("update", "networkpolicies.networking.k8s.io", "", "no"), ("delete", "deployments.apps", "", "no")] {
+    let command = ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e", "auth", "can-i", verb, resource, "--as", identity]
+    if !subresource.is_empty() { command.push("--subresource=" + subresource) }
+    let result = @shell.Cmd("kubectl", command, stdout=Capture, stderr=Capture).output(timeout_ms=10000)
+    let actual = result.stdout().trim().to_owned()
+    let record : Json = { "service_account": identity, "namespace": "moonoperator-e2e", "verb": verb, "resource": resource, "subresource": subresource, "expected": expected, "actual": actual }
+    println(record.stringify())
+    permission_results.push(record)
+    @fs.write_file("rbac-report.json", Json::array(permission_results).stringify(indent=2))
+    assert_eq(actual, expected, msg=record.stringify())
   }
   let invalid : Json = { "apiVersion": "moonoperator.dev/v1", "kind": "MoonApp", "metadata": { "name": "invalid-image", "namespace": "moonoperator-e2e" }, "spec": { "image": "" } }
   let rejected = @shell.Cmd("kubectl", ["--context", "kind-moonoperator-e2e", "-n", "moonoperator-e2e", "apply", "--dry-run=server", "-f", "-"], stdin=Text(invalid.stringify()), stdout=Capture, stderr=Capture).output(timeout_ms=10000)
