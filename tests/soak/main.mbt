@@ -5,10 +5,10 @@ async fn main {
     Some(value) =>
       match @json.parse(value) {
         Number(n, ..) =>
-          if n == n.floor() && n >= 1.0 && n <= 3600.0 {
+          if n == n.floor() && n >= 1.0 && n <= 86400.0 {
             n.to_int()
           } else {
-            fail("soak duration 1..3600 seconds")
+            fail("soak duration 1..86400 seconds")
           }
         _ => fail("duration must be integer")
       }
@@ -38,7 +38,7 @@ async fn main {
     queue,
     key => {
       let n = attempts.get(key).unwrap_or(0)
-      attempts[key] = n + 1
+      attempts[key] = (n + 1) % 31
       if n % 31 == 0 {
         raise @core.Transport("injected transient failure")
       }
@@ -47,9 +47,13 @@ async fn main {
     metrics~,
   )
   let started = @async.now()
-  let mut iterations = 0
+  let mut iterations = 0L
+  let memory_samples : Array[Json] = [
+    { "elapsed_ms": 0, "memory": @process.memory() },
+  ]
+  let mut next_sample = started + 60000L
   while @async.now() - started < seconds.to_int64() * 1000L {
-    let resource = resources[iterations % 1000]
+    let resource = resources[(iterations % 1000L).to_int()]
     queue.add(resource.key())
     queue.add(resource.key())
     store.apply(
@@ -60,20 +64,40 @@ async fn main {
         ),
       ),
     )
-    ignore(controller.step(iterations.to_int64() * 100L))
+    ignore(controller.step(iterations * 100L))
     assert_true(queue.pending() <= 1000)
-    iterations += 1
-    if iterations % 100 == 0 {
+    iterations += 1L
+    if iterations % 100L == 0L {
       @async.pause()
+      if @async.now() >= next_sample && memory_samples.length() < 1450 {
+        memory_samples.push({
+          "elapsed_ms": @async.now() - started,
+          "memory": @process.memory(),
+        })
+        let partial : Json = {
+          "completed": false,
+          "elapsed_ms": @async.now() - started,
+          "iterations": iterations,
+          "memory_samples": memory_samples,
+          "oom": "external termination must be diagnosed by caller",
+        }
+        @fs.write_file("soak-progress-report.json", partial.stringify(indent=2))
+        next_sample = @async.now() + 60000L
+      }
     }
   }
   controller.stop()
   while queue.length() > 0 {
-    ignore(controller.step(iterations.to_int64() * 100L))
+    ignore(controller.step(iterations * 100L))
   }
   assert_eq(queue.pending(), 0)
   assert_eq(store.list(gvk).length(), 1000)
+  memory_samples.push({
+    "elapsed_ms": @async.now() - started,
+    "memory": @process.memory(),
+  })
   let report : Json = {
+    "completed": true,
     "duration_ms": (@async.now() - started).to_int(),
     "iterations": iterations,
     "objects": 1000,
@@ -84,7 +108,8 @@ async fn main {
     "reconcile_successes": metrics.count("reconcile_success"),
     "queue_retries": metrics.count("queue_retry"),
     "cache_encoded_bytes_end": store.bytes(),
-    "memory_rss": "not measured",
+    "memory_rss": "see per-sample available flags; Linux kernel RSS/HWM only, no GC live-heap measurement",
+    "memory_samples": memory_samples,
   }
   let input : Json = {
     "resource_template": resources[0].json(),

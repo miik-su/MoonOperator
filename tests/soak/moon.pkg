@@ -4,6 +4,7 @@ import {
   "mik1e80/moonoperator/queue",
   "mik1e80/moonoperator/controller",
   "mik1e80/moonoperator/observability",
+  "mik1e80/moonoperator/testing/process",
   "moonbitlang/async",
   "moonbitlang/async/fs",
   "moonbitlang/core/json",
