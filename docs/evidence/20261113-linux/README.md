@@ -25,3 +25,17 @@ The 10k/128 MiB observation is close to the limit and provides no safe headroom.
 These snapshots predate the optional-adoption acceptance probe added later;
 they do not prove that probe, a full regression, a long soak, multiple Kubernetes
 versions, or a complete distribution SBOM.
+
+Additional native source: `186a7fb1af4879dfef8476b4b421604d33516cb5`,
+[successful native workflow](https://github.com/miik-su/MoonOperator/actions/runs/43366355163).
+Artifact native-observations 14011230190, ZIP SHA-256
+`4742eea640088f65ff22c02a9974f59198dfc52ca76cc5e8415c5935aea83cdf`.
+tls-negative.json records trusted-CA success and unrelated-CA/wrong-hostname
+rejection. queue-scale.json records 1k/10k/50k ready FIFO and delayed heap cases,
+operation P95/P99 and per-process memory samples. Timing includes measurement
+overhead and excludes end-to-end reconciliation/timer delay; peak RSS is
+cumulative within that benchmark process, not an independent per-row process.
+benchmark.json/benchmark-input.json and soak.json/soak-input.json preserve the
+same artifact's synthetic input and results, including clean-source provenance.
+The soak lasted 10,003 ms with 37,000 injected failures/retries and zero pending
+keys after drain; initial/final RSS was 3,448/5,020 KiB. This is a short run.

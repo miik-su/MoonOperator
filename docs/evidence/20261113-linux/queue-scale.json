@@ -1,0 +1,113 @@
+{
+  "measurement": "single process; operation latency includes clock/assertion overhead, not end-to-end reconcile or intentional timer delay",
+  "observations": [
+    {
+      "keys": 1000,
+      "mode": "ready_fifo",
+      "setup_us": 603.246,
+      "drain_us": 702.902,
+      "mean_claim_done_us": 0.702902,
+      "p95_claim_done_us": 0.6910000000000001,
+      "p99_claim_done_us": 0.8220000000000001,
+      "not_due_poll_count": 0,
+      "not_due_poll_us": 0.06,
+      "memory_at_end": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 2660,
+        "peak_rss_kib": 2660
+      }
+    },
+    {
+      "keys": 1000,
+      "mode": "delayed_heap",
+      "setup_us": 515.051,
+      "drain_us": 2126.849,
+      "mean_claim_done_us": 2.126849,
+      "p95_claim_done_us": 2.595,
+      "p99_claim_done_us": 2.956,
+      "not_due_poll_count": 1000,
+      "not_due_poll_us": 6.422,
+      "memory_at_end": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 2776,
+        "peak_rss_kib": 2776
+      }
+    },
+    {
+      "keys": 10000,
+      "mode": "ready_fifo",
+      "setup_us": 6743.715,
+      "drain_us": 7039.337,
+      "mean_claim_done_us": 0.7039337,
+      "p95_claim_done_us": 0.732,
+      "p99_claim_done_us": 0.972,
+      "not_due_poll_count": 0,
+      "not_due_poll_us": 0.06,
+      "memory_at_end": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 5196,
+        "peak_rss_kib": 5196
+      }
+    },
+    {
+      "keys": 10000,
+      "mode": "delayed_heap",
+      "setup_us": 4629.52,
+      "drain_us": 26652.921000000002,
+      "mean_claim_done_us": 2.6652921000000003,
+      "p95_claim_done_us": 3.286,
+      "p99_claim_done_us": 3.807,
+      "not_due_poll_count": 1000,
+      "not_due_poll_us": 6.722,
+      "memory_at_end": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 6564,
+        "peak_rss_kib": 6564
+      }
+    },
+    {
+      "keys": 50000,
+      "mode": "ready_fifo",
+      "setup_us": 21334.725000000002,
+      "drain_us": 26163.607,
+      "mean_claim_done_us": 0.52327214,
+      "p95_claim_done_us": 0.601,
+      "p99_claim_done_us": 0.762,
+      "not_due_poll_count": 0,
+      "not_due_poll_us": 0.06,
+      "memory_at_end": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 15924,
+        "peak_rss_kib": 15924
+      }
+    },
+    {
+      "keys": 50000,
+      "mode": "delayed_heap",
+      "setup_us": 16114.673,
+      "drain_us": 125332.348,
+      "mean_claim_done_us": 2.50664696,
+      "p95_claim_done_us": 3.166,
+      "p99_claim_done_us": 3.676,
+      "not_due_poll_count": 1000,
+      "not_due_poll_us": 3.596,
+      "memory_at_end": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 16788,
+        "peak_rss_kib": 18264
+      }
+    }
+  ]
+}

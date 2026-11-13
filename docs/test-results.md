@@ -36,6 +36,16 @@ Calico 3.33.0 / Kubernetes 1.37.0 实测同一探针 Pod 的允许访问、去�
 这些结果不覆盖后来新增且仍在排查的可选接管探针，不代表最新 HEAD 全部通过。
 全量回归、1 小时和 24 小时运行均未执行。
 
+源提交 `186a7fb` 的 [Linux TLS 负向用例](evidence/20261113-linux/tls-negative.json)
+证明可信 CA/正确主机名可连接，无关 CA 和错误主机名均被拒绝。
+[队列规模原始数据](evidence/20261113-linux/queue-scale.json)提供 1k/10k/50k
+就绪 FIFO 与延时堆的操作 P95/P99 和进程内存；峰值在同一进程中累计，
+操作延迟不等同于端到端协调延迟或定时等待时长。
+[同源 Linux 十秒负载](evidence/20261113-linux/soak.json)实际持续 10,003 ms，
+注入失败／重试各 37,000 次，排空后待处理 Key 为 0；起止 RSS 为
+3,448／5,020 KiB。[输入配置](evidence/20261113-linux/soak-input.json)和
+[基准结果](evidence/20261113-linux/benchmark.json)一并归档。
+
 ## 数据模型输入
 
 | 数据/模型 | 规模及用途 | 原始输入 / 实现 |

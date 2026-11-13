@@ -1,0 +1,70 @@
+{
+  "provenance": {
+    "source_commit": "186a7fb1af4879dfef8476b4b421604d33516cb5",
+    "worktree_modified": false,
+    "display_date": "see CI run",
+    "ci_run_url": "https://github.com/miik-su/MoonOperator/actions/runs/43366355163"
+  },
+  "command": "moon run benchmarks/runtime --target native --release",
+  "result": {
+    "toolchain": "0.10.17+d971670cd",
+    "target": "native-release",
+    "dataset_objects": 1000,
+    "workers": 1,
+    "platform": "Linux",
+    "cpu": "not exposed to process",
+    "memory_measurement": "not measured; no RSS claim",
+    "observations": [
+      {
+        "name": "resource_copy_serialize",
+        "iterations": 1000,
+        "total_us": 4377.138,
+        "mean_us": 4.3771379999999995,
+        "checksum": 189000
+      },
+      {
+        "name": "json_parse",
+        "iterations": 1000,
+        "total_us": 7412.984,
+        "mean_us": 7.412984000000001,
+        "checksum": 189000
+      },
+      {
+        "name": "cache_get_1000_objects",
+        "iterations": 10000,
+        "total_us": 3957.215,
+        "mean_us": 0.3957215,
+        "checksum": 20000
+      },
+      {
+        "name": "cache_label_query_1000_objects",
+        "iterations": 100,
+        "total_us": 115865.747,
+        "mean_us": 1158.65747,
+        "checksum": 100000
+      },
+      {
+        "name": "watch_event_decode",
+        "iterations": 1000,
+        "total_us": 6150.228,
+        "mean_us": 6.150228,
+        "checksum": 1000
+      },
+      {
+        "name": "queue_add_claim_done",
+        "iterations": 10000,
+        "total_us": 5748.0070000000005,
+        "mean_us": 0.5748007,
+        "checksum": 20000
+      },
+      {
+        "name": "moonapp_noop_fake_reconcile",
+        "iterations": 1000,
+        "total_us": 268285.06,
+        "mean_us": 268.28506,
+        "writes": 0
+      }
+    ]
+  },
+  "input_file": "benchmark-input.json"
+}

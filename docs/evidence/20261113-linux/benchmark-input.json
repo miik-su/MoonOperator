@@ -1,0 +1,67 @@
+{
+  "resource_template": {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+      "name": "p0",
+      "namespace": "bench",
+      "resourceVersion": "opaque",
+      "labels": {
+        "app": "bench"
+      }
+    },
+    "spec": {
+      "containers": [
+        {
+          "name": "app",
+          "image": "nginx:1.27"
+        }
+      ]
+    }
+  },
+  "resource_count": 1000,
+  "name_pattern": "p{index}, index=0..999",
+  "label_selector": {
+    "app": "bench"
+  },
+  "watch_event": {
+    "type": "ADDED",
+    "object": {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "p0",
+        "namespace": "bench",
+        "resourceVersion": "opaque",
+        "labels": {
+          "app": "bench"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "app",
+            "image": "nginx:1.27"
+          }
+        ]
+      }
+    }
+  },
+  "watch_encoding": "UTF-8 NDJSON",
+  "noop_reconcile_app": {
+    "apiVersion": "moonoperator.dev/v1",
+    "kind": "MoonApp",
+    "metadata": {
+      "name": "bench",
+      "namespace": "bench",
+      "generation": 1,
+      "resourceVersion": "1",
+      "uid": "fake-1"
+    },
+    "spec": {
+      "image": "nginx:1.27",
+      "replicas": 3
+    }
+  },
+  "external_services": "none; fake API for reconciliation"
+}

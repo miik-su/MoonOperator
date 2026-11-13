@@ -1,0 +1,46 @@
+{
+  "provenance": {
+    "source_commit": "186a7fb1af4879dfef8476b4b421604d33516cb5",
+    "worktree_modified": false,
+    "display_date": "see CI run",
+    "ci_run_url": "https://github.com/miik-su/MoonOperator/actions/runs/43366355163"
+  },
+  "command": "moon run tests/soak --target native --release",
+  "result": {
+    "completed": true,
+    "duration_ms": 10003,
+    "iterations": "1141473",
+    "objects": 1000,
+    "queue_pending_end": 0,
+    "cache_objects_end": 1000,
+    "faults_and_duplicates": true,
+    "reconcile_failures": "37000",
+    "reconcile_successes": "1105090",
+    "queue_retries": "37000",
+    "cache_encoded_bytes_end": 108890,
+    "memory_rss": "see per-sample available flags; Linux kernel RSS/HWM only, no GC live-heap measurement",
+    "memory_samples": [
+      {
+        "elapsed_ms": 0,
+        "memory": {
+          "available": true,
+          "unit": "KiB",
+          "scope": "this process; peak is since process start; no GC live-heap measurement",
+          "rss_kib": 3448,
+          "peak_rss_kib": 3448
+        }
+      },
+      {
+        "elapsed_ms": "10002",
+        "memory": {
+          "available": true,
+          "unit": "KiB",
+          "scope": "this process; peak is since process start; no GC live-heap measurement",
+          "rss_kib": 5020,
+          "peak_rss_kib": 5020
+        }
+      }
+    ]
+  },
+  "input_file": "soak-input.json"
+}

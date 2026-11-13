@@ -21,6 +21,9 @@ See [测试数据与结果展示 / Test inputs and results](docs/test-results.md
 benchmark tables, ten-second load observations, WASM case outcomes, archived
 Kind reports and reproducible synthetic input models. Each CI run also displays
 its own Markdown summary and downloadable raw reports.
+The [November 13 review follow-up](docs/review-followup-20261113.md) links retained
+Linux container memory limits, actual Calico/RBAC decisions, TLS rejection and
+queue-scale evidence, and states the remaining release checks.
 
 ## Quick start
 

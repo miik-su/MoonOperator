@@ -1,0 +1,7 @@
+{
+  "platform": "Linux",
+  "positive_trusted_ca_hostname": true,
+  "unrelated_ca_rejected": true,
+  "wrong_hostname_rejected": true,
+  "fixtures": "ephemeral self-signed certificates generated under ignored _build directory; no private keys distributed"
+}
