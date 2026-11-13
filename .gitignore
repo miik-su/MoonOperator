@@ -10,3 +10,5 @@ target/
 /soak-input.json
 /test-results-summary.md
 /ci-evidence/
+/moonoperator-images.tar
+/runtime-packages.txt

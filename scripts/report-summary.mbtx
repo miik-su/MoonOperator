@@ -41,14 +41,44 @@ async fn main {
       for key in ["duration_ms", "iterations", "objects", "reconcile_failures", "queue_retries", "queue_pending_end", "cache_objects_end", "cache_encoded_bytes_end"] {
         out.write_string("| " + key + " | " + cell(field(soak, key)) + " |\n")
       }
-      out.write_string("\nSingle-run timings and a ten-second load observation; RSS is not measured. Download native-observations for inputs, raw results and source provenance.\n")
+      out.write_string("\nSingle-run timings and a ten-second load observation; RSS availability is explicit in each memory sample, with no GC live-heap claim. Download native-observations for inputs, raw results and source provenance.\n")
+      let scale = read("queue-scale-report.json")
+      if field(scale, "observations") is Array(items) {
+        out.write_string("\n### Queue scale (operation latency, µs)\n\n| Keys | Mode | Mean | P95 | P99 |\n| ---: | --- | ---: | ---: | ---: |\n")
+        for item in items { out.write_string("| " + cell(field(item, "keys")) + " | " + cell(field(item, "mode")) + " | " + cell(field(item, "mean_claim_done_us")) + " | " + cell(field(item, "p95_claim_done_us")) + " | " + cell(field(item, "p99_claim_done_us")) + " |\n") }
+      }
     }
     "kind" => {
       out.write_string("| Acceptance evidence | Recorded value |\n| --- | --- |\n")
       for (file, key) in [("kind-e2e-report.json", "create_update_drift_restart_gc"), ("cluster-client-report.json", "real_api_crud_patch_paginate_conflict_forbidden_watch"), ("cluster-client-report.json", "tls_verified")] {
         out.write_string("| " + key + " | " + cell(field(read(directory + "/" + file), key)) + " |\n")
       }
-      out.write_string("\nKubernetes server: " + cell(field(field(read(directory + "/kind-version.json"), "serverVersion"), "gitVersion")) + ". Download kind-acceptance for reports and runtime package versions. NetworkPolicy traffic enforcement is outside default Kind verification.\n")
+      out.write_string("\nKubernetes server: " + cell(field(field(read(directory + "/kind-version.json"), "serverVersion"), "gitVersion")) + ". Download kind-acceptance for reports and runtime package versions.\n")
+      let policy = read(directory + "/network-policy-report.json")
+      out.write_string("\n### NetworkPolicy enforcement\n\n| Check | Observed |\n| --- | --- |\n")
+      for key in ["cni", "allowed_before_and_after", "missing_pod_label_denied", "missing_namespace_label_denied"] {
+        out.write_string("| " + key + " | " + cell(field(policy, key)) + " |\n")
+      }
+      out.write_string("\nA missing policy report is not an enforcement pass. RBAC expected/actual details are preserved in rbac-report.json.\n")
+    }
+    "memory" => {
+      let report = read(directory + "/memory-evidence-report.json")
+      out.write_string("| Profile | Limit bytes | Required success | Completed | OOMKilled | Exit code | Peak RSS KiB |\n| --- | ---: | --- | --- | --- | ---: | ---: |\n")
+      if field(report, "profiles") is Array(profiles) {
+        for item in profiles {
+          let mut peak : Json = Json::null()
+          if field(field(item, "observation"), "stages") is Array(stages) {
+            for stage in stages {
+              if field(field(stage, "memory"), "peak_rss_kib") is Number(n, ..) {
+                match peak { Number(old, ..) => if n > old { peak = Json::number(n) }; _ => peak = Json::number(n) }
+              }
+            }
+          }
+          let state = field(item, "container_state")
+          out.write_string("| " + cell(field(item, "profile")) + " | " + cell(field(item, "memory_limit_bytes")) + " | " + cell(field(item, "required_success")) + " | " + cell(field(item, "completed")) + " | " + cell(field(state, "OOMKilled")) + " | " + cell(field(state, "ExitCode")) + " | " + cell(peak) + " |\n")
+        }
+      }
+      out.write_string("\n" + cell(field(report, "acceptance")) + ". Raw stderr, phases and container state are retained. Short observations do not establish 1h/24h stability.\n")
     }
     "wasm" => {
       let report = read(directory + "/wasm-host-report.json")

@@ -3,32 +3,17 @@ on: [push, workflow_dispatch]
 permissions:
   contents: read
 jobs:
-  moonapp:
+  images:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
-      - name: Install checksum-verified MoonBit SDK
-        run: |
-          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
-          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/cores/core-0.10.17%2Bd971670cd.tar.gz' -o /tmp/core.tar.gz
-          sha256sum --check tools/moonbit-linux.sha256
-          mkdir -p "$HOME/.moon/lib"
-          tar -xzf /tmp/moonbit.tar.gz -C "$HOME/.moon"
-          tar -xzf /tmp/core.tar.gz -C "$HOME/.moon/lib"
-          chmod +x "$HOME/.moon/bin/"* "$HOME/.moon/bin/internal/tcc"
-          export PATH="$HOME/.moon/bin:$PATH"
-          moon -C "$HOME/.moon/lib/core" bundle --warn-list -a --all
-      - run: echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y libssl-dev
-      - run: moon update
+      - uses: ./.github/actions/setup-moonbit
       - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client tests/memory_profile --target native --release
       - run: docker build --target production -t moonoperator:dev .
       - run: docker build --target acceptance -t moonoperator-probe:dev .
-      - run: moon run scripts/memory-evidence.mbtx
       - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
       - name: Verify distributed license files
         run: |
@@ -39,6 +24,29 @@ jobs:
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/async-LICENSE
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
       - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
+      - run: docker save moonoperator:dev moonoperator-probe:dev -o moonoperator-images.tar
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: moonoperator-test-images
+          path: |
+            moonoperator-images.tar
+            runtime-packages.txt
+          retention-days: 1
+
+  moonapp:
+    needs: images
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-moonbit
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: moonoperator-test-images
+      - run: docker load -i moonoperator-images.tar
+      - run: moon build cmd/manifests --target native --release
       - name: Download pinned Kind release
         run: |
           curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
@@ -70,7 +78,7 @@ jobs:
             runtime-packages.txt
             test-results-summary.md
             network-policy-report.json
-            memory-evidence-report.json
+            rbac-report.json
           if-no-files-found: ignore
       - run: kubectl --context kind-moonoperator-e2e -n moonoperator-e2e logs deployment/moonoperator
         if: failure()
@@ -78,3 +86,29 @@ jobs:
         if: failure()
       - run: /tmp/kind delete cluster --name moonoperator-e2e
         if: always()
+
+  memory:
+    needs: images
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-moonbit
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: moonoperator-test-images
+      - run: docker load -i moonoperator-images.tar
+      - run: moon run scripts/memory-evidence.mbtx
+      - name: Display memory observations
+        if: always()
+        run: moon run scripts/report-summary.mbtx -- memory '${{ job.status }}'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: memory-observations
+          path: |
+            memory-evidence-report.json
+            test-results-summary.md
+          if-no-files-found: warn

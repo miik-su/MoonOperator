@@ -10,21 +10,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
-      - name: Install checksum-verified MoonBit SDK
-        run: |
-          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
-          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL 'https://cli.moonbitlang.com/cores/core-0.10.17%2Bd971670cd.tar.gz' -o /tmp/core.tar.gz
-          sha256sum --check tools/moonbit-linux.sha256
-          mkdir -p "$HOME/.moon/lib"
-          tar -xzf /tmp/moonbit.tar.gz -C "$HOME/.moon"
-          tar -xzf /tmp/core.tar.gz -C "$HOME/.moon/lib"
-          chmod +x "$HOME/.moon/bin/"* "$HOME/.moon/bin/internal/tcc"
-          export PATH="$HOME/.moon/bin:$PATH"
-          moon -C "$HOME/.moon/lib/core" bundle --warn-list -a --all
-      - run: echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y libssl-dev
-      - run: moon update
+      - uses: ./.github/actions/setup-moonbit
       - name: Download pinned Wasmtime release
         run: |
           curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://github.com/bytecodealliance/wasmtime/releases/download/v50.0.1/wasmtime-v50.0.1-x86_64-linux.tar.xz -o /tmp/wasmtime.tar.xz || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/bytecodealliance/wasmtime/releases/assets/689409604 -o /tmp/wasmtime.tar.xz
