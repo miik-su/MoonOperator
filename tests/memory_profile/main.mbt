@@ -69,9 +69,7 @@ async fn main {
     "gc_live_heap": "not available",
     "oom_claim": "process completed; container OOM result must be recorded by the caller",
   }
-  @fs.write_file(
-    "memory-" + args[1] + "-report.json",
-    report.stringify(indent=2),
-  )
+  // The container is non-root and read-only. Report persistence belongs to the
+  // caller; successful measurement must not depend on a writable working dir.
   println(report.stringify(indent=2))
 }

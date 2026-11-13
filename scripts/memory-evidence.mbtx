@@ -6,23 +6,27 @@ async fn main {
   let records : Array[Json] = []
   let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
   source.check()
-  for (profile, limit, bytes) in [("operator", "128m", 134217728), ("10k", "512m", 536870912)] {
-    let created = @shell.Cmd("docker", ["create", "--memory", limit, "--memory-swap", limit, "--entrypoint", "/usr/local/bin/memory-probe", "moonoperator-probe:dev", profile], stdout=Capture).output(timeout_ms=10000)
+  let mut required_failed = false
+  for (profile, limit, bytes) in [("operator", "128m", 134217728), ("operator", "256m", 268435456), ("operator", "512m", 536870912), ("10k", "128m", 134217728), ("10k", "256m", 268435456), ("10k", "512m", 536870912)] {
+    let created = @shell.Cmd("docker", ["create", "--read-only", "--memory", limit, "--memory-swap", limit, "--entrypoint", "/usr/local/bin/memory-probe", "moonoperator-probe:dev", profile], stdout=Capture, stderr=Capture).output(timeout_ms=10000)
     created.check()
     let id = created.stdout().trim().to_owned()
     guard id.length() == 64 && id.all(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) else { fail("unexpected new container identifier") }
     {
       defer { ignore(@shell.Cmd("docker", ["rm", "-f", id], stdout=Capture).output(timeout_ms=10000)) }
-      let run = @shell.Cmd("docker", ["start", "--attach", id], stdout=Capture).output(timeout_ms=120000)
+      let run = try @shell.Cmd("docker", ["start", "--attach", id], stdout=Capture, stderr=Capture).output(timeout_ms=120000, max_output_bytes=65536) catch { _ => None } noraise { output => Some(output) }
       let inspected = @shell.Cmd("docker", ["inspect", "--format", "{{json .State}}", id], stdout=Capture).output(timeout_ms=10000)
       inspected.check()
       let state = @json.parse(inspected.stdout())
-      let result = @json.parse(run.stdout()) catch { _ => Json::null() }
-      records.push({ "profile": profile, "memory_limit_bytes": bytes, "swap_disabled": true, "container_state": state, "observation": result })
-      let report : Json = { "source_commit": source.stdout().trim().to_owned(), "scope": "short fresh-process snapshot replacement; no 1h/24h stability or GC live-heap claim", "profiles": records }
+      let result = match run { Some(output) => @json.parse(output.stdout()) catch { _ => Json::null() }; None => Json::null() }
+      let completed = match run { Some(output) => output.exit_code() == 0 && field(state, "ExitCode") == Json::number(0.0) && field(state, "OOMKilled") == Json::boolean(false) && field(result, "profile") == Json::string(profile); None => false }
+      let required = profile == "operator" || limit == "512m"
+      if required && !completed { required_failed = true }
+      records.push({ "profile": profile, "memory_limit_bytes": bytes, "swap_disabled": true, "read_only_root": true, "completed": completed, "required_success": required, "stage": if run is None { "launch_or_timeout" } else if result == Json::null() { "probe_execution_or_json_output" } else { "observation_complete" }, "stderr": match run { Some(output) => Json::string(output.stderr()); None => Json::null() }, "container_state": state, "observation": result })
+      let report : Json = { "source_commit": source.stdout().trim().to_owned(), "scope": "short fresh-process snapshot replacement; no 1h/24h stability or GC live-heap claim", "acceptance": "operator profile must complete at every limit; generic 10k profile must complete at 512 MiB; lower-limit failures remain failures in individual records", "profiles": records }
       @fs.write_file("memory-evidence-report.json", report.stringify(indent=2))
-      guard run.exit_code() == 0 && field(state, "OOMKilled") == Json::boolean(false) && result != Json::null() else { fail("memory profile failed; actual container state retained in report") }
     }
   }
+  guard !required_failed else { fail("required memory profile failed; all attempted outcomes and stderr retained in report") }
   println("Fresh-process RSS and container OOM observations recorded")
 }
