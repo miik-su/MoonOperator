@@ -24,11 +24,19 @@ async fn adoption(mode : String) -> Unit {
       _ => false
     },
   )
-  let error : Error? = try {
-    ignore(@app.reconcile(client, app.key(), adopt_unowned=true))
-    None
-  } catch {
-    error => Some(error)
+  let mut error : Error? = None
+  for attempt in 0..<5 {
+    error = try {
+      ignore(@app.reconcile(client, app.key(), adopt_unowned=true))
+      None
+    } catch {
+      error => Some(error)
+    }
+    if error is Some(@core.Api(409, _)) && attempt < 4 {
+      @async.sleep(100)
+    } else {
+      break
+    }
   }
   if mode == "deny" {
     assert_true(error is Some(@core.Api(403, _)))
