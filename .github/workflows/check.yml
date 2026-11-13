@@ -31,6 +31,8 @@ jobs:
       - run: moon test core/redaction_test.mbt core/ownership_test.mbt core/validation_test.mbt controller/finalizer_test.mbt examples/moonapp/ownership_test.mbt watch/version_test.mbt runtime/capacity_test.mbt transport/files_wbtest.mbt rbac/rbac_test.mbt client/budget_test.mbt --target native
       - run: moon test core/utc_test.mbt examples/moonapp/status_test.mbt queue/heap_test.mbt queue/timers_wbtest.mbt transport/retry_after_test.mbt crd/versions_test.mbt --target native
       - run: moon test observability/admission_wbtest.mbt observability/progress_test.mbt --target native
+      - run: moon test transport/token_rotation_test.mbt --target native
+      - run: moon run tests/tls_negative --target native
       - run: moon run benchmarks/queue_scale --target native --release
       - name: Collect bounded benchmark and load observations
         run: moon run scripts/collect-observations.mbtx -- ci-evidence
@@ -48,6 +50,7 @@ jobs:
             ci-evidence/
             test-results-summary.md
             queue-scale-report.json
+            tls-negative-report.json
           if-no-files-found: warn
           retention-days: 30
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

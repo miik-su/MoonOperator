@@ -1,0 +1,13 @@
+import {
+  "mik1e80/moonoperator/client",
+  "mik1e80/moonoperator/transport",
+  "moonbitlang/async",
+  "moonbitlang/async/socket",
+  "moonbitlang/async/tls",
+  "moonbitlang/async/shell",
+  "moonbitlang/async/fs",
+}
+
+pkgtype(kind: "executable")
+
+supported_targets = "native"
