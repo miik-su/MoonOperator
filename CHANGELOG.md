@@ -1,5 +1,14 @@
 # 0.1.0 (unreleased)
 
+Review 2026-11-13: stdout-only read-only container memory probe, independent
+image/cluster/memory jobs, retained failure states and six memory-limit cases;
+explicit API-group/subresource RBAC checks; actual Calico traffic enforcement;
+token reread after simulated expiry and negative CA/hostname TLS acceptance.
+Add optional ownership-adoption permission probes, bounded 24-hour soak counters
+and periodic RSS evidence, and a manual-only full-regression/long-soak workflow.
+Full regression and hours/day runs have not been executed in this review.
+See docs/review-followup-20261113.md and permanent Linux evidence.
+
 Follow-up code review: redact Resource Debug, explicit FinalizeResult outcomes,
 scope-aware owner references, deny implicit MoonApp adoption, preserve unrelated
 owners, require watch RVs, separate cache/queue/LIST capacity failures, bound

@@ -1,0 +1,25 @@
+{
+  "source_commit": "556882744e7989920a7bf30a70ab7935d54df00b",
+  "scope": "short fresh-process snapshot replacement; no 1h/24h stability or GC live-heap claim",
+  "profiles": [
+    {
+      "profile": "operator",
+      "memory_limit_bytes": 134217728,
+      "swap_disabled": true,
+      "container_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 1,
+        "Error": "",
+        "StartedAt": "2026-11-10T12:17:46.63229632Z",
+        "FinishedAt": "2026-11-10T12:17:46.80207209Z"
+      },
+      "observation": null
+    }
+  ]
+}

@@ -44,3 +44,11 @@ binds to the pod interface and is accompanied by an ingress NetworkPolicy.
 The policy requires a CNI that enforces NetworkPolicy and a correctly labeled
 monitoring namespace AND pod. Diagnostics have no built-in authentication; use
 a trusted proxy if access must cross the trusted monitoring boundary.
+
+The pinned Calico 3.33.0 Kind acceptance actually exercised allow, pod-label
+denial, recovery, namespace-label denial and recovery on the same probe pod.
+[Raw policy and RBAC evidence](evidence/20261113-linux/README.md) identifies the
+exact successful revision. This does not establish enforcement for another CNI.
+Token rotation is separately tested using a simulated expired-token HTTP 401;
+Linux TLS tests reject an unrelated CA and a mismatched hostname. Real projected
+JWT expiration and every external identity provider remain outside that evidence.

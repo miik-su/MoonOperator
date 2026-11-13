@@ -1,4 +1,4 @@
-# Compatibility and evidence — 2026-11-08
+# Compatibility and evidence — 2026-11-13
 
 | Capability | Status / evidence |
 |---|---|
@@ -6,7 +6,7 @@
 | CRUD/status client | Implemented; fake CRUD/conflict tests |
 | PATCH / multi-page LIST against real API | Verified in Kind Client probe, including omitted item TypeMeta and conflicts |
 | HTTP | Verified against real loopback socket, including bearer header |
-| HTTPS/custom CA/token rotation | ServiceAccount CA/token verified in Kind; rotation rereads files, not separately fault-tested |
+| HTTPS/custom CA/token rotation | Real Kind CA/token; loopback rotation after simulated 401; Linux unrelated-CA and wrong-hostname rejection passed; real JWT expiry remains untested |
 | JSON/YAML kubeconfig / in-cluster | Bounded bearer/CA subset; relative paths and duplicate/alias rejection tested |
 | Watch byte framing / 410 state | Verified: split UTF-8/event tests |
 | Informer reconnect / relist runtime | Injected 410/403 and startup backpressure tests; real MoonApp restart recovery |
@@ -22,11 +22,15 @@
 | Kubernetes / Kind | MoonApp lifecycle and narrow-ServiceAccount Client probe passed in GitHub runner |
 | Experimental WASM host | Real MoonBit guest on Wasmtime 50.0.1; trap/fuel/memory/capability/ABI/deadline probes passed |
 | HA / webhooks | Not implemented; single replica deployment contract |
-| Benchmarks / load | Fixed dataset report and 10s fault load probe recorded; long soak/RSS still pending |
+| Benchmarks / load | Fixed dataset and 10s fault probe; Linux short container RSS matrix recorded; one-hour/24-hour soak still pending |
 | Package publication | Offline `moon package` succeeds; Mooncakes publication pending |
 | Follow-up security review | Redacted Resource debug, explicit finalizer results, scoped ownership/adoption, mandatory watch RVs, typed capacity failure policy, bounded file/LIST reads and API type validation verified by focused regressions |
 | Container delivery | Release production image excludes probes; separate acceptance image; pinned Ubuntu digest/archive snapshot and recorded package inventory verified in Kind CI |
-| Diagnostics ingress | Local loopback default, explicit cluster interface and NetworkPolicy manifest; traffic enforcement requires a capable CNI and remains unverified in default Kind |
+| Diagnostics ingress | Loopback default; explicit cluster interface; actual Calico 3.33.0 allow/deny/recovery passed on Kubernetes 1.37.0; other CNIs unverified |
+
+The latest optional-adoption acceptance is not yet passing. See
+[current follow-up](review-followup-20261113.md) rather than inferring a pass
+from historical lifecycle acceptance. Full regression is manual-only and unrun.
 
 Single cooperative event loop only, not OS-thread-safe sharing. Use separate
 Store instances for independently watched namespaces of the same GVK: replace

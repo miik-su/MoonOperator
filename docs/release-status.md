@@ -1,10 +1,18 @@
-# Delivery status — 2026-11-08
+# Delivery status — 2026-11-13
 
 Core and example control loops are implemented with focused local and public CI
 verification. The original multi-stage implementation plan is reflected in
 roadmap.md; compatibility.md states the supported subset for each capability.
 
-Recorded public evidence:
+Latest bounded evidence is archived in
+[the November 13 follow-up](review-followup-20261113.md) and
+[permanent Linux snapshots](evidence/20261113-linux/README.md).
+Source 695c58c passed native, WASM and Kind, including independent memory jobs
+and Calico enforcement. Source 186a7fb passed native and WASM, while its new
+optional-adoption Kind probe failed; that failure is being investigated and is
+not replaced by an older green result.
+
+Historical public evidence:
 
 - [Linux native checks](https://github.com/miik-su/MoonOperator/actions/runs/42444225315)
   passed for 3313b41.
@@ -23,8 +31,8 @@ Recorded public evidence:
 - `moon package` succeeds offline and produces the 0.1.0 source archive under
   `_build/publish`. No package has been published to Mooncakes.
 
-Remaining release gates are explicit: long-duration (hours/days) soak and RSS
-measurement, broader Kubernetes/version/auth matrices, package namespace/account
+Remaining release gates are explicit: long-duration (hours/days) soak and leak
+investigation, broader Kubernetes/version/auth matrices, package namespace/account
 confirmation and Mooncakes publication. Current module namespace remains
 `mik1e80/moonoperator`, independently of the GitHub repository owner `miik-su`.
 HA/Lease, admission/conversion webhooks and a general JSON guest ABI are outside
@@ -39,4 +47,8 @@ Default Docker builds select the production stage; it excludes client-probe.
 The separate acceptance stage requires a release build of tests/cluster_client.
 Ubuntu is digest-pinned and runtime APT packages use a dated archive snapshot.
 CI retains the exact installed package list alongside Kind version evidence.
-See review-followup-20261108.md for the current review changes and API migration.
+Short Linux RSS observations now cover six fresh read-only containers at
+128/256/512 MiB. They are not a long-duration memory guarantee. Full regression
+and longer soak have manual entry points and were not run under this task's
+focused-testing constraint. See review-followup-20261113.md for current findings
+and review-followup-20261108.md for earlier API migration.

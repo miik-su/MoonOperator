@@ -1,0 +1,56 @@
+[
+  {
+    "service_account": "system:serviceaccount:moonoperator-e2e:moonoperator",
+    "namespace": "moonoperator-e2e",
+    "verb": "get",
+    "resource": "moonapps.moonoperator.dev",
+    "subresource": "",
+    "expected": "yes",
+    "actual": "yes"
+  },
+  {
+    "service_account": "system:serviceaccount:moonoperator-e2e:moonoperator",
+    "namespace": "moonoperator-e2e",
+    "verb": "create",
+    "resource": "deployments.apps",
+    "subresource": "",
+    "expected": "yes",
+    "actual": "yes"
+  },
+  {
+    "service_account": "system:serviceaccount:moonoperator-e2e:moonoperator",
+    "namespace": "moonoperator-e2e",
+    "verb": "update",
+    "resource": "moonapps.moonoperator.dev",
+    "subresource": "finalizers",
+    "expected": "yes",
+    "actual": "yes"
+  },
+  {
+    "service_account": "system:serviceaccount:moonoperator-e2e:moonoperator",
+    "namespace": "moonoperator-e2e",
+    "verb": "get",
+    "resource": "secrets",
+    "subresource": "",
+    "expected": "no",
+    "actual": "no"
+  },
+  {
+    "service_account": "system:serviceaccount:moonoperator-e2e:moonoperator",
+    "namespace": "moonoperator-e2e",
+    "verb": "update",
+    "resource": "networkpolicies.networking.k8s.io",
+    "subresource": "",
+    "expected": "no",
+    "actual": "no"
+  },
+  {
+    "service_account": "system:serviceaccount:moonoperator-e2e:moonoperator",
+    "namespace": "moonoperator-e2e",
+    "verb": "delete",
+    "resource": "deployments.apps",
+    "subresource": "",
+    "expected": "no",
+    "actual": "no"
+  }
+]

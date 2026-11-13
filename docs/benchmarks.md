@@ -14,10 +14,18 @@ single-process observations, not a production throughput or latency guarantee.
 The fake reconcile timing includes no network or API-server admission.
 
 Run `moon run tests/soak --target native --release` for a 10-second focused load
-probe, or explicitly set `MOONOPERATOR_SOAK_SECONDS` in 1..3600 for longer runs.
+probe, or explicitly set `MOONOPERATOR_SOAK_SECONDS` in 1..86400 for longer runs.
 It repeatedly updates 1,000 objects, injects failures and duplicates, checks
 queue capacity and drains on shutdown. A short run cannot establish long-term
-stability. No RSS measurement or leak-freedom claim is made.
+stability. Linux reports process RSS/peak RSS initially, every minute and at the
+end, with a bounded progress report; unsupported platforms label RSS unavailable.
+No leak-freedom claim is made. The manual release-validation workflow offers
+60-second or one-hour runs; 24 hours requires a suitable local runner. Neither
+one-hour nor 24-hour execution has been completed in this review.
+
+Separate fresh-container 128/256/512 MiB observations are retained in
+[the Linux snapshot](evidence/20261113-linux/README.md). They measure short
+snapshot replacement profiles, not elapsed-hours stability.
 
 Recorded Windows observations are kept under `docs/evidence/`; machine CPU
 metadata may be unavailable in the process environment and is labeled accordingly.
