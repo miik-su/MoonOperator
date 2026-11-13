@@ -1,0 +1,38 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+----
+async fn main {
+  let args = @env.args()
+  guard args.length() >= 2 && ["full", "soak"].contains(args[1]) else { fail("usage: release-validation.mbtx full|soak [SECONDS]") }
+  let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
+  source.check()
+  let version = @shell.Cmd("moon", ["version", "--all"], stdout=Capture).output()
+  version.check()
+  let mode = args[1]
+  let seconds = if args.length() > 2 {
+    match @json.parse(args[2]) { Number(n, ..) if n == n.floor() && n >= 1.0 && n <= 86400.0 => n.to_int(); _ => fail("duration 1..86400 seconds required") }
+  } else { 60 }
+  let command = if mode == "full" { ["test", "--target", "native"] } else { ["run", "tests/soak", "--target", "native", "--release"] }
+  let run = @shell.Cmd("moon", command, env={ "MOONOPERATOR_SOAK_SECONDS": seconds.to_string() }, stdout=Capture, stderr=Capture).output(timeout_ms=if mode == "full" { 600000 } else { seconds * 1000 + 120000 }, max_output_bytes=8388608)
+  @fs.write_file("release-validation-stdout.log", run.stdout())
+  @fs.write_file("release-validation-stderr.log", run.stderr())
+  let counts : Map[String, Json] = Map([])
+  if mode == "full" {
+    for line in run.stdout().split("\n") {
+      if line.split_once("Total tests:") is Some((_, remainder)) {
+        let parts = remainder.split(",").collect()
+        if parts.length() == 3 {
+          for (key, text) in [("total", parts[0]), ("passed", parts[1].strip_prefix(" passed:").unwrap_or("")), ("failed", parts[2].strip_prefix(" failed:").unwrap_or(""))] {
+            let value = @json.parse(text.trim().trim_end(chars=".").to_owned()) catch { _ => Json::null() }
+            counts[key] = value
+          }
+        }
+      }
+    }
+  }
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "mode": mode, "command": command, "toolchain": version.stdout(), "exit_code": run.exit_code(), "test_counts": Json::object(counts), "scope": if mode == "full" { "all native package tests selected by moon test" } else { "synthetic soak; duration and Linux RSS availability in soak-report.json" } }
+  @fs.write_file("release-validation-report.json", report.stringify(indent=2))
+  println(report.stringify())
+  run.check()
+  if mode == "full" { guard counts.get("total") is Some(Number(n, ..)) && n > 0.0 else { fail("test totals were not recorded; inspect retained logs") } }
+}

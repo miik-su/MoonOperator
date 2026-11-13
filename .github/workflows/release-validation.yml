@@ -1,0 +1,59 @@
+name: Release validation (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      full_native_regression:
+        description: Run all native package tests (not part of focused push checks)
+        type: boolean
+        default: true
+      soak_seconds:
+        description: Optional bounded load duration
+        type: choice
+        options: ['0', '60', '3600']
+        default: '0'
+permissions:
+  contents: read
+jobs:
+  full-native:
+    if: inputs.full_native_regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-moonbit
+      - name: Full Native Regression
+        run: moon run scripts/release-validation.mbtx -- full
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: full-native-regression
+          path: |
+            release-validation-report.json
+            release-validation-stdout.log
+            release-validation-stderr.log
+  soak:
+    if: inputs.soak_seconds != '0'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-moonbit
+      - name: Bounded opt-in soak
+        env:
+          SOAK_SECONDS: ${{ inputs.soak_seconds }}
+        run: moon run scripts/release-validation.mbtx -- soak "$SOAK_SECONDS"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: long-soak-observations
+          path: |
+            release-validation-report.json
+            release-validation-stdout.log
+            release-validation-stderr.log
+            soak-report.json
+            soak-input.json
+            soak-progress-report.json
