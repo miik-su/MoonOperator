@@ -39,7 +39,15 @@ async fn adoption(mode : String) -> Unit {
     }
   }
   if mode == "deny" {
-    assert_true(error is Some(@core.Api(403, _)))
+    if error is Some(error) {
+      println("adoption-denied observed: \{error}")
+    } else {
+      println("adoption-denied observed: successful adoption")
+    }
+    assert_true(
+      error is Some(@core.Api(403, _)),
+      msg="explicit adoption must require dependent delete permission",
+    )
     let child = client.get(@app.deployment_type, ns, name)
     assert_eq(@core.field(child.metadata(), "ownerReferences"), Json::null())
   } else {

@@ -95,7 +95,15 @@ async fn main {
     let pod_name = name + "-probe"
     let pod : Json = { "apiVersion": "v1", "kind": "Pod", "metadata": { "name": pod_name, "namespace": "moonoperator-e2e" }, "spec": { "restartPolicy": "Never", "serviceAccountName": name, "containers": [{ "name": "probe", "image": "moonoperator-probe:dev", "imagePullPolicy": "Never", "command": ["/usr/local/bin/client-probe"], "env": [{ "name": "MOONOPERATOR_ADOPTION_PROBE", "value": mode }] }] } }
     ignore(kubectl(["apply", "-f", "-"], input=pod.stringify()))
-    ignore(kubectl(["wait", "--for=jsonpath={.status.phase}=Succeeded", "pod/" + pod_name, "--timeout=90s"]))
+    try {
+      ignore(kubectl(["wait", "--for=jsonpath={.status.phase}=Succeeded", "pod/" + pod_name, "--timeout=90s"]))
+    } catch {
+      error => {
+        println(kubectl(["get", "pod/" + pod_name, "-o", "json"]))
+        println(kubectl(["logs", "pod/" + pod_name]))
+        raise error
+      }
+    }
     let report = @json.parse(kubectl(["logs", "pod/" + pod_name]).trim().to_owned())
     assert_eq(field(report, "passed"), Json::boolean(true))
     adoption_reports.push(report)
