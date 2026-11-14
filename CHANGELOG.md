@@ -1,5 +1,10 @@
 # 0.1.0 (unreleased)
 
+2026-11-14: migrate the unpublished module and all internal imports from
+`mik1e80/moonoperator` to `miik-su/moonoperator`; regenerate public interfaces
+and the current source SBOM. Historical test snapshots retain original identity.
+Mooncakes account authentication and publication are separate pending steps.
+
 Review 2026-11-13: stdout-only read-only container memory probe, independent
 image/cluster/memory jobs, retained failure states and six memory-limit cases;
 explicit API-group/subresource RBAC checks; actual Calico traffic enforcement;

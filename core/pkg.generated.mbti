@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/core"
+package "miik-su/moonoperator/core"
 
 import {
   "moonbitlang/core/debug",

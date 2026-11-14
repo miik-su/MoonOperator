@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/observability"
+package "miik-su/moonoperator/observability"
 
 // Values
 pub fn route(String, Bool, Int32, cache_objects? : Int32, cache_bytes? : Int32) -> (Int32, String)

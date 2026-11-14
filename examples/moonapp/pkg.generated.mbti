@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/examples/moonapp"
+package "miik-su/moonoperator/examples/moonapp"
 
 import {
-  "mik1e80/moonoperator/client",
-  "mik1e80/moonoperator/controller",
-  "mik1e80/moonoperator/core",
+  "miik-su/moonoperator/client",
+  "miik-su/moonoperator/controller",
+  "miik-su/moonoperator/core",
 }
 
 // Values

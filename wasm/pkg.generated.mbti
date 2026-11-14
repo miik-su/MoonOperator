@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/wasm"
+package "miik-su/moonoperator/wasm"
 
 import {
-  "mik1e80/moonoperator/core",
+  "miik-su/moonoperator/core",
 }
 
 // Values

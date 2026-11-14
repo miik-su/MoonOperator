@@ -1,8 +1,8 @@
 import {
-  "mik1e80/moonoperator/core",
-  "mik1e80/moonoperator/transport",
-  "mik1e80/moonoperator/watch",
-  "mik1e80/moonoperator/examples/moonapp" @app,
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/transport",
+  "miik-su/moonoperator/watch",
+  "miik-su/moonoperator/examples/moonapp" @app,
   "moonbitlang/async",
   "moonbitlang/core/env",
 }

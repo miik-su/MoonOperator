@@ -1,7 +1,7 @@
 import {
-  "mik1e80/moonoperator/core",
-  "mik1e80/moonoperator/cache",
-  "mik1e80/moonoperator/testing/process",
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/cache",
+  "miik-su/moonoperator/testing/process",
   "moonbitlang/async",
   "moonbitlang/core/env",
 }

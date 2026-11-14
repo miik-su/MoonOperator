@@ -1,6 +1,8 @@
 # Public API map
 
-Module namespace remains `mik1e80/moonoperator`; not published to Mooncakes yet.
+Module namespace is `miik-su/moonoperator`, matching the intended publishing
+account. The earlier development namespace was `mik1e80/moonoperator`.
+Not published to Mooncakes yet; authenticated publishing rights remain to verify.
 Public compiler-generated `.mbti` files are the exact API reference.
 
 | Package | Responsibilities |

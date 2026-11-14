@@ -5,10 +5,10 @@
   "components": [
     {
       "type": "library",
-      "bom-ref": "mik1e80/moonoperator",
-      "name": "mik1e80/moonoperator",
+      "bom-ref": "miik-su/moonoperator",
+      "name": "miik-su/moonoperator",
       "version": "0.1.0",
-      "purl": "pkg:generic/mik1e80/moonoperator@0.1.0",
+      "purl": "pkg:generic/miik-su/moonoperator@0.1.0",
       "licenses": [
         {
           "license": {
@@ -48,7 +48,7 @@
   ],
   "dependencies": [
     {
-      "ref": "mik1e80/moonoperator",
+      "ref": "miik-su/moonoperator",
       "dependsOn": [
         "moonbit-community/yaml",
         "moonbitlang/async"

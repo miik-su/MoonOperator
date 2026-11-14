@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/examples/wasm_validator"
+package "miik-su/moonoperator/examples/wasm_validator"
 
 // Values
 pub fn abi_version() -> Int32

@@ -2,6 +2,12 @@
 
 A MoonBit-native Kubernetes Operator development framework.
 
+Module: `miik-su/moonoperator` (unpublished; migrated from the development
+namespace `mik1e80/moonoperator`). GitHub source: [miik-su/MoonOperator](https://github.com/miik-su/MoonOperator).
+See [repository synchronization and publishing identity](docs/repository-sync.md)
+for Gitlink setup and the remaining account verification. The Gitlink target URL
+is pending; a synchronized mirror is not yet claimed.
+
 An independent community project, with no claimed endorsement by Kubernetes or
 MoonBit. Third-party names and trademarks belong to their respective owners.
 See [security reporting](SECURITY.md), [contributing](CONTRIBUTING.md),

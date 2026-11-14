@@ -15,7 +15,7 @@ async fn main {
   guard field(tree, "status") == Json::string("success") else { fail("dependency resolution failed") }
   guard field(tree, "modules") is Array(modules) else { fail("missing module graph") }
   let expected : Map[String, (String, String)] = {
-    "mik1e80/moonoperator": ("0.1.0", "Apache-2.0"),
+    "miik-su/moonoperator": ("0.1.0", "Apache-2.0"),
     "moonbitlang/async": ("0.22.5", "Apache-2.0"),
     "moonbit-community/yaml": ("0.0.8", "MIT"),
   }

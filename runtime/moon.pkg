@@ -1,11 +1,11 @@
 import {
-  "mik1e80/moonoperator/core",
-  "mik1e80/moonoperator/client",
-  "mik1e80/moonoperator/transport",
-  "mik1e80/moonoperator/watch",
-  "mik1e80/moonoperator/cache",
-  "mik1e80/moonoperator/queue",
-  "mik1e80/moonoperator/observability",
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/client",
+  "miik-su/moonoperator/transport",
+  "miik-su/moonoperator/watch",
+  "miik-su/moonoperator/cache",
+  "miik-su/moonoperator/queue",
+  "miik-su/moonoperator/observability",
   "moonbitlang/async",
   "moonbitlang/core/env",
 }

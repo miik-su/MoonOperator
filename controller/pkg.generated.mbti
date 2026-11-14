@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/controller"
+package "miik-su/moonoperator/controller"
 
 import {
-  "mik1e80/moonoperator/client",
-  "mik1e80/moonoperator/core",
-  "mik1e80/moonoperator/observability",
-  "mik1e80/moonoperator/queue",
+  "miik-su/moonoperator/client",
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/observability",
+  "miik-su/moonoperator/queue",
   "moonbitlang/core/debug",
 }
 

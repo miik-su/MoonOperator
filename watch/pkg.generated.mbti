@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/watch"
+package "miik-su/moonoperator/watch"
 
 import {
-  "mik1e80/moonoperator/core",
-  "mik1e80/moonoperator/transport",
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/transport",
   "moonbitlang/core/buffer",
 }
 

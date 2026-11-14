@@ -1,8 +1,10 @@
 # Review follow-up · 2026-11-13
 
 Review baseline: `556882744e7989920a7bf30a70ab7935d54df00b`.
-The repository is `miik-su/MoonOperator`; the Mooncakes module namespace remains
-`mik1e80/moonoperator` pending account confirmation. No package was published.
+The repository is `miik-su/MoonOperator`. At this review's baseline, the module
+namespace was `mik1e80/moonoperator`; it migrated to `miik-su/moonoperator` on
+November 14. Historical evidence below retains its original source identity.
+No package was published; authenticated publishing rights remain to verify.
 
 Final code source `31d7390e2e60c6e41853c916636b45e4d8f720ab` passed all three
 focused workflows. [Same-source CI and raw final evidence](evidence/20261113-linux/31d7390/README.md)

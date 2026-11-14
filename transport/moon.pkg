@@ -1,7 +1,7 @@
 import {
-  "mik1e80/moonoperator/core",
-  "mik1e80/moonoperator/client",
-  "mik1e80/moonoperator/observability",
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/client",
+  "miik-su/moonoperator/observability",
   "moonbitlang/async",
   "moonbitlang/async/http",
   "moonbitlang/async/tls",

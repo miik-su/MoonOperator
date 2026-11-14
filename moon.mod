@@ -1,4 +1,4 @@
-name = "mik1e80/moonoperator"
+name = "miik-su/moonoperator"
 
 version = "0.1.0"
 

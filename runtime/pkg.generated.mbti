@@ -1,14 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "mik1e80/moonoperator/runtime"
+package "miik-su/moonoperator/runtime"
 
 import {
-  "mik1e80/moonoperator/cache",
-  "mik1e80/moonoperator/client",
-  "mik1e80/moonoperator/core",
-  "mik1e80/moonoperator/observability",
-  "mik1e80/moonoperator/queue",
-  "mik1e80/moonoperator/transport",
-  "mik1e80/moonoperator/watch",
+  "miik-su/moonoperator/cache",
+  "miik-su/moonoperator/client",
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/observability",
+  "miik-su/moonoperator/queue",
+  "miik-su/moonoperator/transport",
+  "miik-su/moonoperator/watch",
 }
 
 // Values

@@ -1,4 +1,4 @@
-# Delivery status — 2026-11-13
+# Delivery status — 2026-11-14
 
 Core and example control loops are implemented with focused local and public CI
 verification. The original multi-stage implementation plan is reflected in
@@ -38,8 +38,11 @@ Historical public evidence:
 
 Remaining release gates are explicit: long-duration (hours/days) soak and leak
 investigation, broader Kubernetes/version/auth matrices, package namespace/account
-confirmation and Mooncakes publication. Current module namespace remains
-`mik1e80/moonoperator`, independently of the GitHub repository owner `miik-su`.
+confirmation and Mooncakes publication. The current module namespace is
+`miik-su/moonoperator`, migrated from `mik1e80/moonoperator` on November 14.
+Internal imports, generated interfaces and the current source SBOM use the new
+name. Historical raw observations keep their original source identity. Selecting
+this namespace does not establish Mooncakes authentication or publication rights.
 HA/Lease, admission/conversion webhooks and a general JSON guest ABI are outside
 this single-replica release scope. Scalar Wasmtime hosting remains experimental.
 
