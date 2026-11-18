@@ -9,7 +9,7 @@ FROM base AS runtime
 COPY --from=trust-bootstrap /bootstrap/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 RUN apt-get update --snapshot 20261108T000000Z && apt-get install -y --no-install-recommends --snapshot 20261108T000000Z ca-certificates libssl3t64 && dpkg-query -W > /usr/share/moonoperator-runtime-packages.txt && rm -rf /var/lib/apt/lists/*
 COPY _build/native/release/build/cmd/moonapp/moonapp.exe /usr/local/bin/moonoperator
-COPY LICENSE NOTICE THIRD_PARTY_NOTICES.md /usr/share/doc/moonoperator/
+COPY LICENSE NOTICE THIRD_PARTY_NOTICES.md LICENSING.md /usr/share/doc/moonoperator/
 COPY third_party/ /usr/share/doc/moonoperator/third_party/
 USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/moonoperator"]

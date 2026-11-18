@@ -1,0 +1,46 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+----
+async fn main {
+  let args = @env.args()
+  guard args.length() == 2 else { fail("usage: distribution-inventory.mbtx OUTPUT_DIRECTORY (local moonoperator:dev image required)") }
+  let output = args[1]
+  guard !@fs.exists(output) else { fail("use a fresh output directory; stale evidence is not accepted") }
+  let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
+  source.check()
+  let inspected = @shell.Cmd("docker", ["image", "inspect", "--format", "{{.Id}}", "moonoperator:dev"], stdout=Capture).output(timeout_ms=10000)
+  inspected.check()
+  let image = inspected.stdout().trim().to_owned()
+  guard image.has_prefix("sha256:") && image.length() == 71 else { fail("immutable image ID required") }
+  let inventory = @shell.Cmd("docker", ["run", "--rm", "--read-only", "--network", "none", "--entrypoint", "/usr/bin/dpkg-query", image, "-W"], stdout=Capture).output(timeout_ms=15000, max_output_bytes=131072)
+  inventory.check()
+  let created = @shell.Cmd("docker", ["create", "--entrypoint", "/usr/bin/true", image], stdout=Capture).output(timeout_ms=10000)
+  created.check()
+  let id = created.stdout().trim().to_owned()
+  guard id.length() == 64 && id.all(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) else { fail("unexpected new container ID") }
+  defer { ignore(@shell.Cmd("docker", ["rm", id], stdout=Capture).output(timeout_ms=10000)) }
+  @fs.mkdir(output + "/copyright", recursive=true)
+  @fs.write_file(output + "/packages.tsv", inventory.stdout())
+  for (container_path, destination) in [("/usr/share/common-licenses", output + "/common-licenses"), ("/usr/share/doc/moonoperator", output + "/moonoperator")] {
+    let copy = @shell.Cmd("docker", ["cp", id + ":" + container_path, destination], stdout=Capture, stderr=Capture).output(timeout_ms=15000)
+    copy.check()
+  }
+  let packages : Array[Json] = []
+  let missing : Array[String] = []
+  for line in inventory.stdout().split("\n") {
+    if line.trim().is_empty() { continue }
+    guard line.split_once("\t") is Some((binary, version)) else { fail("unexpected dpkg inventory row") }
+    let binary = binary.to_owned()
+    let name = binary.split(":").next().unwrap().to_owned()
+    guard !name.is_empty() && name.all(c => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '+' || c == '.') else { fail("unexpected package name") }
+    let destination = "copyright/" + name + ".txt"
+    let copied = @shell.Cmd("docker", ["cp", "-L", id + ":/usr/share/doc/" + name + "/copyright", output + "/" + destination], stdout=Capture, stderr=Capture).output(timeout_ms=10000)
+    let present = copied.exit_code() == 0 && @fs.exists(output + "/" + destination) && @fs.file_size(output + "/" + destination) > 0L
+    if !present { missing.push(binary) }
+    packages.push({ "package": binary, "version": version.trim().to_owned(), "copyright_path": if present { Json::string(destination) } else { Json::null() }, "license_expression": "not automatically inferred; inspect installed copyright evidence" })
+  }
+  guard !packages.is_empty() else { fail("empty OS inventory is not evidence") }
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "image_id": image, "scope": "installed dpkg packages and available copyright texts; source module inventory is separate", "packages": packages, "missing_copyright": missing, "limitations": ["not a complete binary/linkage SBOM", "no automatic SPDX or license-compatibility verdict", "no OS vulnerability scan", "copyright files can reference external source offers or terms requiring distributor review"] }
+  @fs.write_file(output + "/inventory.json", report.stringify(indent=2))
+  println("Recorded \{packages.length()} OS packages; \{missing.length()} missing copyright texts remain explicit review gaps")
+}

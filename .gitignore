@@ -12,3 +12,4 @@ target/
 /ci-evidence/
 /moonoperator-images.tar
 /runtime-packages.txt
+/distribution-evidence/

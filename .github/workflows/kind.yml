@@ -19,11 +19,21 @@ jobs:
         run: |
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSE
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/NOTICE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSING.md
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/THIRD_PARTY_NOTICES.md
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/yaml-LICENSE
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/async-LICENSE
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
       - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
+      - name: Retain installed OS package copyright evidence
+        run: moon run scripts/distribution-inventory.mbtx -- distribution-evidence
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: runtime-distribution-inventory
+          path: distribution-evidence/
+          if-no-files-found: warn
+          retention-days: 30
       - run: docker save moonoperator:dev moonoperator-probe:dev -o moonoperator-images.tar
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

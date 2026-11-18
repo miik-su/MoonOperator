@@ -9,6 +9,9 @@ MoonBit core/runtime are toolchain components; preserve their notices in binary
 distribution. async uses platform TLS (SChannel or OpenSSL); distributors must
 include the notices appropriate to their selected runtime. Kubernetes client-go
 and controller-runtime are architecture references, not vendored dependencies.
+Both references use Apache-2.0; their source links and reference scope are in
+docs/architecture.md and LICENSING.md. The project license does not replace any
+third-party license. See LICENSING.md for source, binary, image and fixture scope.
 
 The production container uses the digest-pinned Ubuntu 24.04 base in Dockerfile
 and packages from the dated Ubuntu archive snapshot. The image contains its
