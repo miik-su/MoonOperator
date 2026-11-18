@@ -79,6 +79,14 @@ pub async fn Source::run(
         metrics.increment("watch_relist")
         store.invalidate(kind.gvk)
         let snapshot = (self.list)()
+        // Custom sources have the same complete-snapshot contract as Client::list.
+        // Reject before publishing data or admitting any queue keys.
+        if snapshot.resource_version.is_empty() ||
+          !snapshot.continue_token.is_empty() {
+          raise @core.Invalid(
+            "informer requires a complete LIST with resourceVersion",
+          )
+        }
         // Enqueue disappeared keys too, for delete reconciliation.
         let previous = store.list(kind.gvk)
         store.replace(kind.gvk, snapshot.items)

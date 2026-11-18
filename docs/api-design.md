@@ -37,6 +37,11 @@ does not depend on guessing from an empty namespace. ResourceType::validate chec
 the accepted DNS/identifier subset; Registry, ownership and REST paths use it.
 Scope declarations must reflect API discovery or a trusted registration.
 
+`Source::new` LIST callbacks must return the entire snapshot, a nonempty opaque
+resourceVersion and an empty continue token. Partial or unversioned snapshots
+are rejected before cache publication or queue admission. Independent watches
+of the same GVK in different namespaces require separate Store instances.
+
 `Queue::new` and `Parser::new` now raise Invalid for nonpositive limits. Capacity
 errors distinguish CacheCapacity/QueueCapacity/ListCapacity; update exhaustive
 matches accordingly. `Client::list` adds `max_bytes` (64 MiB default) and
