@@ -48,6 +48,7 @@ async test "100 in-flight changes and conflict retry converge to the latest desi
   assert_eq(writes.val, 1)
   assert_eq(calls.val, 2)
   assert_eq(metrics.count("reconcile_failure"), 1L)
+  assert_eq(metrics.count("reconcile_conflict"), 1L)
   assert_eq(metrics.count("reconcile_success"), 1L)
   assert_false(controller.step(@async.now()))
   assert_eq(queue.pending(), 0)

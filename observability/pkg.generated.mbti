@@ -26,6 +26,7 @@ pub fn Logger::stdout() -> Self
 pub struct Metrics {
   counters : Map[String, Int64]
   durations : Map[String, (Int64, Int64)]
+  buckets : Map[String, Array[Int64]]
 }
 pub fn Metrics::count(Self, String) -> Int64
 pub fn Metrics::increment(Self, String) -> Unit

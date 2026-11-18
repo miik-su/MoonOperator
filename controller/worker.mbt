@@ -41,6 +41,24 @@ pub async fn Controller::step(self : Controller, now : Int64) -> Bool {
     error => {
       failed = true
       self.metrics.increment("reconcile_failure")
+      let category = match error {
+        @core.Api(409, _) => "reconcile_conflict"
+        @core.Api(code, _) =>
+          if @core.retryable(code) {
+            "reconcile_api_retryable"
+          } else {
+            "reconcile_api_permanent"
+          }
+        @core.Invalid(_)
+        | @core.Capacity(_)
+        | @core.CacheCapacity(_)
+        | @core.QueueCapacity(_)
+        | @core.ListCapacity(_) => "reconcile_invalid"
+        @async.TimeoutError => "reconcile_timeout"
+        @core.Transport(_) => "reconcile_transport"
+        _ => "reconcile_other"
+      }
+      self.metrics.increment(category)
       let code = match error {
         @core.Api(code, _) => code
         _ => 0

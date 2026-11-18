@@ -32,7 +32,7 @@ jobs:
       - run: moon test core/utc_test.mbt examples/moonapp/status_test.mbt queue/heap_test.mbt queue/timers_wbtest.mbt transport/retry_after_test.mbt crd/versions_test.mbt --target native
       - run: moon test observability/admission_wbtest.mbt observability/progress_test.mbt --target native
       - run: moon test transport/token_rotation_test.mbt --target native
-      - run: moon test runtime/model_test.mbt controller/storm_test.mbt --target native
+      - run: moon test runtime/model_test.mbt controller/storm_test.mbt observability/metrics_test.mbt --target native
       - run: moon run tests/tls_negative --target native
       - run: moon run benchmarks/queue_scale --target native --release
       - name: Collect bounded benchmark and load observations
