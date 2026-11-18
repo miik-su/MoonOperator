@@ -1,5 +1,14 @@
 # 0.1.0 (unreleased)
 
+Maintenance 2026-11-18: reject incomplete/unversioned custom Source snapshots
+before cache publication; add duplicate/UID/410/namespace and in-flight conflict
+models; preserve existing duration series while adding fixed latency histograms
+and safe exception categories; validate CRD names/root schema/all version IDs;
+add a separate public-API consumer; audit actual source ZIP paths/notices and
+collect installed image copyrights. Clarify test-model provenance, deployment,
+licensing and capability boundaries. Full regression/long soak/publication remain
+unexecuted manual release gates; see docs/maintenance.md.
+
 2026-11-14: migrate the unpublished module and all internal imports from
 `mik1e80/moonoperator` to `miik-su/moonoperator`; regenerate public interfaces
 and the current source SBOM. Historical test snapshots retain original identity.

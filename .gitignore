@@ -14,3 +14,4 @@ target/
 /runtime-packages.txt
 /distribution-evidence/
 /source-sbom.json
+/maintenance-evidence/

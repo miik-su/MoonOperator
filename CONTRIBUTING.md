@@ -30,3 +30,9 @@ have no scanner coverage. Preserve LICENSE, NOTICE and third-party notices in
 redistributions. Contributions intentionally submitted for inclusion are governed
 by Apache-2.0 section 5; this repository adds no separate CLA requirement.
 See [conduct](CODE_OF_CONDUCT.md) and [private security reporting](SECURITY.md).
+
+For data/fixtures, state whether they are synthetic or externally sourced and
+record applicable rights. Do not add personal registration details or real
+credentials. Code/API/behavior changes should update README, scope, compatibility
+and model evidence as applicable; explain when no documentation change is needed.
+Installed-image copyright collection does not replace distributor license review.

@@ -1,0 +1,37 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+----
+async fn main {
+  let args = @env.args()
+  guard args.length() == 2 && !@fs.exists(args[1]) else { fail("usage: maintenance-checks.mbtx FRESH_OUTPUT_DIRECTORY") }
+  let output = args[1]
+  let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
+  source.check()
+  let status = @shell.Cmd("git", ["status", "--porcelain"], stdout=Capture).output()
+  status.check()
+  let version = @shell.Cmd("moon", ["version", "--all"], stdout=Capture).output()
+  version.check()
+  @fs.mkdir(output, recursive=true)
+  let phases : Array[Json] = []
+  let mut failed = false
+  for (name, command) in [
+    ("critical-model-regressions", ["test", "runtime/model_test.mbt", "runtime/recovery_test.mbt", "runtime/capacity_test.mbt", "controller/storm_test.mbt", "controller/deadline_test.mbt", "observability/metrics_test.mbt", "crd/generator_test.mbt", "crd/schema_test.mbt", "crd/versions_test.mbt", "--target", "native"]),
+    ("separate-public-consumer", ["-C", "examples/consumer", "run", "cmd/main", "--target", "native"]),
+    ("source-archive", ["run", "scripts/package-audit.mbtx"]),
+  ] {
+    let run = try @shell.Cmd("moon", command, stdout=Capture, stderr=Capture).output(timeout_ms=120000, max_output_bytes=1048576) catch { _ => None } noraise { r => Some(r) }
+    let mut totals : Json = Json::null()
+    if run is Some(r) {
+      for line in r.stdout().split("\n") {
+        if line.contains("Total tests:") { totals = Json::string(line.trim().to_owned()) }
+      }
+    }
+    let passed = match run { Some(r) => r.exit_code() == 0 && (name != "critical-model-regressions" || totals != Json::null()); None => false }
+    if !passed { failed = true }
+    phases.push({ "name": name, "command": command, "passed": passed, "exit_code": match run { Some(r) => Json::number(r.exit_code().to_double()); None => Json::null() }, "test_totals": totals, "stdout": match run { Some(r) => Json::string(r.stdout()); None => Json::null() }, "stderr": match run { Some(r) => Json::string(r.stderr()); None => Json::null() }, "timeout_or_launch_failure": run is None })
+    let report : Json = { "source_commit": source.stdout().trim().to_owned(), "worktree_modified": !status.stdout().trim().is_empty(), "toolchain": version.stdout(), "scope": "targeted maintenance tests, source-workspace public consumer and actual source ZIP; not full regression or long soak", "phases": phases }
+    @fs.write_file(output + "/results.json", report.stringify(indent=2))
+    println(name + ": " + (if passed { "passed" } else { "failed; retained evidence" }))
+  }
+  guard !failed else { fail("one or more maintenance checks failed; see retained results.json") }
+}

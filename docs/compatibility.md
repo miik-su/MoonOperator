@@ -1,4 +1,8 @@
-# Compatibility and evidence — 2026-11-13
+# Compatibility and evidence — 2026-11-18
+
+This matrix separates implemented behavior from dated execution evidence.
+New local maintenance regressions are listed in maintenance.md. CI links in
+release-status.md identify their exact source; historical data is not rewritten.
 
 | Capability | Status / evidence |
 |---|---|
@@ -14,9 +18,9 @@
 | Workqueue | Verified dirty/in-flight dedup and delayed retries |
 | Controller / Manager | Verified failure release, concurrent-key exclusion, shutdown drain, registration |
 | Finalizers / owners / conditions / predicates | Cleanup failure retains finalizer; status-only filtering retains deletion transitions |
-| CRD / RBAC | Multiple served schemas, exactly one storage version, defaults/bounds, least privilege |
+| CRD / RBAC | Multiple served versions with equal schemas, exactly one served storage version, defaults/bounds, validated CRD names/root schema/version identifiers and explicit RBAC |
 | MoonApp | Fake and real Kind verified: create/update, idempotence, drift repair, restart and GC |
-| Health / metrics / logs | Cache readiness, gauges, counters, duration sum/count, safe structured events |
+| Health / metrics / logs | Cache/known-disconnect readiness, gauges, fixed error counters, duration sum/count and bounded histograms; safe structured events |
 | Windows native | Checked and built locally |
 | Linux | Native and WASM CI passed; see release-status.md for exact revisions |
 | Kubernetes / Kind | MoonApp lifecycle and narrow-ServiceAccount Client probe passed in GitHub runner |
@@ -27,12 +31,17 @@
 | Follow-up security review | Redacted Resource debug, explicit finalizer results, scoped ownership/adoption, mandatory watch RVs, typed capacity failure policy, bounded file/LIST reads and API type validation verified by focused regressions |
 | Container delivery | Release production image excludes probes; separate acceptance image; pinned Ubuntu digest/archive snapshot and recorded package inventory verified in Kind CI |
 | Diagnostics ingress | Loopback default; explicit cluster interface; actual Calico 3.33.0 allow/deny/recovery passed on Kubernetes 1.37.0; other CNIs unverified |
+| Independent library consumer | Separate source-workspace module runs through public APIs; not a registry-install test |
+| macOS / other Kubernetes versions | Not verified; compilation or interface similarity is not runtime compatibility evidence |
 
 Optional-adoption acceptance passed for final code source 31d7390 with explicit
 OwnerReferencesPermissionEnforcement: default refusal, 403 without dependent
 delete permission and success with fixture-named grants. The normal example
 Role was not broadened. See [same-source final evidence](evidence/20261113-linux/31d7390/README.md).
 Full regression is manual-only and unrun.
+The later namespace-migration source 3572f1b also passed native/Kind/WASM; see
+release-status.md. New maintenance-source CI conclusions must be recorded after
+completion and must not be inferred from these older runs.
 
 Single cooperative event loop only, not OS-thread-safe sharing. Use separate
 Store instances for independently watched namespaces of the same GVK: replace

@@ -21,6 +21,14 @@ commits add actual Kind acceptance, metrics/logs, queue backpressure recovery,
 generation predicates, retry-safe cleanup, typed spec views, multiversion CRDs,
 JSON/YAML configuration, scalar WASM execution and reproducible load observations.
 See release-status.md for exact evidence and remaining gates. Long-duration
-soak/RSS, Mooncakes publication, HA/Lease, webhooks and general JSON plugin ABI
+soak, full-distribution review, Mooncakes publication, HA/Lease, webhooks and general JSON plugin ABI
 remain separate work. Single replica only; no unexecuted verification is marked
 as passing.
+
+Current maintenance implementation and open release gates are tracked in
+maintenance.md. Short Linux RSS, actual Calico enforcement, ownership admission
+and negative TLS already have dated evidence; they are not future-only features.
+The November 18 pass adds recovery fault models, complete-source snapshot guards,
+fixed latency/error diagnostics, CRD generation checks, a separate public API
+consumer and distribution/archive evidence collection. Full regression and
+hours/day observations remain manually selected, unexecuted release work.

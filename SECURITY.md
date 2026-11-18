@@ -35,3 +35,9 @@ source dependency inventory and an OSV check for the pinned Wasmtime version.
 Mooncakes ecosystem coverage is incomplete: an empty scanner result is not a
 claim that all dependencies or distributed binaries are vulnerability-free.
 SDK, native TLS and container OS updates require separate distributor review.
+
+Installed OS package names/versions and available copyright texts are retained
+by the image job. They improve provenance but are not an OS vulnerability or
+complete binary/linkage audit. Source ZIP checks reject generated/credential-like
+paths and require license files; history/content scanning remains separate.
+See LICENSING.md, docs/test-models.md and docs/maintenance.md for exact scope.

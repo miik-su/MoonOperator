@@ -1,4 +1,4 @@
-# Delivery status — 2026-11-14
+# Delivery status — 2026-11-18
 
 Core and example control loops are implemented with focused local and public CI
 verification. The original multi-stage implementation plan is reflected in
@@ -7,7 +7,7 @@ roadmap.md; compatibility.md states the supported subset for each capability.
 Latest bounded evidence is archived in
 [the November 13 follow-up](review-followup-20261113.md) and
 [permanent Linux snapshots](evidence/20261113-linux/README.md).
-Final code source 31d7390 passed
+Earlier code source 31d7390 passed
 [native](https://github.com/miik-su/MoonOperator/actions/runs/43416752124),
 [WASM](https://github.com/miik-su/MoonOperator/actions/runs/43416752053) and
 [Kind](https://github.com/miik-su/MoonOperator/actions/runs/43416752043), including
@@ -16,6 +16,15 @@ ownership-adoption admission. [Same-source raw reports](evidence/20261113-linux/
 are permanent. Earlier optional-adoption probes failed because the test assumed
 an admission plugin that Kubernetes 1.37 does not enable by default; the final
 acceptance explicitly enables it and proves both denied and permitted paths.
+
+Namespace-migration source 3572f1b passed
+[native](https://github.com/miik-su/MoonOperator/actions/runs/43599908948),
+[Kind](https://github.com/miik-su/MoonOperator/actions/runs/43599908952) and
+[WASM](https://github.com/miik-su/MoonOperator/actions/runs/43599908961).
+The subsequent 70c2b07 was README-only and skipped CI. Neither older source is
+presented as execution evidence for new November 18 maintenance code.
+See maintenance.md for new changes, targeted local checks and remaining gates;
+current-source CI evidence will be added after completion.
 
 Historical public evidence:
 

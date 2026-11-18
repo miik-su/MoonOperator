@@ -7,14 +7,19 @@
 | MoonBit module | miik-su/moonoperator |
 | Previous unpublished development module | mik1e80/moonoperator |
 | Mooncakes publication | Not published; authenticate the intended account and verify namespace rights before publication |
-| Gitlink mirror | Target repository URL has not been supplied or verified; synchronization is not complete |
+| Optional additional mirror | Not configured; not a prerequisite for maintaining this GitHub project |
 
 The module rename on 2026-11-14 changes internal imports, generated interfaces
 and the current source dependency inventory. Archived test observations retain
 their original module names and source revisions. Repository ownership and a
 module-name string alone do not prove applicant identity or publishing rights.
 
-## Gitlink setup and subsequent updates
+## Optional Gitlink setup and subsequent updates
+
+GitHub is the source repository. A Gitlink mirror is optional and is not listed
+as a pending requirement for this project's annual hackathon maintenance. Do not
+substitute requirements from another contest. Configure a mirror only when the
+owner explicitly requests it; no account/repository address is assumed.
 
 Use Gitlink's [official repository import guide](https://help.gitlink.org.cn/快速开始/导入GitHub等第三方Git项目)
 to import the public GitHub repository, retaining its history. Import the existing
@@ -29,5 +34,5 @@ hosts, and check that README, LICENSE and source files appear on each site's
 default branch. Merely importing once does not ensure future synchronization.
 
 If the target contains unrelated history, review it before resolving the
-divergence; do not overwrite it. Supply the verified public Gitlink project URL
-in the registration materials only after these checks succeed.
+divergence; do not overwrite it. Share any optional mirror URL only after these
+checks succeed. The project does not create or submit registration forms.

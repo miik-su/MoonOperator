@@ -34,3 +34,11 @@ Its soak option supports 60 seconds or one hour. For a suitable local runner,
 `moon run scripts/release-validation.mbtx -- soak 86400` requests 24 hours with
 bounded progress samples. These are available entry points, not completed runs;
 the current review continues to honor focused-only testing.
+
+The maintenance fault suite adds runtime/model_test.mbt, controller/storm_test.mbt,
+observability/metrics_test.mbt and crd/generator_test.mbt. They verify final data,
+write counts, preservation on failure and cumulative metric semantics rather
+than only compilation or queue size. Model provenance/invariants are in
+test-models.md. The separate consumer compiles and runs public APIs without
+Kubernetes; native CI also audits the actual source ZIP. Image CI retains actual
+installed package/copyright evidence with missing items explicitly recorded.
