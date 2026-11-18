@@ -116,8 +116,23 @@ pub fn definition(
   singular : String,
   schema : Json,
 ) -> Json raise @core.OperatorError {
-  if kind.gvk.group.is_empty() || kind.plural.is_empty() {
-    raise @core.Invalid("CRD group/plural required")
+  kind.validate()
+  if kind.gvk.group.is_empty() ||
+    kind.plural.length() + kind.gvk.group.length() + 1 > 253 {
+    raise @core.Invalid(
+      "CRD requires a named API group and bounded metadata name",
+    )
+  }
+  if !crd_name(kind.plural) ||
+    !crd_name(singular) ||
+    !crd_name(kind.gvk.kind + "List", mixed_case=true) {
+    raise @core.Invalid(
+      "CRD plural/singular and generated listKind must satisfy DNS1035 naming",
+    )
+  }
+  ignore(@core.json_size(schema, max_depth=64))
+  if @core.field(schema, "type") != Json::string("object") {
+    raise @core.Invalid("CRD root schema type must be object")
   }
   {
     "apiVersion": "apiextensions.k8s.io/v1",
@@ -134,6 +149,7 @@ pub fn definition(
         "plural": kind.plural,
         "singular": singular,
         "kind": kind.gvk.kind,
+        "listKind": kind.gvk.kind + "List",
       },
       "versions": [
         {
@@ -146,4 +162,20 @@ pub fn definition(
       ],
     },
   }
+}
+
+///|
+/// CRD naming is narrower than the framework's generic resource registry.
+fn crd_name(value : String, mixed_case~ : Bool = false) -> Bool {
+  fn letter(c : Char) -> Bool {
+    (c >= 'a' && c <= 'z') || (mixed_case && c >= 'A' && c <= 'Z')
+  }
+  fn alnum(c : Char) -> Bool {
+    letter(c) || (c >= '0' && c <= '9')
+  }
+  !value.is_empty() &&
+  value.length() <= 63 &&
+  letter(value.get_char(0).unwrap()) &&
+  alnum(value.get_char(value.length() - 1).unwrap()) &&
+  value.all(c => alnum(c) || c == '-')
 }

@@ -25,6 +25,8 @@ pub fn definition_with_versions(
   let schema = versions[0].schema
   ignore(@core.json_size(schema, max_depth=64))
   for version in versions {
+    let version_kind = { ..kind, gvk: { ..kind.gvk, version: version.name, }, }
+    version_kind.validate()
     ignore(@core.json_size(version.schema, max_depth=64))
     if version.schema != schema ||
       version.status_subresource != versions[0].status_subresource {

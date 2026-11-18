@@ -33,6 +33,7 @@ jobs:
       - run: moon test observability/admission_wbtest.mbt observability/progress_test.mbt --target native
       - run: moon test transport/token_rotation_test.mbt --target native
       - run: moon test runtime/model_test.mbt controller/storm_test.mbt observability/metrics_test.mbt --target native
+      - run: moon test crd/generator_test.mbt crd/schema_test.mbt --target native
       - name: Compile and run the separate public API consumer
         working-directory: examples/consumer
         run: |
