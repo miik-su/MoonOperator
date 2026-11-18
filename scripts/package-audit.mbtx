@@ -1,5 +1,5 @@
 ----
-import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json" }
 ----
 fn field(value : Json, key : String) -> Json { match value { Object(f) => f.get(key).unwrap_or(Json::null()); _ => Json::null() } }
 async fn main {
@@ -13,7 +13,8 @@ async fn main {
   packaged.check()
   let archive = "_build/publish/miik-su-moonoperator-" + version + ".zip"
   // Windows ships bsdtar with ZIP support; GNU tar on Linux does not read ZIP.
-  let tool = if @env.get_env_var("OS") == Some("Windows_NT") { "tar" } else { "unzip" }
+  let tar_version = @shell.Cmd("tar", ["--version"], stdout=Capture, stderr=Capture).output(timeout_ms=10000)
+  let tool = if tar_version.exit_code() == 0 && tar_version.stdout().contains("bsdtar") { "tar" } else { "unzip" }
   let arguments = if tool == "tar" { ["-tf", archive] } else { ["-Z", "-1", archive] }
   let listing = @shell.Cmd(tool, arguments, stdout=Capture, stderr=Capture).output(timeout_ms=10000, max_output_bytes=262144)
   if listing.exit_code() != 0 { println("archive listing tool: " + tool); println(listing.stderr()) }
