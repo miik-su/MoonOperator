@@ -33,6 +33,8 @@ a CI artifact. Missing texts are reported explicitly; collecting files is not
 an automated legal or vulnerability clearance. A redistributor must review
 remaining source-offer, notice and license obligations for its actual artifact.
 No complete distribution SBOM or OS vulnerability audit has yet been claimed.
+The source ZIP audit requires Windows bsdtar or unzip on Linux/macOS; the Linux
+CI setup explicitly installs unzip. It checks the actual ZIP, not only git files.
 
 Architecture references client-go and controller-runtime are Apache-2.0; their
 Go implementation is not copied or vendored here. Sources and reference scope:

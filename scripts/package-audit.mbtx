@@ -1,5 +1,5 @@
 ----
-import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json" }
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json", "moonbitlang/core/env" }
 ----
 fn field(value : Json, key : String) -> Json { match value { Object(f) => f.get(key).unwrap_or(Json::null()); _ => Json::null() } }
 async fn main {
@@ -9,9 +9,14 @@ async fn main {
   guard field(modules[0], "name") == Json::string("miik-su/moonoperator") else { fail("run this audit from the root module") }
   guard field(modules[0], "version") is String(version) && !version.is_empty() && version.all(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || c == '.' || c == '-' || c == '+') else { fail("safe module version required") }
   let packaged = @shell.Cmd("moon", ["package"], stdout=Capture, stderr=Capture).output(timeout_ms=120000)
+  if packaged.exit_code() != 0 { println(packaged.stdout()); println(packaged.stderr()) }
   packaged.check()
   let archive = "_build/publish/miik-su-moonoperator-" + version + ".zip"
-  let listing = @shell.Cmd("tar", ["-tf", archive], stdout=Capture, stderr=Capture).output(timeout_ms=10000, max_output_bytes=262144)
+  // Windows ships bsdtar with ZIP support; GNU tar on Linux does not read ZIP.
+  let tool = if @env.get_env_var("OS") == Some("Windows_NT") { "tar" } else { "unzip" }
+  let arguments = if tool == "tar" { ["-tf", archive] } else { ["-Z", "-1", archive] }
+  let listing = @shell.Cmd(tool, arguments, stdout=Capture, stderr=Capture).output(timeout_ms=10000, max_output_bytes=262144)
+  if listing.exit_code() != 0 { println("archive listing tool: " + tool); println(listing.stderr()) }
   listing.check()
   let files : Array[String] = []
   for line in listing.stdout().split("\n") {
@@ -31,7 +36,7 @@ async fn main {
   source.check()
   let status = @shell.Cmd("git", ["status", "--porcelain"], stdout=Capture).output()
   status.check()
-  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "worktree_modified": !status.stdout().trim().is_empty(), "archive": archive, "files": files, "required_notices_present": true, "generated_and_credential_like_paths_absent": true, "scope": "actual offline source ZIP file list; not a content secret scan, installed-package test or publication", "published": false }
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "worktree_modified": !status.stdout().trim().is_empty(), "archive": archive, "archive_listing_tool": tool, "files": files, "required_notices_present": true, "generated_and_credential_like_paths_absent": true, "scope": "actual offline source ZIP file list; not a content secret scan, installed-package test or publication", "published": false }
   @fs.write_file("package-audit-report.json", report.stringify(indent=2))
   println("Verified \{files.length()} actual archive paths and required notice files; no publication performed")
 }
