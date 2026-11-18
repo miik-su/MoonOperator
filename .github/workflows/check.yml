@@ -33,6 +33,11 @@ jobs:
       - run: moon test observability/admission_wbtest.mbt observability/progress_test.mbt --target native
       - run: moon test transport/token_rotation_test.mbt --target native
       - run: moon test runtime/model_test.mbt controller/storm_test.mbt observability/metrics_test.mbt --target native
+      - name: Compile and run the separate public API consumer
+        working-directory: examples/consumer
+        run: |
+          moon check --target native
+          moon run cmd/main --target native
       - run: moon run tests/tls_negative --target native
       - run: moon run benchmarks/queue_scale --target native --release
       - name: Collect bounded benchmark and load observations

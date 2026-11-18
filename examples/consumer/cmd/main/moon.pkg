@@ -1,0 +1,9 @@
+import {
+  "moonbitlang/async",
+  "miik-su/moonoperator/core",
+  "miik-su/moonoperator/controller",
+  "miik-su/moonoperator/queue",
+  "miik-su/moonoperator/testing",
+}
+
+pkgtype(kind: "executable")
