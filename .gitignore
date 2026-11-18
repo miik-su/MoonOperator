@@ -13,3 +13,4 @@ target/
 /moonoperator-images.tar
 /runtime-packages.txt
 /distribution-evidence/
+/source-sbom.json

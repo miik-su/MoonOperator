@@ -44,6 +44,8 @@ jobs:
       - name: Collect bounded benchmark and load observations
         run: moon run scripts/collect-observations.mbtx -- ci-evidence
       - run: moon run scripts/sbom.mbtx -- source-sbom.json
+      - name: Verify the actual offline source archive
+        run: moon run scripts/package-audit.mbtx
       - run: moon run scripts/advisories.mbtx
       - run: git diff --no-index -- docs/evidence/source-sbom.json source-sbom.json
       - name: Display test observations
@@ -58,6 +60,7 @@ jobs:
             test-results-summary.md
             queue-scale-report.json
             tls-negative-report.json
+            package-audit-report.json
           if-no-files-found: warn
           retention-days: 30
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

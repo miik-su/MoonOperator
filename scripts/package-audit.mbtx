@@ -1,0 +1,37 @@
+----
+import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitlang/async@0.22.5/fs", "moonbitlang/core/json" }
+----
+fn field(value : Json, key : String) -> Json { match value { Object(f) => f.get(key).unwrap_or(Json::null()); _ => Json::null() } }
+async fn main {
+  let tree = @shell.Cmd("moon", ["tree", "--json"], stdout=Capture).output()
+  tree.check()
+  guard field(@json.parse(tree.stdout()), "modules") is Array(modules) && !modules.is_empty() else { fail("module graph required") }
+  guard field(modules[0], "name") == Json::string("miik-su/moonoperator") else { fail("run this audit from the root module") }
+  guard field(modules[0], "version") is String(version) && !version.is_empty() && version.all(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || c == '.' || c == '-' || c == '+') else { fail("safe module version required") }
+  let packaged = @shell.Cmd("moon", ["package"], stdout=Capture, stderr=Capture).output(timeout_ms=120000)
+  packaged.check()
+  let archive = "_build/publish/miik-su-moonoperator-" + version + ".zip"
+  let listing = @shell.Cmd("tar", ["-tf", archive], stdout=Capture, stderr=Capture).output(timeout_ms=10000, max_output_bytes=262144)
+  listing.check()
+  let files : Array[String] = []
+  for line in listing.stdout().split("\n") {
+    let path = line.trim().to_owned().replace_all(old="\\", new="/")
+    if path.is_empty() { continue }
+    guard !path.has_prefix("/") && !path.contains(":") else { fail("absolute archive path rejected") }
+    for segment in path.split("/") {
+      guard !["..", ".git", "_build", "target", ".mooncakes", ".tools", "node_modules", "distribution-evidence"].contains(segment.to_owned()) &&
+        segment != ".env" && !segment.has_prefix(".env.") && !segment.has_suffix(".key") && !segment.has_suffix(".kubeconfig") && !segment.has_suffix(".log") else { fail("generated or credential-like file rejected: " + path) }
+    }
+    files.push(path)
+  }
+  for required in ["LICENSE", "NOTICE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "moon.mod", "README.md", "third_party/async-LICENSE", "third_party/yaml-LICENSE", "third_party/moonbit-core-LICENSE"] {
+    guard files.contains(required) else { fail("required distribution notice missing: " + required) }
+  }
+  let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
+  source.check()
+  let status = @shell.Cmd("git", ["status", "--porcelain"], stdout=Capture).output()
+  status.check()
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "worktree_modified": !status.stdout().trim().is_empty(), "archive": archive, "files": files, "required_notices_present": true, "generated_and_credential_like_paths_absent": true, "scope": "actual offline source ZIP file list; not a content secret scan, installed-package test or publication", "published": false }
+  @fs.write_file("package-audit-report.json", report.stringify(indent=2))
+  println("Verified \{files.length()} actual archive paths and required notice files; no publication performed")
+}
