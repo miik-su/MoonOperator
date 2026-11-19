@@ -23,8 +23,12 @@ Namespace-migration source 3572f1b passed
 [WASM](https://github.com/miik-su/MoonOperator/actions/runs/43599908961).
 The subsequent 70c2b07 was README-only and skipped CI. Neither older source is
 presented as execution evidence for new November 18 maintenance code.
-See maintenance.md for new changes, targeted local checks and remaining gates;
-current-source CI evidence will be added after completion.
+Maintenance source `6235a5f` passed
+[native](https://github.com/miik-su/MoonOperator/actions/runs/44331915192),
+[Kind](https://github.com/miik-su/MoonOperator/actions/runs/44331915265) and
+[WASM](https://github.com/miik-su/MoonOperator/actions/runs/44331915170).
+See [maintenance evidence](evidence/20261118-maintenance/README.md) for original
+reports, the initial archive failure, and the exact scope of each result.
 
 Historical public evidence:
 

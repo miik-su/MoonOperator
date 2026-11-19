@@ -40,8 +40,9 @@ delete permission and success with fixture-named grants. The normal example
 Role was not broadened. See [same-source final evidence](evidence/20261113-linux/31d7390/README.md).
 Full regression is manual-only and unrun.
 The later namespace-migration source 3572f1b also passed native/Kind/WASM; see
-release-status.md. New maintenance-source CI conclusions must be recorded after
-completion and must not be inferred from these older runs.
+release-status.md. Maintenance source `6235a5f` passed native, Kind and WASM.
+Its [reports](evidence/20261118-maintenance/README.md) identify the tested
+Kubernetes and Calico versions, source revision and environment.
 
 Single cooperative event loop only, not OS-thread-safe sharing. Use separate
 Store instances for independently watched namespaces of the same GVK: replace

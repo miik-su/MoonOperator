@@ -4,13 +4,37 @@
 [![Kind 集群验收](https://github.com/miik-su/MoonOperator/actions/workflows/kind.yml/badge.svg)](https://github.com/miik-su/MoonOperator/actions/workflows/kind.yml)
 [![WASM 用例](https://github.com/miik-su/MoonOperator/actions/workflows/wasm.yml/badge.svg)](https://github.com/miik-su/MoonOperator/actions/workflows/wasm.yml)
 
-上方徽章显示最新 CI 状态；下面的表格是有固定源提交的历史实测快照。
+上方徽章链接至各工作流；以下实测快照均标注源提交。仅更新文档并跳过 CI
+的提交不会产生新的验证证据。
 测试数据以合成 Kubernetes Pod、MoonApp 和 Watch 事件为主。
 输入模板、生成规则、原始结果均已保存到仓库，无需登录 Actions 下载即可阅读。
 
+## 定向维护回归 · 2026-11-18
+
+干净源提交 `420620c7a0a4fd0c259e5492ddea6b0267edef64` 在 Windows native
+通过 14 项定向测试、独立公共 API 消费示例及实际源码 ZIP 检查。
+[完整命令、输出和来源](evidence/20261118-maintenance/README.md)永久保留。
+新增模型覆盖未完成 LIST 拒绝、重复事件/UID 重建/410 恢复、独立命名空间
+缓存隔离、处理中 100 次变更和 409 冲突后的最终状态、CRD 生成校验，
+以及固定延迟桶的累计语义。消费示例实测两次协调、一次更新、保留无关注解。
+
+本轮未执行全量测试或小时/天级负载；这些短测不能证明无泄漏或生产稳定性。
+Linux CI 和镜像版权采集有独立源提交及运行记录，不与本地结果混为一谈。
+测试模型、数据来源和许可见[模型目录](test-models.md)。
+
+修复归档工具兼容性后的 Linux 源提交 `6235a5f` 已通过原生关键检查，
+其中维护回归 14/14、独立消费示例和实际 ZIP 校验均通过；TLS 正向与
+错误 CA／主机名拒绝结果已保留。镜像证据记录 94 个系统包及全部对应
+版权文本；六组内存探针均完成，退出码 0、OOMKilled=false。
+[原始报告、附件 ID 与校验值](evidence/20261118-maintenance/README.md)可直接核对。
+版权文本可用不等于许可兼容性或漏洞审计通过，10k/128 MiB 仍接近上限。
+同一源码提交的 Kind 与 WASM 检查也已通过。Kind 报告记录 Kubernetes
+1.37.0、Calico 3.33.0，以及实际的 RBAC、网络策略和接管准入结果。
+
 ## 数据模型与样例
 
-最新审查的完成项与待验证项见[2026-11-13 跟进记录](review-followup-20261113.md)。
+当前完成项和开放门槛见[维护清单](maintenance.md)；
+[2026-11-13 跟进记录](review-followup-20261113.md)保留历史审查结论。
 
 ## Linux 容器内存与网络隔离 · 2026-11-13
 

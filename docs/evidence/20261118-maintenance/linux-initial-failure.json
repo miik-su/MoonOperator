@@ -1,0 +1,61 @@
+{
+  "source_commit": "83bae3d87db6659bf144f32a6013f5712d48bb21",
+  "worktree_modified": false,
+  "toolchain": "moon 0.1.20261023 (3778465 2026-10-23) ~/.moon/bin/moon\nmoonc v0.10.17+d971670cd (2026-10-23) ~/.moon/bin/moonc\nmoonrun 0.1.20261023 (3778465 2026-10-23) ~/.moon/bin/moonrun\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg\n",
+  "scope": "targeted maintenance tests, source-workspace public consumer and actual source ZIP; not full regression or long soak",
+  "phases": [
+    {
+      "name": "critical-model-regressions",
+      "command": [
+        "test",
+        "runtime/model_test.mbt",
+        "runtime/recovery_test.mbt",
+        "runtime/capacity_test.mbt",
+        "controller/storm_test.mbt",
+        "controller/deadline_test.mbt",
+        "observability/metrics_test.mbt",
+        "crd/generator_test.mbt",
+        "crd/schema_test.mbt",
+        "crd/versions_test.mbt",
+        "--target",
+        "native"
+      ],
+      "passed": true,
+      "exit_code": 0,
+      "test_totals": "Total tests: 14, passed: 14, failed: 0.",
+      "stdout": "Total tests: 14, passed: 14, failed: 0.\n",
+      "stderr": "",
+      "timeout_or_launch_failure": false
+    },
+    {
+      "name": "separate-public-consumer",
+      "command": [
+        "-C",
+        "examples/consumer",
+        "run",
+        "cmd/main",
+        "--target",
+        "native"
+      ],
+      "passed": true,
+      "exit_code": 0,
+      "test_totals": null,
+      "stdout": "{\"consumer_module\":\"moonoperator-examples/consumer\",\"public_api_only\":true,\"reconcile_attempts\":2,\"child_updates\":1,\"unrelated_annotation_preserved\":true,\"pending\":0,\"transport\":\"in-memory fake; no cluster or GC validation\"}\n",
+      "stderr": "",
+      "timeout_or_launch_failure": false
+    },
+    {
+      "name": "source-archive",
+      "command": [
+        "run",
+        "scripts/package-audit.mbtx"
+      ],
+      "passed": false,
+      "exit_code": 1,
+      "test_totals": null,
+      "stdout": "",
+      "stderr": "moonbitlang/async/shell.ShellError.CommandFailed\n",
+      "timeout_or_launch_failure": false
+    }
+  ]
+}

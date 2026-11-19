@@ -1,0 +1,16 @@
+[
+  {
+    "mode": "deny",
+    "default_adoption_refused": true,
+    "explicit_adoption": "403 without delete permission",
+    "passed": true,
+    "admission_plugin": "OwnerReferencesPermissionEnforcement explicitly enabled"
+  },
+  {
+    "mode": "allow",
+    "default_adoption_refused": true,
+    "explicit_adoption": "allowed with fixture-named delete permission",
+    "passed": true,
+    "admission_plugin": "OwnerReferencesPermissionEnforcement explicitly enabled"
+  }
+]
