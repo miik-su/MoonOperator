@@ -1,5 +1,10 @@
 # 0.1.0 (unreleased)
 
+Reject malformed LIST metadata and duplicate snapshot keys before returning or
+publishing a snapshot. Check the identity of successful single-resource API
+responses. Treat a changed UID as a new resource in Watch predicates, including
+when the generation is unchanged.
+
 Maintenance 2026-11-18: reject incomplete/unversioned custom Source snapshots
 before cache publication; add duplicate/UID/410/namespace and in-flight conflict
 models; preserve existing duration series while adding fixed latency histograms

@@ -9,6 +9,9 @@ test "generation predicate preserves cleanup transitions and filters status only
     .with_metadata("resourceVersion", Json::string("b"))
     .with_field("status", { "ready": true })
   assert_false(@watch.generation_changed(Some(before), Modified(after)))
+  let recreated = before.with_metadata("uid", "new")
+  assert_true(@watch.changed(Some(before), Modified(recreated)))
+  assert_true(@watch.generation_changed(Some(before), Modified(recreated)))
   assert_true(
     @watch.generation_changed(
       Some(before),

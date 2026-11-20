@@ -6,7 +6,8 @@ provider to decide whether reconciliation is correct.
 
 | Model | Inputs / source | Expected invariant | Actual evidence and limits |
 | --- | --- | --- | --- |
-| Snapshot admission | runtime/model_test.mbt: missing RV or nonempty continuation token | Preserve old data, mark unready, admit no queue keys and do not start Watch | Focused regression; custom Source contract, not a network outage test |
+| Snapshot admission | runtime/model_test.mbt: missing RV, nonempty continuation token or duplicate key | Preserve old data, mark unready, admit no queue keys and do not start Watch | Focused regression of the custom Source contract |
+| API response identity | client/rest_test.mbt and client/pagination_test.mbt: foreign-namespace objects, malformed LIST metadata and duplicate keys across pages | Reject invalid responses and incomplete snapshots | Injected responses cover protocol handling. The Kind workflow exercises the real API |
 | Recovery / UID / namespace | Same file: 100 updates with duplicate events, UID recreation, stale delete, 410, authoritative relist; separate east/west Stores | New UID survives old tombstone, complete relist converges, removed key is delivered, other Store stays intact | Synthetic I/O uses the production Source loop; no OS-thread-safety or shared-Store multi-watch claim |
 | In-flight event storm | controller/storm_test.mbt: 100 desired changes and a 409 during processing | Final state equals revision 100, one successful write, no lost dirty work, pending=0 | One bounded key with injected conflict; independent concurrency tests cover cooperative worker exclusion |
 | Schema / registration | crd/generator_test.mbt and versions_test.mbt | Reject malformed registration/root schema/version and mismatched served schemas | API server still decides complete structural-schema/admission validity |

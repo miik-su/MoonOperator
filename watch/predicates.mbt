@@ -3,6 +3,8 @@
 pub fn changed(old : @core.Resource?, event : Event) -> Bool {
   match (old, event) {
     (Some(old), Modified(resource)) =>
+      @core.field(old.metadata(), "uid") !=
+      @core.field(resource.metadata(), "uid") ||
       old.resource_version().is_empty() ||
       old.resource_version() != resource.resource_version()
     (_, Added(_) | Deleted(_)) => true
@@ -20,7 +22,8 @@ pub fn generation_changed(old : @core.Resource?, event : Event) -> Bool {
     (Some(old), Modified(resource)) => {
       let before = old.metadata()
       let after = resource.metadata()
-      if @core.field(before, "deletionTimestamp") !=
+      if @core.field(before, "uid") != @core.field(after, "uid") ||
+        @core.field(before, "deletionTimestamp") !=
         @core.field(after, "deletionTimestamp") ||
         @core.field(before, "finalizers") != @core.field(after, "finalizers") {
         return true
