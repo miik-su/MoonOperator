@@ -15,7 +15,12 @@ async test "incomplete source snapshots preserve old data without queue admissio
       "resourceVersion": "old-rv",
     },
   })
-  for (rv, token) in [("", ""), ("snapshot", "next-page")] {
+  for
+    (rv, token, items) in [
+      ("", "", []),
+      ("snapshot", "next-page", []),
+      ("snapshot", "", [old, old.with_metadata("uid", "duplicate")]),
+    ] {
     let store = @cache.Store::new()
     store.replace(kind.gvk, [old])
     let queue = @queue.Queue::new()
@@ -24,7 +29,7 @@ async test "incomplete source snapshots preserve old data without queue admissio
     let source = @runtime.Source::new(
       () => {
         lists.val += 1
-        { items: [], resource_version: rv, continue_token: token, }
+        { items, resource_version: rv, continue_token: token, }
       },
       (_, _) => {
         watches.val += 1

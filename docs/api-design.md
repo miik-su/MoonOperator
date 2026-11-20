@@ -42,6 +42,18 @@ resourceVersion and an empty continue token. Partial or unversioned snapshots
 are rejected before cache publication or queue admission. Independent watches
 of the same GVK in different namespaces require separate Store instances.
 
+Typed GET, create, update and merge PATCH expect the returned object's GVK,
+namespace and name to match the requested identity. An invalid response to a
+write leaves its server-side outcome uncertain. Read the current resource
+before deciding whether another write is needed.
+
+`Client::list_page` requires a nonempty string resourceVersion and a string
+continuation token when that field is present. It checks each item's
+namespace against the requested scope and still accepts omitted item TypeMeta
+by deriving it from the endpoint. `Client::list` rejects duplicate keys across
+pages. Store replacement also rejects duplicate keys from custom sources
+before changing the cached snapshot.
+
 `Queue::new` and `Parser::new` now raise Invalid for nonpositive limits. Capacity
 errors distinguish CacheCapacity/QueueCapacity/ListCapacity; update exhaustive
 matches accordingly. `Client::list` adds `max_bytes` (64 MiB default) and

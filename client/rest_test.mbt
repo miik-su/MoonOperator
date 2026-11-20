@@ -55,3 +55,46 @@ async test "client classifies errors and rejects unsafe update" {
   }
   assert_true(invalid)
 }
+
+///|
+async test "typed object calls reject a successful response for a different object" {
+  let kind : @core.ResourceType = {
+    gvk: { group: "", version: "v1", kind: "Pod", },
+    plural: "pods",
+    scope: Namespaced,
+  }
+  let resource = @core.Resource::from_json({
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+      "namespace": "demo",
+      "name": "web",
+      "resourceVersion": "opaque",
+    },
+  })
+  let unrelated = resource.with_metadata("namespace", "other")
+  let requests : Array[String] = []
+  let client = @client.Client::new(request => {
+    requests.push(request.verb)
+    { code: 200, body: unrelated.json(), retry_after_seconds: None, }
+  })
+  for verb in ["GET", "POST", "PUT", "PATCH"] {
+    assert_true(
+      try {
+        ignore(
+          match verb {
+            "GET" => client.get(kind, "demo", "web")
+            "POST" => client.create(kind, resource)
+            "PUT" => client.update(kind, resource)
+            _ => client.patch(kind, "demo", "web", { "spec": {} })
+          },
+        )
+        false
+      } catch {
+        @core.Invalid(_) => true
+        _ => false
+      },
+    )
+  }
+  assert_eq(requests, ["GET", "POST", "PUT", "PATCH"])
+}

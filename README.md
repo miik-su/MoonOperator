@@ -23,7 +23,8 @@ This is an early implementation, single replica only. See
 
 ## Capabilities and boundaries
 
-- Dynamic CRUD/status/merge PATCH, bounded pagination and verified bearer/CA transport.
+- Dynamic CRUD/status/merge PATCH, response identity checks, bounded pagination
+  and verified bearer/CA transport.
 - LIST/WATCH recovery, UID-safe cache updates, bounded queues and cooperative controllers.
 - Finalizer/ownership helpers, constrained CRD/RBAC generation and the MoonApp example.
 - Fixed-cardinality metrics, safe events and optional bounded scalar WASM validation.

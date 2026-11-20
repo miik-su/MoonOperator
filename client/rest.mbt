@@ -161,7 +161,23 @@ pub async fn Client::get(
     body: Json::null(),
     content_type: "application/json",
   })
-  @core.Resource::from_json(response.body)
+  decode_object(kind, ns, name, response.body)
+}
+
+///|
+/// Typed object operations require the response identity to match the request.
+fn decode_object(
+  kind : @core.ResourceType,
+  ns : String,
+  name : String,
+  body : Json,
+) -> @core.Resource raise @core.OperatorError {
+  let resource = @core.Resource::from_json(body)
+  let key = resource.key()
+  if key.gvk != kind.gvk || key.ns != ns || key.name != name {
+    raise @core.Invalid("response resource identity does not match request")
+  }
+  resource
 }
 
 ///|
@@ -190,11 +206,20 @@ pub async fn Client::list_page(
   guard @core.field(response.body, "items") is Array(items) else {
     raise @core.Invalid("LIST items required")
   }
-  let meta = @core.field(response.body, "metadata")
+  guard @core.field(response.body, "metadata") is Object(meta) &&
+    meta.get("resourceVersion") is Some(String(rv)) &&
+    !rv.is_empty() else {
+    raise @core.Invalid("LIST requires a nonempty string resourceVersion")
+  }
+  let next = match meta.get("continue") {
+    None => ""
+    Some(String(value)) => value
+    _ => raise @core.Invalid("LIST continue token must be a string")
+  }
   {
-    items: items.map(item => decode_list_item(kind, item)),
-    resource_version: @core.text(@core.field(meta, "resourceVersion")),
-    continue_token: @core.text(@core.field(meta, "continue")),
+    items: items.map(item => decode_list_item(kind, ns, item)),
+    resource_version: rv,
+    continue_token: next,
   }
 }
 
@@ -203,6 +228,7 @@ pub async fn Client::list_page(
 /// their GVK; explicit conflicting type metadata must still be rejected.
 fn decode_list_item(
   kind : @core.ResourceType,
+  ns : String,
   value : Json,
 ) -> @core.Resource raise @core.OperatorError {
   ignore(@core.json_size(value))
@@ -217,8 +243,16 @@ fn decode_list_item(
     fields["kind"] = Json::string(kind.gvk.kind)
   }
   let resource = @core.Resource::from_json(value)
-  if resource.key().gvk != kind.gvk {
+  let key = resource.key()
+  if key.gvk != kind.gvk {
     raise @core.Invalid("LIST item GVK mismatch")
+  }
+  if (kind.scope == Cluster && !key.ns.is_empty()) ||
+    (
+      kind.scope == Namespaced &&
+      (key.ns.is_empty() || (!ns.is_empty() && key.ns != ns))
+    ) {
+    raise @core.Invalid("LIST item namespace does not match collection scope")
   }
   resource
 }
@@ -241,6 +275,7 @@ pub async fn Client::list(
   }
   let items : Array[@core.Resource] = []
   let seen : Map[String, Bool] = Map([])
+  let keys : Map[@core.Key, Bool] = Map([])
   let mut retained = 0
   for token = "", version = "", pages = 0 {
     if pages >= 1000 {
@@ -262,6 +297,11 @@ pub async fn Client::list(
       raise @core.ListCapacity("LIST object limit")
     }
     for resource in page.items {
+      let key = resource.key()
+      if keys.contains(key) {
+        raise @core.Invalid("duplicate resource key in LIST snapshot")
+      }
+      keys[key] = true
       let size = resource.byte_size(max_bytes=max_object_bytes) catch {
         @core.Capacity(_) => raise @core.ListCapacity("LIST object byte limit")
         error => raise error
@@ -303,7 +343,7 @@ pub async fn Client::create(
     body: resource.json(),
     content_type: "application/json",
   })
-  @core.Resource::from_json(response.body)
+  decode_object(kind, key.ns, key.name, response.body)
 }
 
 ///|
@@ -326,7 +366,7 @@ pub async fn Client::update(
     body: resource.json(),
     content_type: "application/json",
   })
-  @core.Resource::from_json(response.body)
+  decode_object(kind, key.ns, key.name, response.body)
 }
 
 ///|
@@ -344,7 +384,7 @@ pub async fn Client::patch(
     body: patch,
     content_type: "application/merge-patch+json",
   })
-  @core.Resource::from_json(response.body)
+  decode_object(kind, ns, name, response.body)
 }
 
 ///|

@@ -95,12 +95,14 @@ pub fn Store::replace(
     if resource.key().gvk != gvk {
       raise @core.Invalid("snapshot kind mismatch")
     }
+    if staged.contains(resource.key()) {
+      raise @core.Invalid("duplicate resource key in cache snapshot")
+    }
     let size = self.resource_size(resource)
-    let previous = sizes.get(resource.key()).unwrap_or(0)
-    if size > self.max_bytes - (total - previous) {
+    if size > self.max_bytes - total {
       raise @core.CacheCapacity("cache byte capacity")
     }
-    total = total - previous + size
+    total += size
     sizes[resource.key()] = size
     staged[resource.key()] = resource
     if staged.length() > self.capacity {
