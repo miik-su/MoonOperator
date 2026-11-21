@@ -8,7 +8,7 @@ async test "initial LIST larger than queue drains through bounded admission" {
   let a = @core.Resource::from_json({
     "apiVersion": "v1",
     "kind": "Pod",
-    "metadata": { "name": "a" },
+    "metadata": { "name": "a", "namespace": "default" },
   })
   let b = a.with_metadata("name", Json::string("b"))
   let processed : Array[String] = []

@@ -22,7 +22,7 @@ pub async fn inform(
       })
     },
   )
-  source.run(kind, store, queue, metrics~, predicate~, logger~, progress~)
+  source.run(kind, store, queue, ns~, metrics~, predicate~, logger~, progress~)
 }
 
 ///|
@@ -59,16 +59,32 @@ async fn enqueue(queue : @queue.Queue, key : @core.Key) -> Unit {
 }
 
 ///|
+fn matches_collection(
+  kind : @core.ResourceType,
+  ns : String,
+  key : @core.Key,
+) -> Bool {
+  key.gvk == kind.gvk &&
+  (match kind.scope {
+    Cluster => key.ns.is_empty()
+    Namespaced => !key.ns.is_empty() && (ns.is_empty() || key.ns == ns)
+  })
+}
+
+///|
+/// An empty namespace selects all namespaces for namespaced types.
 pub async fn Source::run(
   self : Source,
   kind : @core.ResourceType,
   store : @cache.Store,
   queue : @queue.Queue,
+  ns~ : String = "",
   metrics~ : @observability.Metrics = @observability.Metrics::new(),
   predicate~ : (@core.Resource?, @watch.Event) -> Bool = @watch.changed,
   logger~ : @observability.Logger = @observability.Logger::silent(),
   progress~ : @observability.Progress = @observability.Progress::new(),
 ) -> Unit {
+  ignore(@client.collection_path(kind, ns))
   let state = @watch.State::new()
   let mut malformed = 0
   for ;; {
@@ -87,11 +103,19 @@ pub async fn Source::run(
             "informer requires a complete LIST with resourceVersion",
           )
         }
-        // Enqueue disappeared keys too, for delete reconciliation.
+        for resource in snapshot.items {
+          if !matches_collection(kind, ns, resource.key()) {
+            raise @core.Invalid("LIST item outside informer collection")
+          }
+        }
+        // Only disappeared keys in this collection belong to its reconciler.
         let previous = store.list(kind.gvk)
         store.replace(kind.gvk, snapshot.items)
         for resource in previous {
-          enqueue(queue, resource.key())
+          let key = resource.key()
+          if matches_collection(kind, ns, key) {
+            enqueue(queue, key)
+          }
         }
         for resource in snapshot.items {
           enqueue(queue, resource.key())
@@ -105,20 +129,19 @@ pub async fn Source::run(
         if event is Failure(code) {
           raise @core.Api(code, "WatchStatusError")
         }
-        if event.resource() is Some(resource) && resource.key().gvk != kind.gvk {
-          raise @core.Invalid("watch resource kind mismatch")
+        let resource = event.resource()
+        let key = resource.map(resource => resource.key())
+        if key is Some(key) && !matches_collection(kind, ns, key) {
+          raise @core.Invalid("watch resource outside informer collection")
         }
-        if event.resource() is Some(resource) &&
-          resource.resource_version().is_empty() {
+        if event.version().is_empty() {
           raise @core.Invalid("watch resourceVersion required")
         }
-        let previous = event
-          .resource()
-          .bind(resource => store.get(resource.key()))
+        let previous = key.bind(key => store.get(key))
         let accepted = predicate(previous, event)
         store.apply(event)
-        if accepted && event.resource() is Some(resource) {
-          enqueue(queue, resource.key())
+        if accepted && key is Some(key) {
+          enqueue(queue, key)
         }
         state.checkpoint(event)
         progress.event(@async.now())

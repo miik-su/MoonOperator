@@ -8,7 +8,11 @@ async test "informer relists after expired RV and fails closed on forbidden" {
   let resource = @core.Resource::from_json({
     "apiVersion": "v1",
     "kind": "Pod",
-    "metadata": { "name": "x", "resourceVersion": "opaque" },
+    "metadata": {
+      "name": "x",
+      "namespace": "default",
+      "resourceVersion": "opaque",
+    },
   })
   let lists = Ref(0)
   let versions : Array[String] = []
