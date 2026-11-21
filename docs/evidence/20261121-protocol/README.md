@@ -57,9 +57,9 @@ enabled admission, and NetworkPolicy allow/deny/recovery.
 
 The kind-acceptance artifact 14697879545 has ZIP SHA-256
 `44b15521426d690e6b630f98ff44ac5c2c8a9bfe49ad8d04fd2159e154904d7b`.
-Archived JSON: [MoonApp](kind-e2e-report.json), [client](cluster-client-report.json),
-[versions](kind-version.json), [RBAC](rbac-report.json),
-[adoption](adoption-report.json), and [NetworkPolicy](network-policy-report.json).
+Archived JSON: [MoonApp](kind.json), [client](client.json),
+[versions](kind-version.json), [RBAC](rbac.json),
+[adoption](adoption.json), and [NetworkPolicy](network-policy.json).
 
 ## Images and bounded memory observations
 
