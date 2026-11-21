@@ -43,10 +43,50 @@ jobs:
             runtime-packages.txt
           retention-days: 1
 
+  os-vulnerabilities:
+    needs: images
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: moonoperator-test-images
+      - run: docker load -i moonoperator-images.tar
+      - name: Scan installed OS packages with pinned Trivy
+        run: |
+          curl --retry 2 --retry-all-errors --connect-timeout 15 --max-time 90 -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz -o /tmp/trivy-linux.tar.gz || curl --retry 2 --connect-timeout 15 --max-time 90 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/aquasecurity/trivy/releases/assets/713401165 -o /tmp/trivy-linux.tar.gz
+          sha256sum --check tools/trivy-linux.sha256
+          tar -xzf /tmp/trivy-linux.tar.gz -C /tmp trivy
+          mkdir -p os-scan
+          git rev-parse HEAD > os-scan/source-commit.txt
+          image_id=$(docker image inspect --format '{{.Id}}' moonoperator:dev)
+          printf '%s\n' "$image_id" > os-scan/image-id.txt
+          /tmp/trivy --cache-dir /tmp/moonoperator-trivy image --timeout 4m --image-src docker --scanners vuln --pkg-types os --list-all-pkgs --format json --output os-scan/trivy.json "$image_id"
+          /tmp/trivy --cache-dir /tmp/moonoperator-trivy --version > os-scan/trivy-version.txt
+          jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[]] | length > 0' os-scan/trivy.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: os-vulnerability-observations
+          path: os-scan/
+          if-no-files-found: warn
+          retention-days: 30
+
   moonapp:
     needs: images
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - kubernetes: v1.37.0
+            node: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+          - kubernetes: v1.36.4
+            node: kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f2b7ea312e3cbfaed
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -62,7 +102,10 @@ jobs:
           curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
       - run: sha256sum --check tools/kind-linux.sha256
       - run: chmod +x /tmp/kind
-      - run: /tmp/kind create cluster --name moonoperator-e2e --config config/kind-calico.yaml --wait 120s
+      - name: Create disposable Kind cluster from the pinned node image
+        env:
+          KIND_NODE_IMAGE: ${{ matrix.node }}
+        run: /tmp/kind create cluster --name moonoperator-e2e --config config/kind-calico.yaml --image "$KIND_NODE_IMAGE" --wait 120s
       - name: Install checksum-verified Calico for policy enforcement
         run: |
           curl --retry 3 --retry-all-errors --max-time 120 -fsSL https://raw.githubusercontent.com/projectcalico/calico/v3.33.0/manifests/calico.yaml -o /tmp/calico.yaml
@@ -70,7 +113,12 @@ jobs:
           kubectl --context kind-moonoperator-e2e apply --server-side -f /tmp/calico.yaml
           kubectl --context kind-moonoperator-e2e -n kube-system rollout status daemonset/calico-node --timeout=240s
           kubectl --context kind-moonoperator-e2e wait --for=condition=Ready nodes --all --timeout=180s
-      - run: kubectl --context kind-moonoperator-e2e version -o json > kind-version.json
+      - name: Verify the Kubernetes server version
+        env:
+          EXPECTED_KUBERNETES_VERSION: ${{ matrix.kubernetes }}
+        run: |
+          kubectl --context kind-moonoperator-e2e version -o json > kind-version.json
+          jq -e --arg version "$EXPECTED_KUBERNETES_VERSION" '.serverVersion.gitVersion == $version' kind-version.json
       - run: /tmp/kind load docker-image moonoperator:dev moonoperator-probe:dev --name moonoperator-e2e
       - run: moon run scripts/kind-e2e.mbtx -- _build/native/release/build/cmd/manifests/manifests.exe
       - run: moon run scripts/network-policy.mbtx
@@ -80,7 +128,7 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: kind-acceptance
+          name: kind-acceptance-${{ matrix.kubernetes }}
           path: |
             kind-e2e-report.json
             cluster-client-report.json
