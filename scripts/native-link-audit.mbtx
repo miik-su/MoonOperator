@@ -1,0 +1,58 @@
+----
+import {
+  "moonbitlang/async@0.22.5",
+  "moonbitlang/async@0.22.5/shell",
+  "moonbitlang/async@0.22.5/fs",
+  "moonbitlang/core/env",
+}
+----
+
+async fn main {
+  let args = @env.args()
+  guard args.length() == 3 && !@fs.exists(args[2]) else {
+    fail("usage: native-link-audit.mbtx EXECVE_TRACE FRESH_OUTPUT_DIRECTORY")
+  }
+  let trace = @fs.read_file(args[1]).text()
+  let output = args[2]
+  let links : Array[String] = []
+  for line in trace.split("\n") {
+    if line.contains("execve(") && line.contains("moonapp.exe") &&
+      (line.contains("/collect2\"") || line.contains("/ld\"") || line.contains("/ld.bfd\"")) &&
+      line.has_suffix(" = 0") {
+      links.push(line.to_owned())
+    }
+  }
+  guard !links.is_empty() else { fail("no successful Linux executable link invocation captured") }
+  let executable = "_build/native/release/build/cmd/moonapp/moonapp.exe"
+  let elf = @shell.Cmd("readelf", ["-d", executable], stdout=Capture).output()
+  elf.check()
+  let symbols = @shell.Cmd("nm", ["-C", "--defined-only", executable], stdout=Capture).output(max_output_bytes=4194304)
+  symbols.check()
+  let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
+  source.check()
+  let built = @shell.Cmd("sha256sum", [executable], stdout=Capture).output()
+  built.check()
+  let image = @shell.Cmd("docker", ["image", "inspect", "--format", "{{.Id}}", "moonoperator:dev"], stdout=Capture).output()
+  image.check()
+  let image_id = image.stdout().trim().to_owned()
+  guard image_id.has_prefix("sha256:") && image_id.length() == 71 else { fail("missing immutable production image ID") }
+  let installed = @shell.Cmd("docker", ["run", "--rm", "--network", "none", "--read-only", "--entrypoint", "/usr/bin/sha256sum", image_id, "/usr/local/bin/moonoperator"], stdout=Capture).output()
+  installed.check()
+  let binary_sha = built.stdout().split(" ").next().unwrap().to_owned()
+  guard binary_sha.length() == 64 && installed.stdout().has_prefix(binary_sha + " ") else {
+    fail("built executable differs from the executable in the production image")
+  }
+  @fs.mkdir(output, recursive=true)
+  @fs.write_file(output + "/link-commands.txt", links.join("\n") + "\n")
+  @fs.write_file(output + "/elf-dynamic.txt", elf.stdout())
+  @fs.write_file(output + "/defined-symbols.txt", symbols.stdout())
+  let metadata : Json = {
+    "source_commit": source.stdout().trim().to_owned(),
+    "image_id": image_id,
+    "sha256": binary_sha,
+    "image_binary_matches_build": true,
+    "symbol_table_available": !symbols.stdout().trim().is_empty(),
+    "scope": "successful GNU linker invocations, ELF dynamic section and defined symbols for the Linux amd64 production executable",
+  }
+  @fs.write_file(output + "/link-provenance.json", metadata.stringify(indent=2) + "\n")
+}
