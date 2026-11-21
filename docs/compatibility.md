@@ -1,4 +1,4 @@
-# Compatibility and evidence — 2026-11-18
+# Compatibility and evidence — 2026-11-21
 
 This matrix separates implemented behavior from dated execution evidence.
 New local maintenance regressions are listed in maintenance.md. CI links in
@@ -13,7 +13,7 @@ release-status.md identify their exact source; historical data is not rewritten.
 | HTTPS/custom CA/token rotation | Real Kind CA/token; loopback rotation after simulated 401; Linux unrelated-CA and wrong-hostname rejection passed; real JWT expiry remains untested |
 | JSON/YAML kubeconfig / in-cluster | Bounded bearer/CA subset; relative paths and duplicate/alias rejection tested |
 | Watch byte framing / 410 state | Verified: split UTF-8/event tests |
-| Informer reconnect / relist runtime | Injected 410/403 and startup backpressure tests; real MoonApp restart recovery |
+| Informer reconnect / relist runtime | Scope and bookmark checks with synthetic fixtures; injected 410/403 and startup backpressure; real MoonApp restart recovery |
 | Cache | Verified atomic replacement, bounds, snapshots; label equality maps |
 | Workqueue | Verified dirty/in-flight dedup and delayed retries |
 | Controller / Manager | Verified failure release, concurrent-key exclusion, shutdown drain, registration |
@@ -27,7 +27,7 @@ release-status.md identify their exact source; historical data is not rewritten.
 | Experimental WASM host | Current pin is Wasmtime 50.0.3. Dated guest and failure-path verification is linked from release-status.md |
 | HA / webhooks | Not implemented; single replica deployment contract |
 | Benchmarks / load | Fixed dataset and 10s fault probe; Linux short container RSS matrix recorded; one-hour/24-hour soak still pending |
-| Package publication | Offline `moon package` succeeds; Mooncakes publication pending |
+| Source archive / publication | Offline source ZIP and notice byte checks passed. Mooncakes installation and publication are unverified |
 | Follow-up security review | Redacted Resource debug, explicit finalizer results, scoped ownership/adoption, mandatory watch RVs, typed capacity failure policy, bounded file/LIST reads and API type validation verified by focused regressions |
 | Container delivery | Release production image excludes probes; separate acceptance image; pinned Ubuntu digest/archive snapshot and recorded package inventory verified in Kind CI |
 | Diagnostics ingress | Loopback default; explicit cluster interface; actual Calico 3.33.0 allow/deny/recovery passed on Kubernetes 1.37.0; other CNIs unverified |

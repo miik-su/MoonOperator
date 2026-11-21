@@ -8,7 +8,7 @@ This scope is a capability contract, not a claim of production certification.
 | --- | --- | --- |
 | Resource/client | Dynamic JSON/typed views, CRUD/status, merge PATCH, bounded consistent LIST | No generated complete SDK or automatic discovery; trusted ResourceType declarations |
 | Authentication | Verified HTTPS with system/custom CA, bearer/tokenFile, restricted JSON/YAML kubeconfig, in-cluster SA | No exec, OIDC refresh, client certificates, embedded CA or insecure-skip-TLS |
-| Recovery/cache | LIST/WATCH/410 recovery, atomic bounded snapshots, UID-safe tombstones | Independent watches of one GVK require separate Stores; no durable queue/cache |
+| Recovery/cache | Scope-checked LIST/WATCH, 410 recovery, atomic bounded snapshots, UID-safe tombstones | Collection checks constrain admission; Kubernetes RBAC authorizes requests. Independent watches of one GVK require separate Stores. No durable queue/cache or streaming initial events |
 | Workers | Cooperative concurrency, dedup, backoff, deadlines, finalizers/owners | One replica; no Lease election, OS-thread-safe sharing or forced cancellation of arbitrary blocking code |
 | CRD/RBAC | Bounded schema subset, equal-schema served versions, explicit namespaced rules | No full OpenAPI validator, admission/conversion webhook or inferred production permissions |
 | MoonApp | Desired Deployment/Service, idempotence/drift, generation-aware conditions | ResourcesApplied is API state; Ready stays Unknown without workload observation |

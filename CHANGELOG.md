@@ -1,5 +1,9 @@
 # 0.1.0 (unreleased)
 
+Enforce informer collection scope on LIST and Watch input, and reject blank
+custom-source bookmarks before dispatch. Verify the source ZIP's seven notice
+payloads and compare bundled async/YAML with their resolved license copies.
+
 Update the optional Wasmtime runtime and its verified Linux archive to 50.0.3
 after the advisory gate detected new findings for 50.0.1.
 

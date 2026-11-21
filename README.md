@@ -25,13 +25,16 @@ This is an early implementation, single replica only. See
 
 - Dynamic CRUD/status/merge PATCH, response identity checks, bounded pagination
   and verified bearer/CA transport.
-- LIST/WATCH recovery, UID-safe cache updates, bounded queues and cooperative controllers.
+- Scope-checked LIST/WATCH recovery, UID-safe cache updates, bounded queues and cooperative controllers.
 - Finalizer/ownership helpers, constrained CRD/RBAC generation and the MoonApp example.
 - Fixed-cardinality metrics, safe events and optional bounded scalar WASM validation.
 
 One cooperative event loop and one replica; no HA/Lease election or OS-thread-safe
-shared stores. Separate Stores are required for independent namespace watches of
-the same GVK. No generated complete Kubernetes SDK, discovery, exec/OIDC or
+shared stores. Independent watches of the same GVK require separate Stores.
+A namespaced informer checks LIST objects and Watch events against its configured
+namespace before cache or queue admission. An empty namespace selects all
+namespaces for namespaced resources. Kubernetes RBAC defines what the credentials
+may access. No generated complete Kubernetes SDK, discovery, exec/OIDC or
 client-certificate authentication, admission/conversion webhooks, or general JSON
 guest ABI is provided. ResourcesApplied does not mean Pod Ready. See the
 [scope contract](docs/project-scope.md) and [CRD/RBAC subset](docs/crd-rbac.md).
@@ -60,7 +63,9 @@ Return to the repository root before the commands below.
 See [测试数据与结果展示 / Test inputs and results](docs/test-results.md) for
 benchmark tables, ten-second load observations, WASM case outcomes, archived
 Kind reports and reproducible synthetic input models. Each CI run also displays
-its own Markdown summary and downloadable raw reports.
+its own Markdown summary and downloadable raw reports. The
+[scope and license checks](docs/evidence/20261121-scope-license/README.md) record
+the source revision, targeted model results and actual source ZIP checks.
 The [November 13 review follow-up](docs/review-followup-20261113.md) links retained
 Linux container memory limits, actual Calico/RBAC decisions, TLS rejection and
 queue-scale evidence, and states the remaining release checks.
@@ -150,4 +155,7 @@ License: Apache-2.0. Dependencies: moonbitlang/async 0.22.5 (Apache-2.0) and
 moonbit-community/yaml 0.0.8 (MIT). See [licensing/distribution scope](LICENSING.md),
 [third-party notices](THIRD_PARTY_NOTICES.md), [security policy](SECURITY.md) and
 [maintenance gates](docs/maintenance.md). Test models are synthetic Kubernetes
-resources/events and WAT fixtures; no AI weights are distributed.
+resources/events and WAT fixtures. No AI model weights are distributed.
+The source ZIP audit checks included notices
+byte for byte and compares the bundled async and YAML licenses with the resolved
+dependencies. Native binary and container obligations are tracked separately.

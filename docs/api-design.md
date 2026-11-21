@@ -39,8 +39,14 @@ Scope declarations must reflect API discovery or a trusted registration.
 
 `Source::new` LIST callbacks must return the entire snapshot, a nonempty opaque
 resourceVersion and an empty continue token. Partial or unversioned snapshots
-are rejected before cache publication or queue admission. Independent watches
-of the same GVK in different namespaces require separate Store instances.
+are rejected before cache publication or queue admission. Pass `ns="name"` to
+`Source::run` for a namespaced collection. The default empty value permits any
+nonempty namespace for namespaced resources and requires an empty namespace for
+cluster-scoped resources. LIST objects and Watch resource events must match GVK
+and scope. Custom bookmarks also require a nonempty resourceVersion. An invalid
+LIST stops the informer and preserves the prior snapshot as unready. Invalid
+Watch events enter bounded relist recovery before the predicate, cache or queue
+can see the event. Independent watches of the same GVK require separate Stores.
 
 Typed GET, create, update and merge PATCH expect the returned object's GVK,
 namespace and name to match the requested identity. An invalid response to a

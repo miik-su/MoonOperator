@@ -17,7 +17,7 @@ application information is maintained in this repository.
 | CRD/RBAC usability | Improved | Naming/root-schema/all-version guards and CRD regressions; real API remains authoritative |
 | Separate public API consumer | Implemented | examples/consumer uses a local workspace, runs two idempotent attempts and preserves metadata |
 | Test models and licenses | Documented | test-models.md and ../LICENSING.md identify synthetic inputs and artifact-specific rights |
-| Source archive integrity | Implemented | package-audit.mbtx checks actual ZIP paths and required license files; not a content secret scan |
+| Source archive integrity | Verified | Actual ZIP paths and seven notice payloads checked. Bundled async/YAML license texts match resolved modules |
 | Container distribution evidence | Implemented collection, execution evidence tracked separately | distribution-inventory.mbtx records image ID, dpkg versions, available copyright/common-license files and missing texts |
 | Experimental Wasmtime advisory check | Updated | Wasmtime 50.0.3 passed the exact-version OSV query and ten-case host probe. See [archived evidence](evidence/20261121-protocol/README.md) |
 | Complete distribution clearance | Open | Review missing copyrights, source offers, full linkage SBOM and OS/runtime vulnerability coverage |

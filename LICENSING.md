@@ -34,7 +34,11 @@ an automated legal or vulnerability clearance. A redistributor must review
 remaining source-offer, notice and license obligations for its actual artifact.
 No complete distribution SBOM or OS vulnerability audit has yet been claimed.
 The source ZIP audit requires Windows bsdtar or unzip on Linux/macOS; the Linux
-CI setup explicitly installs unzip. It checks the actual ZIP, not only git files.
+CI setup explicitly installs unzip. The audit checks actual ZIP paths, requires
+each notice exactly once, compares its bytes with the checkout, and verifies
+the bundled async and YAML licenses against the resolved Mooncakes copies.
+The MoonBit core notice was also compared with the installed pinned core license
+in the [local release evidence](docs/evidence/20261121-scope-license/README.md).
 
 Architecture references client-go and controller-runtime are Apache-2.0; their
 Go implementation is not copied or vendored here. Sources and reference scope:
