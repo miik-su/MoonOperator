@@ -43,6 +43,14 @@ and [Kind acceptance](https://github.com/miik-su/MoonOperator/actions/runs/44881
 all passed. [Protocol and Wasmtime evidence](evidence/20261121-protocol/README.md)
 records the test scope, original reports and archive digests.
 
+Collection-scope and archive-notice revision `7c16596` passed
+[native](https://github.com/miik-su/MoonOperator/actions/runs/44882516711),
+[Kind](https://github.com/miik-su/MoonOperator/actions/runs/44882516781) and
+[WASM](https://github.com/miik-su/MoonOperator/actions/runs/44882516742).
+[Same-source Windows and CI evidence](evidence/20261121-scope-license/README.md)
+records 16 targeted models on each native host, package notice bytes on both
+archive readers, and the Kubernetes/Calico versions actually exercised.
+
 Historical public evidence:
 
 - [Linux native checks](https://github.com/miik-su/MoonOperator/actions/runs/42444225315)

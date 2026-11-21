@@ -16,6 +16,10 @@
 保留；归档核对了 312 个路径、7 份许可与声明文件及 2 份依赖许可证归档副本。
 [命令及实测结果](evidence/20261121-scope-license/README.md)可直接查看。
 
+同一源码的 GitHub 原生、Kind 和 WASM 检查均已通过。Linux 模型用例 16/16，
+实际 ZIP 许可内容一致，TLS 正反用例通过。Kind 覆盖 Kubernetes 1.37.0 与
+Calico 3.33.0；实验 WASM 用例 10/10。[同源 CI 结果及校验值](evidence/20261121-scope-license/README.md#github-actions-on-the-same-source)。
+
 ## API 协议与 WASM 定向验证 · 2026-11-21
 
 Windows 原生定向用例 15/15 通过，覆盖 API 返回对象身份、LIST 分页元数据、

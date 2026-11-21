@@ -26,3 +26,27 @@ The model inputs and project-authored reports follow the
 [repository license terms](../../../LICENSING.md).
 See the [model catalog](../../test-models.md) for the data scope.
 No full regression or long-duration load run was performed.
+
+## GitHub Actions on the same source
+
+[Focused native](https://github.com/miik-su/MoonOperator/actions/runs/44882516711),
+[Kind](https://github.com/miik-su/MoonOperator/actions/runs/44882516781) and
+[experimental WASM](https://github.com/miik-su/MoonOperator/actions/runs/44882516742)
+all passed on the same source. Linux native recorded 16/16 models, the independent
+consumer, the TLS allow/reject checks, and the same 312 paths and seven notice
+payloads using unzip. Kind verified the real API, RBAC, network policy and the
+MoonApp lifecycle on Kubernetes 1.37.0 with Calico 3.33.0. The bounded scalar
+WASM probe passed 10/10 on Wasmtime 50.0.3. OSV returned no advisories for that
+exact crates.io package version in this run.
+
+| Artifact | ID | ZIP SHA-256 | Archived selection |
+| --- | ---: | --- | --- |
+| native-observations | 14698865944 | 2ef691381b82068a244b7dffb4f7fb2b4159645ec56a14942c05110d5c2d5fe7 | [models](linux-models.json), [package](linux-package.json), [TLS](tls.json) |
+| source-dependency-inventory | 14698870858 | 3682445a004b88dc70cf80ecd9c7ab87affc243812b2cb1db73ad4923735346d | [OSV query](advisory.json) |
+| wasm-host-evidence | 14698374118 | a1ca91061f5afd35efb4581e8784644042011e6736af9a6fed125955312adc4a | [WASM cases](wasm.json) |
+| kind-acceptance | 14699016795 | 6ccddf451399bba27fcc4617cd9575d610f59f8d3ab676da8871373c55e24085 | [Kind summary](kind.md), [client](kind-client.json) |
+
+The four ZIP digests were checked before extraction. These tests provide dated
+platform, source-archive and exact-version evidence. OS/binary dependency
+vulnerability scans, additional Kubernetes/CNI combinations, macOS and installed
+registry package compatibility remain open.
