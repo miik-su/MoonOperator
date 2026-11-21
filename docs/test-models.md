@@ -8,7 +8,8 @@ provider to decide whether reconciliation is correct.
 | --- | --- | --- | --- |
 | Snapshot admission | runtime/model_test.mbt: missing RV, nonempty continuation token or duplicate key | Preserve old data, mark unready, admit no queue keys and do not start Watch | Focused regression of the custom Source contract |
 | API response identity | client/rest_test.mbt and client/pagination_test.mbt: foreign-namespace objects, malformed LIST metadata and duplicate keys across pages | Reject invalid responses and incomplete snapshots | Injected responses cover protocol handling. The Kind workflow exercises the real API |
-| Recovery / UID / namespace | Same file: 100 updates with duplicate events, UID recreation, stale delete, 410, authoritative relist; separate east/west Stores | New UID survives old tombstone, complete relist converges, removed key is delivered, other Store stays intact | Synthetic I/O uses the production Source loop; no OS-thread-safety or shared-Store multi-watch claim |
+| Recovery / UID / namespace | runtime/model_test.mbt: 100 updates with duplicate events, UID recreation, stale delete, 410, authoritative relist; separate east/west Stores | New UID survives old tombstone, complete relist converges, removed key is delivered, other Store stays intact | Synthetic I/O uses the production Source loop; no OS-thread-safety or shared-Store multi-watch claim |
+| Watch change predicates | watch/predicates_test.mbt: same name, revision or generation with a different UID | Both predicates admit the recreated resource | Synthetic event filtering; the runtime recovery model covers relist and stale-delete handling |
 | In-flight event storm | controller/storm_test.mbt: 100 desired changes and a 409 during processing | Final state equals revision 100, one successful write, no lost dirty work, pending=0 | One bounded key with injected conflict; independent concurrency tests cover cooperative worker exclusion |
 | Schema / registration | crd/generator_test.mbt and versions_test.mbt | Reject malformed registration/root schema/version and mismatched served schemas | API server still decides complete structural-schema/admission validity |
 | Public consumer | Separate examples/consumer module, synthetic ConfigMap annotation | Two reconciles, one update, preserve unrelated annotation, pending=0 | Source-workspace public API smoke; not registry installation or a real cluster |
@@ -23,8 +24,9 @@ rights remain separate; see ../LICENSING.md and ../THIRD_PARTY_NOTICES.md.
 TLS acceptance certificates/keys are generated ephemerally under ignored _build;
 no private keys are committed or intentionally packaged.
 
-Historical raw snapshots under evidence/ retain their original source SHA,
-environment and filenames. A previous green run does not imply a newer commit
+Evidence indexes identify the available source SHA and execution environment.
+Archived reports may use shorter filenames, with original artifact IDs and digests
+listed alongside them. A previous green run does not imply a newer commit
 was retested. Public CI summaries and artifacts include source provenance.
 Full regression and 1h/24h synthetic/real-cluster soak remain distinct unexecuted
 release gates. No leak-freedom, universal Kubernetes compatibility or production

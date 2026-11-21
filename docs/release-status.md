@@ -1,4 +1,4 @@
-# Delivery status — 2026-11-18
+# Delivery status — 2026-11-21
 
 Core and example control loops are implemented with focused local and public CI
 verification. The original multi-stage implementation plan is reflected in
@@ -36,6 +36,11 @@ passed the test stages and failed the OSV advisory gate for the older Wasmtime
 50.0.1 pin. The optional runtime was updated to
 [50.0.3](https://github.com/bytecodealliance/wasmtime/releases/tag/v50.0.3).
 The local OSV query for that exact crates.io version returned no advisory IDs.
+
+On source `457c794`, the [focused Linux native workflow](https://github.com/miik-su/MoonOperator/actions/runs/44881119471)
+and [experimental WASM probe](https://github.com/miik-su/MoonOperator/actions/runs/44881119458)
+passed with the updated pin. [Protocol and Wasmtime evidence](evidence/20261121-protocol/README.md)
+records the test scope, original reports and archive digests.
 
 Historical public evidence:
 
