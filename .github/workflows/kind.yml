@@ -3,82 +3,9 @@ on: [push, workflow_dispatch]
 permissions:
   contents: read
 jobs:
-  images:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/setup-moonbit
-      - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client tests/memory_profile --target native --release
-      - run: docker build --target production -t moonoperator:dev .
-      - run: docker build --target acceptance -t moonoperator-probe:dev .
-      - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
-      - name: Verify distributed license files
-        run: |
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/NOTICE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSING.md
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/THIRD_PARTY_NOTICES.md
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/yaml-LICENSE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/async-LICENSE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
-      - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
-      - name: Retain installed OS package copyright evidence
-        run: moon run scripts/distribution-inventory.mbtx -- distribution-evidence
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
-        with:
-          name: runtime-distribution-inventory
-          path: distribution-evidence/
-          if-no-files-found: warn
-          retention-days: 30
-      - run: docker save moonoperator:dev moonoperator-probe:dev -o moonoperator-images.tar
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: moonoperator-test-images
-          path: |
-            moonoperator-images.tar
-            runtime-packages.txt
-          retention-days: 1
-
-  os-vulnerabilities:
-    needs: images
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: moonoperator-test-images
-      - run: docker load -i moonoperator-images.tar
-      - name: Scan installed OS packages with pinned Trivy
-        run: |
-          curl --retry 2 --retry-all-errors --connect-timeout 15 --max-time 90 -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz -o /tmp/trivy-linux.tar.gz || curl --retry 2 --connect-timeout 15 --max-time 90 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/aquasecurity/trivy/releases/assets/713401165 -o /tmp/trivy-linux.tar.gz
-          sha256sum --check tools/trivy-linux.sha256
-          tar -xzf /tmp/trivy-linux.tar.gz -C /tmp trivy
-          mkdir -p os-scan
-          git rev-parse HEAD > os-scan/source-commit.txt
-          image_id=$(docker image inspect --format '{{.Id}}' moonoperator:dev)
-          printf '%s\n' "$image_id" > os-scan/image-id.txt
-          /tmp/trivy --cache-dir /tmp/moonoperator-trivy image --timeout 4m --image-src docker --scanners vuln --pkg-types os --list-all-pkgs --format json --output os-scan/trivy.json "$image_id"
-          /tmp/trivy --cache-dir /tmp/moonoperator-trivy --version > os-scan/trivy-version.txt
-          jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[]] | length > 0' os-scan/trivy.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
-        with:
-          name: os-vulnerability-observations
-          path: os-scan/
-          if-no-files-found: warn
-          retention-days: 30
-
   moonapp:
-    needs: images
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -92,11 +19,32 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-moonbit
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client tests/memory_profile --target native --release
+      - name: Build the production image
+        id: production
+        run: docker build --target production -t moonoperator:dev .
+      - run: docker build --target acceptance -t moonoperator-probe:dev .
+      - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
+      - name: Verify distributed license files
+        run: |
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/NOTICE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSING.md
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/THIRD_PARTY_NOTICES.md
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/yaml-LICENSE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/async-LICENSE
+          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
+      - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
+      - name: Retain package sources, copyrights and native linkage
+        if: matrix.kubernetes == 'v1.37.0'
+        run: moon run scripts/distribution-inventory.mbtx -- distribution-evidence
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
         with:
-          name: moonoperator-test-images
-      - run: docker load -i moonoperator-images.tar
-      - run: moon build cmd/manifests --target native --release
+          name: runtime-distribution-inventory
+          path: distribution-evidence/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Download pinned Kind release
         run: |
           curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
@@ -146,25 +94,36 @@ jobs:
       - run: /tmp/kind delete cluster --name moonoperator-e2e
         if: always()
 
-  memory:
-    needs: images
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/setup-moonbit
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: moonoperator-test-images
-      - run: docker load -i moonoperator-images.tar
-      - run: moon run scripts/memory-evidence.mbtx
-      - name: Display memory observations
-        if: always()
-        run: moon run scripts/report-summary.mbtx -- memory '${{ job.status }}'
+      - name: Scan installed OS packages with pinned Trivy
+        if: ${{ !cancelled() && steps.production.outcome == 'success' && matrix.kubernetes == 'v1.37.0' }}
+        run: |
+          curl --retry 2 --retry-all-errors --connect-timeout 15 --max-time 90 -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz -o /tmp/trivy-linux.tar.gz || curl --retry 2 --connect-timeout 15 --max-time 90 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/aquasecurity/trivy/releases/assets/713401165 -o /tmp/trivy-linux.tar.gz
+          sha256sum --check tools/trivy-linux.sha256
+          tar -xzf /tmp/trivy-linux.tar.gz -C /tmp trivy
+          mkdir -p os-scan
+          git rev-parse HEAD > os-scan/source-commit.txt
+          image_id=$(docker image inspect --format '{{.Id}}' moonoperator:dev)
+          printf '%s\n' "$image_id" > os-scan/image-id.txt
+          /tmp/trivy --cache-dir /tmp/moonoperator-trivy image --timeout 4m --image-src docker --scanners vuln --pkg-types os --list-all-pkgs --format json --output os-scan/trivy.json "$image_id"
+          /tmp/trivy --cache-dir /tmp/moonoperator-trivy --version > os-scan/trivy-version.txt
+          jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[]] | length > 0' os-scan/trivy.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
+        if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
+        with:
+          name: os-vulnerability-observations
+          path: os-scan/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Run bounded memory probes
+        id: memory
+        if: ${{ !cancelled() && steps.production.outcome == 'success' && matrix.kubernetes == 'v1.37.0' }}
+        run: moon run scripts/memory-evidence.mbtx
+      - name: Display memory observations
+        if: ${{ !cancelled() && steps.memory.outcome != 'skipped' && matrix.kubernetes == 'v1.37.0' }}
+        run: moon run scripts/report-summary.mbtx -- memory '${{ steps.memory.outcome }}'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: ${{ !cancelled() && steps.memory.outcome != 'skipped' && matrix.kubernetes == 'v1.37.0' }}
         with:
           name: memory-observations
           path: |
