@@ -18,12 +18,12 @@ application information is maintained in this repository.
 | Separate public API consumer | Implemented | examples/consumer uses a local workspace, runs two idempotent attempts and preserves metadata |
 | Test models and licenses | Documented | test-models.md and ../LICENSING.md identify synthetic inputs and artifact-specific rights |
 | Source archive integrity | Verified | Actual ZIP paths and seven notice payloads checked. Bundled async/YAML license texts match resolved modules |
-| Container distribution evidence | Implemented collection, execution evidence tracked separately | distribution-inventory.mbtx records image ID, dpkg versions, available copyright/common-license files and missing texts |
+| Container distribution evidence | Verified for the recorded amd64 image | Installed package/source versions, 94 copyright records, seven matching notice files, executable SHA-256 and startup linkage. [Evidence](evidence/20261121-container/README.md) |
 | Experimental Wasmtime advisory check | Updated | Wasmtime 50.0.3 passed the exact-version OSV query and ten-case host probe. See [archived evidence](evidence/20261121-protocol/README.md) |
-| Complete distribution clearance | Open | Review missing copyrights, source offers, full linkage SBOM and OS/runtime vulnerability coverage |
+| Distribution and vulnerability coverage | Partial | Ubuntu scan covers installed packages. Review outstanding advisories, lower layers, compiler/static/runtime components and source obligations for any distributed image |
 | Full native regression | Available, not executed in this maintenance pass | Manual release-validation workflow; targeted testing was explicitly requested |
 | 1h/24h synthetic and real-cluster soak | Open | Manual entry points exist; no long-duration success or leak-freedom claim |
-| Multi-version Kubernetes/CNI/auth | Open | Dated 1.37.0/Calico 3.33.0 evidence exists; additional versions/providers require actual execution |
+| Multi-version Kubernetes/CNI/auth | Partially verified | Kind 1.36.4 and 1.37.0 with Calico 3.33.0 passed. Other versions, CNIs and identity providers remain open |
 | Mooncakes / formal release | Open | Namespace authentication, published-version clean consumer and release gates must precede publication |
 
 For each meaningful change, record the problem, resulting behavior, affected

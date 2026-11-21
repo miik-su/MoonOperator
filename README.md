@@ -78,7 +78,8 @@ and unexecuted in this maintenance pass.
 
 MoonBit 0.10.17+d971670cd / moon 0.1.20261023, native target; kubectl and a
 disposable development cluster are required. Linux and Windows native have
-bounded evidence; macOS and other Kubernetes versions are not verified. The
+bounded evidence. Kind passed with Kubernetes 1.36.4 and 1.37.0 on amd64,
+using Calico 3.33.0. macOS and other cluster combinations remain unverified. The
 current kubectl context and default namespace are used below. An authorized
 administrator installs the cluster-scoped CRD; the runtime can use a dedicated
 ServiceAccount as described in [deployment](docs/deployment.md).
@@ -160,4 +161,6 @@ The source ZIP audit checks included notices
 byte for byte and compares the bundled async and YAML licenses with the resolved
 dependencies. The [container security and redistribution guide](docs/container-distribution.md)
 describes the OS scan, binary linkage evidence, source-package versions and
-remaining obligations for distributing a built image.
+remaining obligations for distributing a built image. The
+[image and compatibility evidence](docs/evidence/20261121-container/README.md)
+identifies the scanned build, package findings and both Kind test results.

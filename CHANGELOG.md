@@ -1,5 +1,10 @@
 # 0.1.0 (unreleased)
 
+Update inherited Ubuntu packages from a fixed snapshot and enforce the Noble
+glibc security minimum. Record installed package source identities, startup
+linkage and a dated OS scan. Verify Kind 1.36.4 and 1.37.0 with Calico 3.33.0.
+Keep CI images on workers and publish evidence files.
+
 Enforce informer collection scope on LIST and Watch input, and reject blank
 custom-source bookmarks before dispatch. Verify the source ZIP's seven notice
 payloads and compare bundled async/YAML with their resolved license copies.

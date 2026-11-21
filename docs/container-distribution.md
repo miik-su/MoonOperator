@@ -34,10 +34,10 @@ dynamic-loader output describe the specific built executable.
 
 | Component | What the distributor must account for |
 | --- | --- |
-| MoonOperator, MoonBit core, async and YAML | Keep project and bundled license texts and attribution. Review toolchain startup, static runtime and compiler-supplied objects for the exact binary build. |
+| MoonOperator, MoonBit core, async and YAML | Keep project and bundled license texts and attribution. Runtime source headers in the pinned SDK identify International Digital Economy Academy and Apache-2.0. Review toolchain startup and all compiler-supplied objects for the exact binary build. |
 | glibc and utilities | Review the installed package copyright and common licenses. The library is principally LGPL-2.1-or-later and package utilities and other files can carry separate terms. Track the precise glibc source revision for the shipped packages. |
 | OpenSSL libraries and CLI | Review Ubuntu's per-file attribution. OpenSSL 3 uses Apache-2.0 upstream. Keep the installed package copyright, license and applicable notices. [Upstream license](https://openssl-library.org/source/license/index.html) |
-| CA trust data and helper packages | Consult the installed copyright. Distribution helpers and Mozilla trust data have separate terms. |
+| CA trust data and helper packages | Consult the installed copyright. Ubuntu records GPL-2-or-later for distribution helpers and MPL-2.0 for the Mozilla trust data. |
 | Other Ubuntu base and runtime packages | Apply each package's terms. Retain license and copyright files, match any required complete corresponding sources to the exact packages shipped, and review Ubuntu trademark usage under Canonical's policy. |
 | Optional Wasmtime, external workload and CI tools | Review their terms separately when redistributing them in a different bundle. They are outside this production image. |
 
@@ -55,3 +55,5 @@ and [Canonical's intellectual property policy](https://canonical.com/legal/intel
 The project license ([Apache-2.0](../LICENSE)) applies to project-authored
 source and examples. Third-party terms remain attached to their components.
 See [licensing boundaries](../LICENSING.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).
+The [dated production evidence](evidence/20261121-container/README.md) includes
+three exact package source checks and the Ubuntu findings that remain open.

@@ -51,6 +51,12 @@ Collection-scope and archive-notice revision `7c16596` passed
 records 16 targeted models on each native host, package notice bytes on both
 archive readers, and the Kubernetes/Calico versions actually exercised.
 
+Container and compatibility revision `471a658` passed both pinned Kind jobs,
+focused native checks and the optional WASM probe. The production image includes
+the Ubuntu glibc fix for USN-9065-1. [Image security and compatibility evidence](evidence/20261121-container/README.md)
+records the OS scan, remaining package findings, corresponding source checks and
+successful Kubernetes 1.36.4 and 1.37.0 acceptance with Calico 3.33.0.
+
 Historical public evidence:
 
 - [Linux native checks](https://github.com/miik-su/MoonOperator/actions/runs/42444225315)
@@ -71,7 +77,7 @@ Historical public evidence:
   `_build/publish`. No package has been published to Mooncakes.
 
 Remaining release gates are explicit: long-duration (hours/days) soak and leak
-investigation, broader Kubernetes/version/auth matrices, package namespace/account
+investigation, additional Kubernetes/CNI/auth matrices, package namespace/account
 confirmation and Mooncakes publication. The current module namespace is
 `miik-su/moonoperator`, migrated from `mik1e80/moonoperator` on November 14.
 Internal imports, generated interfaces and the current source SBOM use the new

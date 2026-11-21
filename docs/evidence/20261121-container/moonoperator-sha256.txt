@@ -1,0 +1,1 @@
+266f68e819ea6c640092cae5ddf4a7aac079687af2d9bc26ef4c3184b04e9d76  /usr/local/bin/moonoperator
