@@ -1,0 +1,457 @@
+{
+  "source_commit": "457c794630a66b3c9bf9b29ff904937a80441df0",
+  "scope": "short fresh-process snapshot replacement; no 1h/24h stability or GC live-heap claim",
+  "acceptance": "operator profile must complete at every limit; generic 10k profile must complete at 512 MiB; lower-limit failures remain failures in individual records",
+  "profiles": [
+    {
+      "profile": "operator",
+      "memory_limit_bytes": 134217728,
+      "swap_disabled": true,
+      "read_only_root": true,
+      "completed": true,
+      "required_success": true,
+      "stage": "observation_complete",
+      "stderr": "",
+      "container_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-11-21T07:45:12.216528208Z",
+        "FinishedAt": "2026-11-21T07:45:12.816508718Z"
+      },
+      "observation": {
+        "profile": "operator",
+        "objects": 1024,
+        "payload_bytes": 7900,
+        "cache_limit_bytes": 8388608,
+        "stages": [
+          {
+            "stage": "start",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 2476,
+              "peak_rss_kib": 2476
+            }
+          },
+          {
+            "stage": "initial_snapshot",
+            "encoded_bytes": 8231764,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 20552,
+              "peak_rss_kib": 20552
+            }
+          },
+          {
+            "stage": "old_new_snapshots_retained",
+            "encoded_bytes": 8236884,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 38096,
+              "peak_rss_kib": 38096
+            }
+          },
+          {
+            "stage": "old_batch_released_no_forced_gc",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 38048,
+              "peak_rss_kib": 38048
+            }
+          }
+        ],
+        "gc_live_heap": "not available",
+        "oom_claim": "process completed; container OOM result must be recorded by the caller"
+      }
+    },
+    {
+      "profile": "operator",
+      "memory_limit_bytes": 268435456,
+      "swap_disabled": true,
+      "read_only_root": true,
+      "completed": true,
+      "required_success": true,
+      "stage": "observation_complete",
+      "stderr": "",
+      "container_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-11-21T07:45:12.918053588Z",
+        "FinishedAt": "2026-11-21T07:45:13.044403764Z"
+      },
+      "observation": {
+        "profile": "operator",
+        "objects": 1024,
+        "payload_bytes": 7900,
+        "cache_limit_bytes": 8388608,
+        "stages": [
+          {
+            "stage": "start",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 2356,
+              "peak_rss_kib": 2356
+            }
+          },
+          {
+            "stage": "initial_snapshot",
+            "encoded_bytes": 8231764,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 20612,
+              "peak_rss_kib": 20612
+            }
+          },
+          {
+            "stage": "old_new_snapshots_retained",
+            "encoded_bytes": 8236884,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 38152,
+              "peak_rss_kib": 38152
+            }
+          },
+          {
+            "stage": "old_batch_released_no_forced_gc",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 38100,
+              "peak_rss_kib": 38100
+            }
+          }
+        ],
+        "gc_live_heap": "not available",
+        "oom_claim": "process completed; container OOM result must be recorded by the caller"
+      }
+    },
+    {
+      "profile": "operator",
+      "memory_limit_bytes": 536870912,
+      "swap_disabled": true,
+      "read_only_root": true,
+      "completed": true,
+      "required_success": true,
+      "stage": "observation_complete",
+      "stderr": "",
+      "container_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-11-21T07:45:13.135747129Z",
+        "FinishedAt": "2026-11-21T07:45:13.266801419Z"
+      },
+      "observation": {
+        "profile": "operator",
+        "objects": 1024,
+        "payload_bytes": 7900,
+        "cache_limit_bytes": 8388608,
+        "stages": [
+          {
+            "stage": "start",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 2360,
+              "peak_rss_kib": 2360
+            }
+          },
+          {
+            "stage": "initial_snapshot",
+            "encoded_bytes": 8231764,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 20608,
+              "peak_rss_kib": 20608
+            }
+          },
+          {
+            "stage": "old_new_snapshots_retained",
+            "encoded_bytes": 8236884,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 38160,
+              "peak_rss_kib": 38160
+            }
+          },
+          {
+            "stage": "old_batch_released_no_forced_gc",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 38108,
+              "peak_rss_kib": 38108
+            }
+          }
+        ],
+        "gc_live_heap": "not available",
+        "oom_claim": "process completed; container OOM result must be recorded by the caller"
+      }
+    },
+    {
+      "profile": "10k",
+      "memory_limit_bytes": 134217728,
+      "swap_disabled": true,
+      "read_only_root": true,
+      "completed": true,
+      "required_success": false,
+      "stage": "observation_complete",
+      "stderr": "",
+      "container_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-11-21T07:45:13.364453073Z",
+        "FinishedAt": "2026-11-21T07:45:13.642254601Z"
+      },
+      "observation": {
+        "profile": "10k",
+        "objects": 10000,
+        "payload_bytes": 2048,
+        "cache_limit_bytes": 67108864,
+        "stages": [
+          {
+            "stage": "start",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 2536,
+              "peak_rss_kib": 2536
+            }
+          },
+          {
+            "stage": "initial_snapshot",
+            "encoded_bytes": 21887780,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 66980,
+              "peak_rss_kib": 66980
+            }
+          },
+          {
+            "stage": "old_new_snapshots_retained",
+            "encoded_bytes": 21937780,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 129776,
+              "peak_rss_kib": 129776
+            }
+          },
+          {
+            "stage": "old_batch_released_no_forced_gc",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 129712,
+              "peak_rss_kib": 129712
+            }
+          }
+        ],
+        "gc_live_heap": "not available",
+        "oom_claim": "process completed; container OOM result must be recorded by the caller"
+      }
+    },
+    {
+      "profile": "10k",
+      "memory_limit_bytes": 268435456,
+      "swap_disabled": true,
+      "read_only_root": true,
+      "completed": true,
+      "required_success": false,
+      "stage": "observation_complete",
+      "stderr": "",
+      "container_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-11-21T07:45:13.733825348Z",
+        "FinishedAt": "2026-11-21T07:45:14.009494571Z"
+      },
+      "observation": {
+        "profile": "10k",
+        "objects": 10000,
+        "payload_bytes": 2048,
+        "cache_limit_bytes": 67108864,
+        "stages": [
+          {
+            "stage": "start",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 2448,
+              "peak_rss_kib": 2448
+            }
+          },
+          {
+            "stage": "initial_snapshot",
+            "encoded_bytes": 21887780,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 66972,
+              "peak_rss_kib": 66972
+            }
+          },
+          {
+            "stage": "old_new_snapshots_retained",
+            "encoded_bytes": 21937780,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 129756,
+              "peak_rss_kib": 129836
+            }
+          },
+          {
+            "stage": "old_batch_released_no_forced_gc",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 129696,
+              "peak_rss_kib": 129836
+            }
+          }
+        ],
+        "gc_live_heap": "not available",
+        "oom_claim": "process completed; container OOM result must be recorded by the caller"
+      }
+    },
+    {
+      "profile": "10k",
+      "memory_limit_bytes": 536870912,
+      "swap_disabled": true,
+      "read_only_root": true,
+      "completed": true,
+      "required_success": true,
+      "stage": "observation_complete",
+      "stderr": "",
+      "container_state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-11-21T07:45:14.103552803Z",
+        "FinishedAt": "2026-11-21T07:45:14.38245791Z"
+      },
+      "observation": {
+        "profile": "10k",
+        "objects": 10000,
+        "payload_bytes": 2048,
+        "cache_limit_bytes": 67108864,
+        "stages": [
+          {
+            "stage": "start",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 2504,
+              "peak_rss_kib": 2504
+            }
+          },
+          {
+            "stage": "initial_snapshot",
+            "encoded_bytes": 21887780,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 66980,
+              "peak_rss_kib": 66980
+            }
+          },
+          {
+            "stage": "old_new_snapshots_retained",
+            "encoded_bytes": 21937780,
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 129768,
+              "peak_rss_kib": 129768
+            }
+          },
+          {
+            "stage": "old_batch_released_no_forced_gc",
+            "memory": {
+              "available": true,
+              "unit": "KiB",
+              "scope": "this process; peak is since process start; no GC live-heap measurement",
+              "rss_kib": 129704,
+              "peak_rss_kib": 129704
+            }
+          }
+        ],
+        "gc_live_heap": "not available",
+        "oom_claim": "process completed; container OOM result must be recorded by the caller"
+      }
+    }
+  ]
+}

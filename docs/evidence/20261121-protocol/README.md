@@ -47,3 +47,36 @@ The JSON payloads retain their original contents with shortened filenames.
 The advisory query covers only the selected Wasmtime package version. The
 native workflow includes a ten-second observation. Full native regression and
 hour/day stability testing were outside this round's scope.
+
+## Kind cluster acceptance
+
+The same-source Kind workflow passed against Kubernetes 1.37.0 and Calico 3.33.0.
+It exercised MoonApp lifecycle, real API CRUD/PATCH and pagination, 409 and 403
+responses, live Watch, six RBAC checks, ownership adoption with explicitly
+enabled admission, and NetworkPolicy allow/deny/recovery.
+
+The kind-acceptance artifact 14697879545 has ZIP SHA-256
+`44b15521426d690e6b630f98ff44ac5c2c8a9bfe49ad8d04fd2159e154904d7b`.
+Archived JSON: [MoonApp](kind-e2e-report.json), [client](cluster-client-report.json),
+[versions](kind-version.json), [RBAC](rbac-report.json),
+[adoption](adoption-report.json), and [NetworkPolicy](network-policy-report.json).
+
+## Images and bounded memory observations
+
+The [Kind workflow](https://github.com/miik-su/MoonOperator/actions/runs/44881119467)
+built the production and acceptance images from the same source. The production
+image contains the checked project and third-party notice files. The installed
+package inventory records 94 dpkg packages and an available copyright text for
+each. The full CI artifact contains those texts and the common licenses. The
+inventory records collection coverage; license compatibility, source-offer
+obligations and OS advisories require separate review.
+
+Six fresh, read-only containers completed their cache replacement probes with
+exit code 0 and OOMKilled=false. The synthetic 10,000-object profile at 128 MiB
+peaked at 129,776 KiB RSS. This measures the cache probe process under the stated
+limit. The result is close to the limit and gives no production headroom estimate.
+
+| Artifact | ID | ZIP SHA-256 | Archived report |
+| --- | ---: | --- | --- |
+| runtime-distribution-inventory | 14697518168 | d08bb4959a872204830d0fde7157deb5308846e210af7c90a806d7c5d4aa1032 | [container-inventory.json](container-inventory.json), [container-packages.tsv](container-packages.tsv) |
+| memory-observations | 14698466999 | e73588433a7b8eb4b86d2e8ed6f9c5d313f1f96a6227d2befd029f6430126b64 | [memory.json](memory.json) |

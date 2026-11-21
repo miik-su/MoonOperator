@@ -38,8 +38,9 @@ passed the test stages and failed the OSV advisory gate for the older Wasmtime
 The local OSV query for that exact crates.io version returned no advisory IDs.
 
 On source `457c794`, the [focused Linux native workflow](https://github.com/miik-su/MoonOperator/actions/runs/44881119471)
-and [experimental WASM probe](https://github.com/miik-su/MoonOperator/actions/runs/44881119458)
-passed with the updated pin. [Protocol and Wasmtime evidence](evidence/20261121-protocol/README.md)
+[experimental WASM probe](https://github.com/miik-su/MoonOperator/actions/runs/44881119458),
+and [Kind acceptance](https://github.com/miik-su/MoonOperator/actions/runs/44881119467)
+all passed. [Protocol and Wasmtime evidence](evidence/20261121-protocol/README.md)
 records the test scope, original reports and archive digests.
 
 Historical public evidence:
