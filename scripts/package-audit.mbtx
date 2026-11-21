@@ -30,14 +30,40 @@ async fn main {
     }
     files.push(path)
   }
-  for required in ["LICENSE", "NOTICE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "moon.mod", "README.md", "third_party/async-LICENSE", "third_party/yaml-LICENSE", "third_party/moonbit-core-LICENSE"] {
-    guard files.contains(required) else { fail("required distribution notice missing: " + required) }
+  let notices = [
+    "LICENSE", "NOTICE", "LICENSING.md", "THIRD_PARTY_NOTICES.md",
+    "third_party/async-LICENSE", "third_party/yaml-LICENSE", "third_party/moonbit-core-LICENSE",
+  ]
+  for required in ["moon.mod", "README.md"] {
+    guard files.contains(required) else { fail("required package file missing: " + required) }
+  }
+  for notice in notices {
+    guard files.iter().filter(path => path == notice).count() == 1 else {
+      fail("missing or duplicate distribution notice: " + notice)
+    }
+    let args = if tool == "tar" { ["-xOf", archive, notice] } else { ["-p", archive, notice] }
+    let extracted = @shell.Cmd(tool, args, stdout=Capture, stderr=Capture).output(
+      timeout_ms=10000, max_output_bytes=262144,
+    )
+    extracted.check()
+    let expected = @fs.read_file(notice).binary()
+    guard !expected.is_empty() && extracted.stdout_bytes() == expected else {
+      fail("archived distribution notice differs from source: " + notice)
+    }
+  }
+  for (notice, resolved) in [
+    ("third_party/async-LICENSE", ".mooncakes/moonbitlang/async/LICENSE"),
+    ("third_party/yaml-LICENSE", ".mooncakes/moonbit-community/yaml/LICENSE"),
+  ] {
+    guard @fs.read_file(notice).binary() == @fs.read_file(resolved).binary() else {
+      fail("bundled license differs from resolved dependency: " + notice)
+    }
   }
   let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
   source.check()
   let status = @shell.Cmd("git", ["status", "--porcelain"], stdout=Capture).output()
   status.check()
-  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "worktree_modified": !status.stdout().trim().is_empty(), "archive": archive, "archive_listing_tool": tool, "files": files, "required_notices_present": true, "generated_and_credential_like_paths_absent": true, "scope": "actual offline source ZIP file list; not a content secret scan, installed-package test or publication", "published": false }
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "worktree_modified": !status.stdout().trim().is_empty(), "archive": archive, "archive_listing_tool": tool, "files": files, "required_notices_present": true, "archive_notice_bytes_match_checkout": true, "archive_notices": notices, "bundled_mooncakes_licenses_match_resolved": true, "generated_and_credential_like_paths_absent": true, "scope": "actual offline source ZIP paths and notice contents plus resolved Mooncakes license copies; not a content secret scan, installed-package test or publication", "published": false }
   @fs.write_file("package-audit-report.json", report.stringify(indent=2))
-  println("Verified \{files.length()} actual archive paths and required notice files; no publication performed")
+  println("Verified \{files.length()} actual archive paths, seven notice payloads and two resolved dependency licenses; no publication performed")
 }
