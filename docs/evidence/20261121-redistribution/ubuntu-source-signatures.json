@@ -1,0 +1,82 @@
+{
+  "image_id": "sha256:1df9b81495764775dbb59ee8ba753c94d0d575f433d9d82b10a71602d87986f3",
+  "image_source_commit": "471a65853b59d198544eb93b14719d1c17493470",
+  "ubuntu_snapshot": "20261120T000000Z",
+  "pocket": "noble-security/main",
+  "gpg": "gpg (GnuPG) 2.4.9",
+  "archive_key_fingerprint": "F6ECB3762474EDA9D21B7022871920D1991BC93C",
+  "archive_key_reference": "https://wiki.ubuntu.com/Security/FAQ",
+  "uploader_key_fingerprint": "50C4A0DDCF31E452CEB19B516569D855A744BE93",
+  "uploader_key_reference": "https://api.launchpad.net/1.0/~mdeslaur/gpg_keys",
+  "inrelease_signature_date": "2026-11-19",
+  "inrelease_sha256": "0d777c6c7bb89cc628003530f84caabca7ac60dfa9c7ca937e5d8e813457c2fe",
+  "compressed_index_sha256": "50aeb1e74c9fea1c530eba1eb4f11822d8e7c74259091e7e2cb13b1283bedc3d",
+  "compressed_index_bytes": 323592,
+  "modified_inrelease_rejected": true,
+  "all_source_signatures_and_hashes_verified": true,
+  "packages": [
+    {
+      "source": "ca-certificates",
+      "version": "20260816ubuntu0.24.04.2",
+      "upload_signature_date": "2026-11-04",
+      "descriptor": "ca-certificates_20260816ubuntu0.24.04.2.dsc",
+      "descriptor_sha256": "0164d7c225d68f4fbaa85999105d8f8a9469c4a9a24db6291996f5360351c0f0",
+      "files": [
+        {
+          "file": "ca-certificates_20260816ubuntu0.24.04.2.tar.xz",
+          "bytes": 273500,
+          "sha256": "1d377f2d37bc8af1b49ec215582d269e3d6602a7318222669d008b40cf971f5b",
+          "fetched_from": "https://archive.ubuntu.com/ubuntu/pool/main/c/ca-certificates/ca-certificates_20260816ubuntu0.24.04.2.tar.xz"
+        }
+      ]
+    },
+    {
+      "source": "glibc",
+      "version": "2.39-0ubuntu8.12",
+      "upload_signature_date": "2026-11-06",
+      "descriptor": "glibc_2.39-0ubuntu8.12.dsc",
+      "descriptor_sha256": "2dd63e1aef4623627bd67c1b8479baa585a68e98f27d2d4fe60d7cde57bcf7fc",
+      "files": [
+        {
+          "file": "glibc_2.39.orig.tar.xz",
+          "bytes": 18520988,
+          "sha256": "f77bd47cf8170c57365ae7bf86696c118adb3b120d3259c64c502d3dc1e2d926",
+          "fetched_from": "https://archive.ubuntu.com/ubuntu/pool/main/g/glibc/glibc_2.39.orig.tar.xz"
+        },
+        {
+          "file": "glibc_2.39.orig.tar.xz.asc",
+          "bytes": 833,
+          "sha256": "2cce427ef7933c17379f5514e4f0ccf8dffae5bf8c72f0f7e0bf8b8401f34be5",
+          "fetched_from": "https://archive.ubuntu.com/ubuntu/pool/main/g/glibc/glibc_2.39.orig.tar.xz.asc"
+        },
+        {
+          "file": "glibc_2.39-0ubuntu8.12.debian.tar.xz",
+          "bytes": 506308,
+          "sha256": "cc7cf38a3060a282011e83c946b6cec1aebe9b04e21e133449abe28340a710f6",
+          "fetched_from": "https://archive.ubuntu.com/ubuntu/pool/main/g/glibc/glibc_2.39-0ubuntu8.12.debian.tar.xz"
+        }
+      ]
+    },
+    {
+      "source": "openssl",
+      "version": "3.0.13-0ubuntu3.16",
+      "upload_signature_date": "2026-09-23",
+      "descriptor": "openssl_3.0.13-0ubuntu3.16.dsc",
+      "descriptor_sha256": "7d1e552a6f519836c352407e521bafdda7552ec6d1ba242968c35fc0e17f47b6",
+      "files": [
+        {
+          "file": "openssl_3.0.13.orig.tar.gz",
+          "bytes": 15294843,
+          "sha256": "88525753f79d3bec27d2fa7c66aa0b92b3aa9498dafd93d7cfa4b3780cdae313",
+          "fetched_from": "https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_3.0.13.orig.tar.gz"
+        },
+        {
+          "file": "openssl_3.0.13-0ubuntu3.16.debian.tar.xz",
+          "bytes": 223332,
+          "sha256": "77893129922c917792dd187c2853fb36ce1c98597c442b42d8190252959b7f6c",
+          "fetched_from": "https://archive.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_3.0.13-0ubuntu3.16.debian.tar.xz"
+        }
+      ]
+    }
+  ]
+}

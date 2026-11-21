@@ -55,5 +55,10 @@ and [Canonical's intellectual property policy](https://canonical.com/legal/intel
 The project license ([Apache-2.0](../LICENSE)) applies to project-authored
 source and examples. Third-party terms remain attached to their components.
 See [licensing boundaries](../LICENSING.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).
-The [dated production evidence](evidence/20261121-container/README.md) includes
-three exact package source checks and the Ubuntu findings that remain open.
+The [distribution evidence](evidence/20261121-redistribution/README.md) verifies
+the archive and uploader signatures for three source packages along with the
+required notice bytes. It records static mimalloc and simdutf code, additional
+link inputs and remaining component source gaps. The
+[dated production scan](evidence/20261121-container/README.md) retains the
+initial findings. The follow-up matches each remaining CVE to Canonical's
+Noble source-package status.

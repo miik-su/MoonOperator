@@ -9,6 +9,14 @@
 测试数据以合成 Kubernetes Pod、MoonApp 和 Watch 事件为主。
 输入模板、生成规则、原始结果均已保存到仓库，无需登录 Actions 下载即可阅读。
 
+## 镜像源码签名与静态许可复查 · 2026-11-21
+
+核验固定 Noble 快照的归档签名和三个源码包的上传者签名。6 个源码文件
+的大小与 SHA-256 同时匹配源码索引和各自的签名描述符，改动索引的反例被拒绝。
+Linux 链接证据确认了 mimalloc 2.1.7 和 simdutf，源码 ZIP 和镜像中的 10 份通知
+均逐字节通过。先前 14 个 CVE 逐项对照 Canonical，4 个待修、10 个延期，
+未发现已发布的 Noble 修复。[原始核验记录](evidence/20261121-redistribution/README.md)。
+
 ## 容器安全、再分发与 Kubernetes 兼容性 · 2026-11-21
 
 源提交 `471a658` 的 amd64 生产镜像使用 Ubuntu 24.04，`libc6` 从

@@ -1,0 +1,4 @@
+000000000000cfb0 T mi_version
+0000000000019fe0 t mi_free
+00000000001465e0 T simdutf::validate_utf8(char const*, unsigned long)
+0000000000146dc0 T simdutf::count_utf16(char16_t const*, unsigned long)

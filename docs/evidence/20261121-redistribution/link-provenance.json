@@ -1,0 +1,8 @@
+{
+  "source_commit": "13c04922bd6cfd50dac7421ffeee645d1b3a7ec7",
+  "image_id": "sha256:c566fc3e8c08a3523c9a57b93c3df6f61fded657478e66a641478852680da2c3",
+  "sha256": "266f68e819ea6c640092cae5ddf4a7aac079687af2d9bc26ef4c3184b04e9d76",
+  "image_binary_matches_build": true,
+  "symbol_table_available": true,
+  "scope": "successful GNU linker invocations, ELF dynamic section and defined symbols for the Linux amd64 production executable"
+}

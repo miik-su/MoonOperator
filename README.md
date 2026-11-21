@@ -164,3 +164,6 @@ describes the OS scan, binary linkage evidence, source-package versions and
 remaining obligations for distributing a built image. The
 [image and compatibility evidence](docs/evidence/20261121-container/README.md)
 identifies the scanned build, package findings and both Kind test results.
+The [redistribution evidence](docs/evidence/20261121-redistribution/README.md)
+records verified Ubuntu source signatures, the observed Linux linker inputs,
+the bundled license checks and the Canonical CVE status recheck.

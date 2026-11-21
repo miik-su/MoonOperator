@@ -1,0 +1,42 @@
+{
+  "sdk_release": "0.10.17+d971670cd",
+  "sdk_linux_amd64_sha256": "d0a96eaf91c77cfcdd7b7df75390c5a1a95d0b8a328b1a5ed6fee050cfbf8d50",
+  "object_digests": [
+    {
+      "file": "libbacktrace.a",
+      "sha256": "1cdb27a3a058513b9a9efac3416e47365c8aa91daa9ec4e7b4a77ccac9c9fb36"
+    },
+    {
+      "file": "libmoonbitrun.o",
+      "sha256": "a5e00ff1cb24c75311c56d4b53341d72c0145c0127d3571d889de72e951e4966"
+    },
+    {
+      "file": "moonbit_simdutf.o",
+      "sha256": "2fd9719624bd2653a06494c98022d04400d6dee8e284e6238dd41a7b13442294"
+    },
+    {
+      "file": "simdutf.o",
+      "sha256": "7caa3ccf7fc968c74ceb03fdca0ff7d2727b34e251ba07f8a765668c144b7bce"
+    }
+  ],
+  "mimalloc": {
+    "object": "libmoonbitrun.o",
+    "observed_function": "mi_version",
+    "observed_return": 217,
+    "upstream_version": "2.1.7",
+    "license": "MIT",
+    "upstream_tag": "https://github.com/microsoft/mimalloc/tree/v2.1.7"
+  },
+  "simdutf": {
+    "observed_in_executable": true,
+    "sdk_exact_source_revision": null,
+    "upstream_license": "MIT OR Apache-2.0",
+    "license_notice_retained": "third_party/simdutf-LICENSE-MIT"
+  },
+  "libbacktrace": {
+    "input_archive": "libbacktrace.a",
+    "retained_archive_members": "not established",
+    "notice_source": "include/backtrace.h from pinned SDK",
+    "notice_license": "BSD-3-Clause style"
+  }
+}

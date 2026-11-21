@@ -1,0 +1,18 @@
+{
+  "source_commit": "13c04922bd6cfd50dac7421ffeee645d1b3a7ec7",
+  "image_id": "sha256:bc8723776ba825c71dda29920967f3264b3c5a36df9753adc6799e16a9d57d4e",
+  "scanner_metadata": "Version: 0.76.2\nVulnerability DB:\n  Version: 2\n  UpdatedAt: 2026-11-21 13:02:47.203212637 +0000 UTC\n  NextUpdate: 2026-11-22 13:02:47.203212226 +0000 UTC\n  DownloadedAt: 2026-11-21 15:46:57.18199092 +0000 UTC",
+  "report_sha256": "e2f7a649a925341138529be3c9bd229214de1d3fe12525fc2ee6976ee32ce792",
+  "artifact_id": 14713677470,
+  "package_count": 94,
+  "findings_match_previous_scan": true,
+  "finding_rows": 23,
+  "severity_counts": {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 18,
+    "LOW": 5,
+    "UNKNOWN": 0
+  },
+  "rows_with_ubuntu_fix": 0
+}

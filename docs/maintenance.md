@@ -17,10 +17,10 @@ application information is maintained in this repository.
 | CRD/RBAC usability | Improved | Naming/root-schema/all-version guards and CRD regressions; real API remains authoritative |
 | Separate public API consumer | Implemented | examples/consumer uses a local workspace, runs two idempotent attempts and preserves metadata |
 | Test models and licenses | Documented | test-models.md and ../LICENSING.md identify synthetic inputs and artifact-specific rights |
-| Source archive integrity | Verified | Actual ZIP paths and seven notice payloads checked. Bundled async/YAML license texts match resolved modules |
-| Container distribution evidence | Verified for the recorded amd64 image | Installed package/source versions, 94 copyright records, seven matching notice files, executable SHA-256 and startup linkage. [Evidence](evidence/20261121-container/README.md) |
+| Source archive integrity | Verified | Actual ZIP paths and ten notice payloads checked. Bundled async/YAML license texts match resolved modules |
+| Container distribution evidence | Verified for the recorded amd64 image | Installed package/source versions, 94 copyright records, ten matching notice files, executable SHA-256 and native linkage. [Evidence](evidence/20261121-redistribution/README.md) |
 | Experimental Wasmtime advisory check | Updated | Wasmtime 50.0.3 passed the exact-version OSV query and ten-case host probe. See [archived evidence](evidence/20261121-protocol/README.md) |
-| Distribution and vulnerability coverage | Partial | Ubuntu scan covers installed packages. Review outstanding advisories, lower layers, compiler/static/runtime components and source obligations for any distributed image |
+| Distribution and vulnerability coverage | Partial | Signed source evidence for three Ubuntu packages, native link evidence and ten notice checks are archived. Exact SDK revisions, all-image source obligations and any formal binary release remain open |
 | Full native regression | Available, not executed in this maintenance pass | Manual release-validation workflow; targeted testing was explicitly requested |
 | 1h/24h synthetic and real-cluster soak | Open | Manual entry points exist; no long-duration success or leak-freedom claim |
 | Multi-version Kubernetes/CNI/auth | Partially verified | Kind 1.36.4 and 1.37.0 with Calico 3.33.0 passed. Other versions, CNIs and identity providers remain open |

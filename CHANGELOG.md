@@ -1,5 +1,10 @@
 # 0.1.0 (unreleased)
 
+Capture the Linux production executable linkage and verify its image hash.
+Bundle mimalloc, simdutf and libbacktrace notices and check them in both the
+source ZIP and production container. Archive Ubuntu source signature and
+Noble CVE recheck results.
+
 Update inherited Ubuntu packages from a fixed snapshot and enforce the Noble
 glibc security minimum. Record installed package source identities, startup
 linkage and a dated OS scan. Verify Kind 1.36.4 and 1.37.0 with Calico 3.33.0.

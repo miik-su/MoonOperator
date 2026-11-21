@@ -57,6 +57,12 @@ the Ubuntu glibc fix for USN-9065-1. [Image security and compatibility evidence]
 records the OS scan, remaining package findings, corresponding source checks and
 successful Kubernetes 1.36.4 and 1.37.0 acceptance with Calico 3.33.0.
 
+Redistribution revision `13c0492` passed the native link audit, image and source
+ZIP notice verification, and both pinned Kind jobs. The
+[distribution review evidence](evidence/20261121-redistribution/README.md)
+verifies three exact Ubuntu source signatures and retains the vendor recheck
+for all 14 previous CVEs.
+
 Historical public evidence:
 
 - [Linux native checks](https://github.com/miik-su/MoonOperator/actions/runs/42444225315)
