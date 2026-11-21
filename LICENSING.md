@@ -28,11 +28,13 @@ See [the official text](https://www.apache.org/licenses/LICENSE-2.0).
 
 The source CycloneDX inventory covers only resolved Mooncakes modules.
 `scripts/distribution-inventory.mbtx` collects immutable production image ID,
-installed dpkg names/versions and available copyright texts/common licenses into
-a CI artifact. Missing texts are reported explicitly; collecting files is not
-an automated legal or vulnerability clearance. A redistributor must review
-remaining source-offer, notice and license obligations for its actual artifact.
-No complete distribution SBOM or OS vulnerability audit has yet been claimed.
+installed binary and source package versions, available copyright texts,
+common licenses, and the production executable's digest and startup linkage
+into CI evidence. It compares the image's seven project and bundled notice
+files with the checkout. An independent scan records installed Ubuntu package
+findings for that built image. Remaining source and notice obligations, static
+and runtime-loaded dependencies, and scanner coverage are described in the
+[container security and redistribution guide](docs/container-distribution.md).
 The source ZIP audit requires Windows bsdtar or unzip on Linux/macOS; the Linux
 CI setup explicitly installs unzip. The audit checks actual ZIP paths, requires
 each notice exactly once, compares its bytes with the checkout, and verifies

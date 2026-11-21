@@ -14,10 +14,12 @@ docs/architecture.md and LICENSING.md. The project license does not replace any
 third-party license. See LICENSING.md for source, binary, image and fixture scope.
 
 The production container uses the digest-pinned Ubuntu 24.04 base in Dockerfile
-and packages from the dated Ubuntu archive snapshot. The image contains its
+and upgrades inherited packages from the dated Ubuntu archive snapshot. The image contains its
 installed package/version inventory at /usr/share/moonoperator-runtime-packages.txt;
 CI retains that inventory. Package copyright/license metadata remains separate
 from this repository's Apache-2.0 source license. The fixed ca-certificates
 bootstrap stage extracts trust data only; runtime CA/TLS packages are installed
 from the pinned snapshot. The example manifest references an external NGINX
 unprivileged image by digest; that image is not vendored into MoonOperator.
+See the [container distribution guide](docs/container-distribution.md) for
+package-specific notices, startup dynamic linkage and source-package provenance.

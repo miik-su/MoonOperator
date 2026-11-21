@@ -36,8 +36,9 @@ Mooncakes ecosystem coverage is incomplete: an empty scanner result is not a
 claim that all dependencies or distributed binaries are vulnerability-free.
 SDK, native TLS and container OS updates require separate distributor review.
 
-Installed OS package names/versions and available copyright texts are retained
-by the image job. They improve provenance but are not an OS vulnerability or
-complete binary/linkage audit. Source ZIP checks reject generated or credential-like
+The image CI collects OS binary and source package versions, available copyright
+texts, and the production executable's startup linkage. A Trivy scan records
+findings in the installed Ubuntu packages. See the
+[container security scope](docs/container-distribution.md) for exclusions. Source ZIP checks reject generated or credential-like
 paths and verify notice payloads byte for byte. CI scans history separately.
 See LICENSING.md, docs/test-models.md and docs/maintenance.md for exact scope.

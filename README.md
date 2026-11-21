@@ -158,4 +158,6 @@ moonbit-community/yaml 0.0.8 (MIT). See [licensing/distribution scope](LICENSING
 resources/events and WAT fixtures. No AI model weights are distributed.
 The source ZIP audit checks included notices
 byte for byte and compares the bundled async and YAML licenses with the resolved
-dependencies. Native binary and container obligations are tracked separately.
+dependencies. The [container security and redistribution guide](docs/container-distribution.md)
+describes the OS scan, binary linkage evidence, source-package versions and
+remaining obligations for distributing a built image.
