@@ -24,7 +24,7 @@ release-status.md identify their exact source; historical data is not rewritten.
 | Windows native | Checked and built locally |
 | Linux | Native and WASM CI passed; see release-status.md for exact revisions |
 | Kubernetes / Kind | MoonApp lifecycle and narrow-ServiceAccount Client probe passed in GitHub runner |
-| Experimental WASM host | Real MoonBit guest on Wasmtime 50.0.1; trap/fuel/memory/capability/ABI/deadline probes passed |
+| Experimental WASM host | Current pin is Wasmtime 50.0.3. Dated guest and failure-path verification is linked from release-status.md |
 | HA / webhooks | Not implemented; single replica deployment contract |
 | Benchmarks / load | Fixed dataset and 10s fault probe; Linux short container RSS matrix recorded; one-hour/24-hour soak still pending |
 | Package publication | Offline `moon package` succeeds; Mooncakes publication pending |

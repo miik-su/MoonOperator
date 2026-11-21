@@ -1,5 +1,8 @@
 # 0.1.0 (unreleased)
 
+Update the optional Wasmtime runtime and its verified Linux archive to 50.0.3
+after the advisory gate detected new findings for 50.0.1.
+
 Reject malformed LIST metadata and duplicate snapshot keys before returning or
 publishing a snapshot. Check the identity of successful single-resource API
 responses. Treat a changed UID as a new resource in Watch predicates, including

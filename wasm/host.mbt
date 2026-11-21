@@ -1,6 +1,6 @@
 ///|
 /// Experimental ABI v1: abi_version() -> i32 and validate(replicas:i32) -> i32.
-/// Wasmtime 50.0.1 runs each call in a fresh process. No WASI imports or ambient
+/// Wasmtime 50.0.3 runs each call in a fresh process. No WASI imports or ambient
 /// guest filesystem/network/environment are enabled. Precompiled code is denied.
 pub struct Host {
   executable : String
@@ -132,8 +132,8 @@ pub async fn Host::validate(self : Host, input : Json) -> Json {
     "MOONOPERATOR_WASM_HOST": "1",
   }).output(timeout_ms=self.timeout_ms, max_output_bytes=4096)
   if version.exit_code() != 0 ||
-    !version.stdout().has_prefix("wasmtime 50.0.1 ") {
-    raise @core.Invalid("WASM host requires Wasmtime 50.0.1")
+    !version.stdout().has_prefix("wasmtime 50.0.3 ") {
+    raise @core.Invalid("WASM host requires Wasmtime 50.0.3")
   }
   if self.invoke("abi_version", []) != 1 {
     raise InvalidAbi

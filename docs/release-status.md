@@ -4,7 +4,7 @@ Core and example control loops are implemented with focused local and public CI
 verification. The original multi-stage implementation plan is reflected in
 roadmap.md; compatibility.md states the supported subset for each capability.
 
-Latest bounded evidence is archived in
+Earlier bounded evidence is archived in
 [the November 13 follow-up](review-followup-20261113.md) and
 [permanent Linux snapshots](evidence/20261113-linux/README.md).
 Earlier code source 31d7390 passed
@@ -29,6 +29,13 @@ Maintenance source `6235a5f` passed
 [WASM](https://github.com/miik-su/MoonOperator/actions/runs/44331915170).
 See [maintenance evidence](evidence/20261118-maintenance/README.md) for original
 reports, the initial archive failure, and the exact scope of each result.
+
+Protocol hardening source `39f6383` passed [Kind acceptance](https://github.com/miik-su/MoonOperator/actions/runs/44730507863).
+The [native job](https://github.com/miik-su/MoonOperator/actions/runs/44730507770)
+passed the test stages and failed the OSV advisory gate for the older Wasmtime
+50.0.1 pin. The optional runtime was updated to
+[50.0.3](https://github.com/bytecodealliance/wasmtime/releases/tag/v50.0.3).
+The local OSV query for that exact crates.io version returned no advisory IDs.
 
 Historical public evidence:
 

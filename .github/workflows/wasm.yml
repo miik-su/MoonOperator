@@ -13,11 +13,11 @@ jobs:
       - uses: ./.github/actions/setup-moonbit
       - name: Download pinned Wasmtime release
         run: |
-          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://github.com/bytecodealliance/wasmtime/releases/download/v50.0.1/wasmtime-v50.0.1-x86_64-linux.tar.xz -o /tmp/wasmtime.tar.xz || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/bytecodealliance/wasmtime/releases/assets/689409604 -o /tmp/wasmtime.tar.xz
+          curl --retry 3 --retry-all-errors --connect-timeout 20 --max-time 120 -fsSL https://github.com/bytecodealliance/wasmtime/releases/download/v50.0.3/wasmtime-v50.0.3-x86_64-linux.tar.xz -o /tmp/wasmtime.tar.xz || curl --retry 2 --connect-timeout 20 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/bytecodealliance/wasmtime/releases/assets/768575847 -o /tmp/wasmtime.tar.xz
       - run: sha256sum --check tools/wasmtime-linux.sha256
       - run: tar -xJf /tmp/wasmtime.tar.xz -C /tmp
       - run: moon build examples/wasm_validator --target wasm
-      - run: moon run tests/wasm_host --target native -- /tmp/wasmtime-v50.0.1-x86_64-linux/wasmtime _build/wasm/debug/build/examples/wasm_validator/wasm_validator.wasm
+      - run: moon run tests/wasm_host --target native -- /tmp/wasmtime-v50.0.3-x86_64-linux/wasmtime _build/wasm/debug/build/examples/wasm_validator/wasm_validator.wasm
       - name: Display WASM case results
         if: always()
         run: moon run scripts/report-summary.mbtx -- wasm '${{ job.status }}'

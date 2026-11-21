@@ -100,7 +100,7 @@ async fn main {
   })
   let report : Json = {
     "guest": "MoonBit",
-    "wasmtime": "50.0.1",
+    "wasmtime": "50.0.3",
     "normal_invalid_trap_fuel_memory_capability_abi_deadline": true,
     "cases": cases,
   }

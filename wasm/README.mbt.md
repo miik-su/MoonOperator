@@ -1,7 +1,7 @@
 # Experimental Wasmtime host
 
 Host code and validator guest are MoonBit. Execution uses the separately
-installed Wasmtime 50.0.1 CLI (Apache-2.0 WITH LLVM-exception).
+installed Wasmtime 50.0.3 CLI (Apache-2.0 WITH LLVM-exception).
 
 ```mbt check
 ///|
@@ -36,4 +36,4 @@ fault fixtures are test assets; the example is actual compiled Wasm.
 See `.github/workflows/wasm.yml` for Linux verification with a fixed archive hash.
 
 References: https://docs.wasmtime.dev/cli-options.html and
-https://github.com/bytecodealliance/wasmtime/releases/tag/v50.0.1.
+https://github.com/bytecodealliance/wasmtime/releases/tag/v50.0.3.

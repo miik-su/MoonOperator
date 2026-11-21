@@ -13,7 +13,7 @@ This scope is a capability contract, not a claim of production certification.
 | CRD/RBAC | Bounded schema subset, equal-schema served versions, explicit namespaced rules | No full OpenAPI validator, admission/conversion webhook or inferred production permissions |
 | MoonApp | Desired Deployment/Service, idempotence/drift, generation-aware conditions | ResourcesApplied is API state; Ready stays Unknown without workload observation |
 | Diagnostics | Fixed metrics/histograms, safe events, cache/disconnect readiness | No built-in auth; trusted network/NetworkPolicy or authenticated proxy required |
-| WASM | Optional Wasmtime 50.0.1 scalar ABI v1 | No general JSON guest or cluster credentials; not a full process-RSS/multitenant sandbox |
+| WASM | Optional Wasmtime 50.0.3 scalar ABI v1 | No general JSON guest or cluster credentials; not a full process-RSS/multitenant sandbox |
 
 Library defaults: 10k cache/queue objects, 64 MiB encoded snapshot budget and
 1 MiB per cache object. The MoonApp executable uses 1024 objects, 8 MiB total
