@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/redistribution.yml
       - scripts/native-link-audit.mbtx
+      - third_party/**
 
 permissions:
   contents: read

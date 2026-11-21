@@ -25,7 +25,7 @@ version and the optional executable is outside the production image.
 
 ## Notices and corresponding source
 
-Image evidence verifies all seven project and bundled notice files against the
+Image evidence verifies the required project and bundled notice files against the
 checkout. It records available Ubuntu package copyright files and common
 licenses and lists missing copyright files explicitly. The five columns in
 `binary-source-packages.tsv` are binary package, binary version, Ubuntu source

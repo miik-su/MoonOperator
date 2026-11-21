@@ -30,7 +30,7 @@ The source CycloneDX inventory covers only resolved Mooncakes modules.
 `scripts/distribution-inventory.mbtx` collects immutable production image ID,
 installed binary and source package versions, available copyright texts,
 common licenses, and the production executable's digest and startup linkage
-into CI evidence. It compares the image's seven project and bundled notice
+into CI evidence. It compares the image's required project and bundled notice
 files with the checkout. An independent scan records installed Ubuntu package
 findings for that built image. Remaining source and notice obligations, static
 and runtime-loaded dependencies, and scanner coverage are described in the

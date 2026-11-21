@@ -37,7 +37,13 @@ async fn main {
     let copy = @shell.Cmd("docker", ["cp", id + ":" + container_path, destination], stdout=Capture, stderr=Capture).output(timeout_ms=15000)
     copy.check()
   }
-  for notice in ["LICENSE", "NOTICE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "third_party/async-LICENSE", "third_party/yaml-LICENSE", "third_party/moonbit-core-LICENSE"] {
+  let notices = [
+    "LICENSE", "NOTICE", "LICENSING.md", "THIRD_PARTY_NOTICES.md",
+    "third_party/async-LICENSE", "third_party/yaml-LICENSE", "third_party/moonbit-core-LICENSE",
+    "third_party/mimalloc-LICENSE", "third_party/simdutf-LICENSE-MIT",
+    "third_party/libbacktrace-LICENSE",
+  ]
+  for notice in notices {
     let expected = @fs.read_file(notice).binary()
     guard !expected.is_empty() && @fs.read_file(output + "/moonoperator/" + notice).binary() == expected else {
       fail("image notice does not match repository bytes: " + notice)
@@ -58,7 +64,7 @@ async fn main {
     packages.push({ "package": binary, "version": version.trim().to_owned(), "copyright_path": if present { Json::string(destination) } else { Json::null() }, "license_expression": "not automatically inferred; inspect installed copyright evidence" })
   }
   guard !packages.is_empty() else { fail("empty OS inventory is not evidence") }
-  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "image_id": image, "scope": "installed dpkg packages, source package identities, available copyright texts, and startup dynamic linkage of the built MoonOperator binary; source module inventory is separate", "packages": packages, "missing_copyright": missing, "project_notices_match_checkout": true, "limitations": ["startup ldd omits statically linked and runtime-loaded components", "no automatic SPDX or license-compatibility verdict", "OS vulnerability scanning is a separate image job", "copyright files can reference external source offers or terms requiring distributor review"] }
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "image_id": image, "scope": "installed dpkg packages, source package identities, available copyright texts, and startup dynamic linkage of the built MoonOperator binary; source module inventory is separate", "packages": packages, "missing_copyright": missing, "project_notices_match_checkout": true, "checked_notices": notices, "limitations": ["startup ldd omits statically linked and runtime-loaded components", "no automatic SPDX or license-compatibility verdict", "OS vulnerability scanning is a separate image job", "copyright files can reference external source offers or terms requiring distributor review"] }
   @fs.write_file(output + "/inventory.json", report.stringify(indent=2))
   println("Recorded \{packages.length()} OS packages; \{missing.length()} missing copyright texts remain explicit review gaps")
 }

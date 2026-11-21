@@ -33,6 +33,8 @@ async fn main {
   let notices = [
     "LICENSE", "NOTICE", "LICENSING.md", "THIRD_PARTY_NOTICES.md",
     "third_party/async-LICENSE", "third_party/yaml-LICENSE", "third_party/moonbit-core-LICENSE",
+    "third_party/mimalloc-LICENSE", "third_party/simdutf-LICENSE-MIT",
+    "third_party/libbacktrace-LICENSE",
   ]
   for required in ["moon.mod", "README.md"] {
     guard files.contains(required) else { fail("required package file missing: " + required) }
@@ -65,5 +67,5 @@ async fn main {
   status.check()
   let report : Json = { "source_commit": source.stdout().trim().to_owned(), "worktree_modified": !status.stdout().trim().is_empty(), "archive": archive, "archive_listing_tool": tool, "files": files, "required_notices_present": true, "archive_notice_bytes_match_checkout": true, "archive_notices": notices, "bundled_mooncakes_licenses_match_resolved": true, "generated_and_credential_like_paths_absent": true, "scope": "actual offline source ZIP paths and notice contents plus resolved Mooncakes license copies; not a content secret scan, installed-package test or publication", "published": false }
   @fs.write_file("package-audit-report.json", report.stringify(indent=2))
-  println("Verified \{files.length()} actual archive paths, seven notice payloads and two resolved dependency licenses; no publication performed")
+  println("Verified \{files.length()} actual archive paths, \{notices.length()} notice payloads and two resolved dependency licenses; no publication performed")
 }

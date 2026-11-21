@@ -5,8 +5,15 @@ moonbit-community/yaml 0.0.8 is MIT: https://github.com/moonbit-community/yaml.m
 Its complete bundled license/attribution is retained under third_party/yaml-LICENSE.
 Wasmtime 50.0.3 is an optional external executable, Apache-2.0 WITH LLVM-exception:
 https://github.com/bytecodealliance/wasmtime. It is not vendored into this repository.
-MoonBit core/runtime are toolchain components; preserve their notices in binary
-distribution. async uses platform TLS (SChannel or OpenSSL); distributors must
+MoonBit core/runtime are toolchain components. The native runtime source
+headers attribute International Digital Economy Academy under Apache-2.0,
+and the upstream runtime attributes some code to musl.
+The Linux amd64 executable contains mimalloc and simdutf code. We retain
+the MIT licenses in `third_party/mimalloc-LICENSE` and
+`third_party/simdutf-LICENSE-MIT`. We also retain the pinned SDK's BSD-style
+libbacktrace header notice in `third_party/libbacktrace-LICENSE` for that
+linker input. These copies complement the build-specific component review.
+Async uses platform TLS (SChannel or OpenSSL). Distributors must
 include the notices appropriate to their selected runtime. Kubernetes client-go
 and controller-runtime are architecture references, not vendored dependencies.
 Both references use Apache-2.0; their source links and reference scope are in
