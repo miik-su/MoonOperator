@@ -7,7 +7,13 @@ RUN apt-get update && apt-get download ca-certificates=20240203 && dpkg-deb -x c
 
 FROM base AS runtime
 COPY --from=trust-bootstrap /bootstrap/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-RUN apt-get update --snapshot 20261108T000000Z && apt-get install -y --no-install-recommends --snapshot 20261108T000000Z ca-certificates libssl3t64 && dpkg-query -W > /usr/share/moonoperator-runtime-packages.txt && rm -rf /var/lib/apt/lists/*
+# Apply upgrades to inherited packages as well as the runtime TLS dependencies.
+RUN apt-get update --snapshot 20261120T000000Z \
+    && apt-get upgrade -y --no-install-recommends --snapshot 20261120T000000Z \
+    && apt-get install -y --no-install-recommends --snapshot 20261120T000000Z ca-certificates libssl3t64 \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libc6)" ge 2.39-0ubuntu8.12 \
+    && dpkg-query -W > /usr/share/moonoperator-runtime-packages.txt \
+    && rm -rf /var/lib/apt/lists/*
 COPY _build/native/release/build/cmd/moonapp/moonapp.exe /usr/local/bin/moonoperator
 COPY LICENSE NOTICE THIRD_PARTY_NOTICES.md LICENSING.md /usr/share/doc/moonoperator/
 COPY third_party/ /usr/share/doc/moonoperator/third_party/

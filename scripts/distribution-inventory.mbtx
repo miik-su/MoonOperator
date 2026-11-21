@@ -21,6 +21,18 @@ async fn main {
   defer { ignore(@shell.Cmd("docker", ["rm", id], stdout=Capture).output(timeout_ms=10000)) }
   @fs.mkdir(output + "/copyright", recursive=true)
   @fs.write_file(output + "/packages.tsv", inventory.stdout())
+  let format = "-f=${binary:Package}\\t${Version}\\t${source:Package}\\t${source:Version}\\t${Architecture}\\n"
+  let sources = @shell.Cmd("docker", ["run", "--rm", "--read-only", "--network", "none", "--entrypoint", "/usr/bin/dpkg-query", image, "-W", format], stdout=Capture, stderr=Capture).output(timeout_ms=15000, max_output_bytes=131072)
+  sources.check()
+  @fs.write_file(output + "/binary-source-packages.tsv", sources.stdout())
+  let executable = "/usr/local/bin/moonoperator"
+  let linkage = @shell.Cmd("docker", ["run", "--rm", "--read-only", "--network", "none", "--entrypoint", "/usr/bin/ldd", image, executable], stdout=Capture, stderr=Capture).output(timeout_ms=15000, max_output_bytes=32768)
+  linkage.check()
+  guard !linkage.stdout().trim().is_empty() && !linkage.stdout().contains("not found") else { fail("unresolved production executable dependency") }
+  @fs.write_file(output + "/moonoperator-ldd.txt", linkage.stdout())
+  let binary_hash = @shell.Cmd("docker", ["run", "--rm", "--read-only", "--network", "none", "--entrypoint", "/usr/bin/sha256sum", image, executable], stdout=Capture, stderr=Capture).output(timeout_ms=15000)
+  binary_hash.check()
+  @fs.write_file(output + "/moonoperator-sha256.txt", binary_hash.stdout())
   for (container_path, destination) in [("/usr/share/common-licenses", output + "/common-licenses"), ("/usr/share/doc/moonoperator", output + "/moonoperator")] {
     let copy = @shell.Cmd("docker", ["cp", id + ":" + container_path, destination], stdout=Capture, stderr=Capture).output(timeout_ms=15000)
     copy.check()
@@ -40,7 +52,7 @@ async fn main {
     packages.push({ "package": binary, "version": version.trim().to_owned(), "copyright_path": if present { Json::string(destination) } else { Json::null() }, "license_expression": "not automatically inferred; inspect installed copyright evidence" })
   }
   guard !packages.is_empty() else { fail("empty OS inventory is not evidence") }
-  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "image_id": image, "scope": "installed dpkg packages and available copyright texts; source module inventory is separate", "packages": packages, "missing_copyright": missing, "limitations": ["not a complete binary/linkage SBOM", "no automatic SPDX or license-compatibility verdict", "no OS vulnerability scan", "copyright files can reference external source offers or terms requiring distributor review"] }
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "image_id": image, "scope": "installed dpkg packages, source package identities, available copyright texts, and startup dynamic linkage of the built MoonOperator binary; source module inventory is separate", "packages": packages, "missing_copyright": missing, "limitations": ["startup ldd omits statically linked and runtime-loaded components", "no automatic SPDX or license-compatibility verdict", "OS vulnerability scanning is a separate image job", "copyright files can reference external source offers or terms requiring distributor review"] }
   @fs.write_file(output + "/inventory.json", report.stringify(indent=2))
   println("Recorded \{packages.length()} OS packages; \{missing.length()} missing copyright texts remain explicit review gaps")
 }
