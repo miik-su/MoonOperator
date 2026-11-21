@@ -38,7 +38,7 @@ jobs:
       - name: Retain package sources, copyrights and native linkage
         if: matrix.kubernetes == 'v1.37.0'
         run: moon run scripts/distribution-inventory.mbtx -- distribution-evidence
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
         with:
           name: runtime-distribution-inventory
@@ -73,7 +73,7 @@ jobs:
       - name: Display cluster acceptance results
         if: always()
         run: moon run scripts/report-summary.mbtx -- kind '${{ job.status }}'
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: kind-acceptance-${{ matrix.kubernetes }}
@@ -107,7 +107,7 @@ jobs:
           /tmp/trivy --cache-dir /tmp/moonoperator-trivy image --timeout 4m --image-src docker --scanners vuln --pkg-types os --list-all-pkgs --format json --output os-scan/trivy.json "$image_id"
           /tmp/trivy --cache-dir /tmp/moonoperator-trivy --version > os-scan/trivy-version.txt
           jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[]] | length > 0' os-scan/trivy.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
         with:
           name: os-vulnerability-observations
@@ -122,7 +122,7 @@ jobs:
       - name: Display memory observations
         if: ${{ !cancelled() && steps.memory.outcome != 'skipped' && matrix.kubernetes == 'v1.37.0' }}
         run: moon run scripts/report-summary.mbtx -- memory '${{ steps.memory.outcome }}'
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() && steps.memory.outcome != 'skipped' && matrix.kubernetes == 'v1.37.0' }}
         with:
           name: memory-observations
