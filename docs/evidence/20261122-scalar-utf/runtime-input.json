@@ -1,0 +1,13 @@
+{
+  "sdk_release": "0.10.17+d971670cd",
+  "sdk_linux_amd64_tar_sha256": "d0a96eaf91c77cfcdd7b7df75390c5a1a95d0b8a328b1a5ed6fee050cfbf8d50",
+  "moon_version": "0.1.20261023",
+  "moon_source_revision": "3778465a252d2838357dddf25dc0ebf3ff3ba40f",
+  "omitted_optional_entries": [
+    "lib/simdutf.o",
+    "lib/moonbit_simdutf.o"
+  ],
+  "sdk_runtime_file": "lib/runtime/utf.c",
+  "sdk_runtime_file_sha256": "b5a564f1439c2d242188b4a84bbb1f97f47cb201b7dc2022fa5f067d2c1e3b50",
+  "scope": "Verified Linux amd64 SDK contents and build-tool source. Historical SDK SIMD object upstream revision remains unverified."
+}

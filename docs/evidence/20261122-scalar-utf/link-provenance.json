@@ -1,0 +1,33 @@
+{
+  "link_map": {
+    "map_enabled_binary_matches_image": true,
+    "selected_archive_members": [
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/c_buffer/libc_buffer.a(stub.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/os_error/libos_error.a(stub.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/fd_util/libfd_util.a(stub.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/event_loop/libevent_loop.a(epoll.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/event_loop/libevent_loop.a(thread_pool.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/event_loop/libevent_loop.a(io_unix.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/event_loop/libevent_loop.a(signal.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/event_loop/libevent_loop.a(fs.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/internal/event_loop/libevent_loop.a(event_bus.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/socket/libsocket.a(socket.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/.mooncakes/moonbitlang/async/tls/libtls.a(openssl.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/libruntime.a(runtime-backtrace.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/libruntime.a(runtime-env.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/libruntime.a(runtime-runtime.o)",
+      "/home/runner/work/MoonOperator/MoonOperator/_build/native/release/build/libruntime.a(runtime-utf.o)",
+      "/usr/lib/gcc/x86_64-linux-gnu/13/libgcc.a(_popcountsi2.o)",
+      "/usr/lib/x86_64-linux-gnu/libc_nonshared.a(atexit.oS)"
+    ],
+    "libbacktrace_selected_members": []
+  },
+  "source_commit": "ce94fb565aa8fbf088cbd1891ded94160f5b3ae7",
+  "image_id": "sha256:50ccfa468a55a0211d85c0ea603b106c25346f9f186cc815e000d5c45413f76a",
+  "sha256": "7af71c09edbe8924ac722442272718302a746ef2eba00cf9081804470f63117f",
+  "image_binary_matches_build": true,
+  "symbol_table_available": true,
+  "simdutf_sdk_objects_absent": true,
+  "simdutf_cpp_symbols_absent": true,
+  "scope": "GNU link commands and map, ELF dynamic section and defined symbols for the Linux amd64 production executable"
+}

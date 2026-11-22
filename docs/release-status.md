@@ -69,6 +69,11 @@ both Kind jobs, native checks and the optional WASM check. The
 records the exact installed Ubuntu packages, source TAR and remaining SDK
 source provenance.
 
+Production UTF revision `ce94fb5` passed the native link audit, release-mode
+Unicode framing, focused native tests, WASM and both Kind jobs. The
+[scalar UTF evidence](evidence/20261122-scalar-utf/README.md) matches the
+audited executable to the tested Kind image and records its package recheck.
+
 Historical public evidence:
 
 - [Linux native checks](https://github.com/miik-su/MoonOperator/actions/runs/42444225315)

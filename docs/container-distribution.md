@@ -58,6 +58,13 @@ record a portable source archive and the final filesystem of the new
 production image. For a public release, attach the matching sources and
 notices alongside the image or supply another license-appropriate delivery
 mechanism. Include applicable SDK and compiler source and notice obligations.
+
+The production CI build extracts the pinned Linux SDK into an isolated
+toolchain directory and omits the two optional precompiled SIMD UTF objects.
+MoonBit compiles its scalar UTF implementation from the runtime source in
+that SDK. The redistribution workflow records the linker map and symbol table
+for the production executable it audits. See [the production UTF evidence](evidence/20261122-scalar-utf/README.md)
+and [local build steps](deployment.md#in-cluster-process).
 See [Ubuntu's archive documentation](https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/package-archive/),
 [GPL v2 section 3](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 and [Canonical's intellectual property policy](https://canonical.com/legal/intellectual-property-policy).

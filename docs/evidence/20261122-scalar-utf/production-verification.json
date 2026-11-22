@@ -1,0 +1,18 @@
+{
+  "source_commit": "ce94fb565aa8fbf088cbd1891ded94160f5b3ae7",
+  "production_image_in_kind": "sha256:9c0de0a5563689eeb2448ad9db08f133e47ce34b453569879da158ee81867fe7",
+  "link_audit_image": "sha256:50ccfa468a55a0211d85c0ea603b106c25346f9f186cc815e000d5c45413f76a",
+  "both_images_executable_sha256": "7af71c09edbe8924ac722442272718302a746ef2eba00cf9081804470f63117f",
+  "kind_executable_matches_link_audit": true,
+  "kind_rootfs_layers": [
+    "sha256:51efad79092af5016bf8fa8ab6476c6c71c8885ad3af4d25cea012b9092f075d"
+  ],
+  "packages_match_authenticated_source_manifest": true,
+  "package_count": 94,
+  "notices_verified": 10,
+  "release_watch_tests": {
+    "passed": 2,
+    "failed": 0,
+    "command": "moon test watch/watch_test.mbt --target native --release"
+  }
+}

@@ -1,5 +1,9 @@
 # 0.1.0 (unreleased)
 
+Use the pinned scalar UTF runtime in audited Linux container builds. Require
+the link map to exclude both optional SIMD UTF SDK objects and verify
+release-mode Unicode framing.
+
 Export one final production filesystem layer and keep bootstrap trust in a
 build-only mount. Verify the portable Ubuntu source bundle against the signed
 package inventory.

@@ -1,0 +1,10 @@
+{
+  "source_commit": "ce94fb565aa8fbf088cbd1891ded94160f5b3ae7",
+  "image_id": "sha256:9c0de0a5563689eeb2448ad9db08f133e47ce34b453569879da158ee81867fe7",
+  "trivy_metadata": "Version: 0.76.2\nVulnerability DB:\n  Version: 2\n  UpdatedAt: 2026-11-22 12:38:44.47270345 +0000 UTC\n  NextUpdate: 2026-11-23 12:38:44.472703209 +0000 UTC\n  DownloadedAt: 2026-11-22 15:34:07.358158888 +0000 UTC",
+  "package_count": 94,
+  "finding_rows": 23,
+  "rows_with_ubuntu_fix": 0,
+  "findings_match_previous_scan": true,
+  "original_json_sha256": "f714c530878a5974404bc60d0ddfeb1d3a2b817ce8cbb78f5b77cd139b69d4a5"
+}
