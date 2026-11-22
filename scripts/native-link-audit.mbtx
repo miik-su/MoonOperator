@@ -39,7 +39,9 @@ async fn map_link(executable : String, binary_sha : String, output : String) -> 
       entry.has_prefix("Merging program properties") ||
       entry.has_prefix("Allocating common symbols") ||
       entry.has_prefix("Memory Configuration") { break }
-    if entry.split(" ").next() is Some(field) && field.contains(".a(") {
+    // Indented rows identify the references that caused selection.
+    if !line.has_prefix(" ") && !line.has_prefix("\t") &&
+      entry.split(" ").next() is Some(field) && field.contains(".a(") {
       selected.push(field.to_owned())
     }
   }
