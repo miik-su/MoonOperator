@@ -1,0 +1,11 @@
+{
+  "toolchain": "0.10.17+d971670cd",
+  "sdk_archive_sha256": "d0a96eaf91c77cfcdd7b7df75390c5a1a95d0b8a328b1a5ed6fee050cfbf8d50",
+  "embedded_object": "lib/simdutf.o",
+  "object_sha256": "7caa3ccf7fc968c74ceb03fdca0ff7d2727b34e251ba07f8a765668c144b7bce",
+  "observed_elf_comment": "GCC: (GNU) 9.5.0",
+  "debug_sections_present": false,
+  "version_marker_found": false,
+  "exact_upstream_revision": null,
+  "scope": "Pinned Linux SDK archive path listing, ELF section names, .comment and ASCII version-label search. Object identity does not establish an upstream source revision."
+}

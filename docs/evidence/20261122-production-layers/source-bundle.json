@@ -1,0 +1,15 @@
+{
+  "file": "moonoperator-ubuntu-noble-sources-20261120.tar",
+  "sha256": "40f505d7d58c60eec96ea3921dc70fa1d6a2c8ae8b3541483e3fdbf03bf78b66",
+  "size_bytes": 293825536,
+  "apt_snapshot": "20261120T000000Z",
+  "binary_packages": 94,
+  "source_packages": 67,
+  "source_payloads": 212,
+  "signed_index_files": 6,
+  "archive_entries_verified": true,
+  "source_manifest_sha256": "b1c4dc90b3e770537c461ddbc99572e6230908b60c81c5fb930de94a51c103d8",
+  "published": false,
+  "scope": "Installed Noble main packages for the audited Linux amd64 image. SDK-embedded and compiler components follow a separate provenance and notice review.",
+  "archived_source_payload_hashes_verified": 212
+}

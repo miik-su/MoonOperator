@@ -8,7 +8,10 @@ official production image release or written source offer from this project.
 ## Package security and scope
 
 APT uses an explicitly dated Ubuntu snapshot to update inherited packages
-and to install the CA and TLS packages. The image build checks the Ubuntu
+and to install the CA and TLS packages. The production target exports the
+merged final filesystem into one OCI layer and sets the runtime user and
+entrypoint explicitly. The CI acceptance image remains a separate build
+target with probes. The image build checks the Ubuntu
 `libc6` version is at least 2.39-0ubuntu8.12, the Noble security update for
 [USN-9065-1](https://ubuntu.com/security/notices/USN-9065-1). Ubuntu versions
 include distribution backports. Use vendor package revisions when evaluating
@@ -17,7 +20,7 @@ include distribution backports. Use vendor package revisions when evaluating
 The scan uses the locally built production image and a checksum-verified
 Trivy release. It records the image ID, source commit, scanner version and
 database metadata. Its scope is installed OS packages in the effective image
-filesystem. The host kernel, files superseded in lower OCI layers, Windows
+filesystem. The host kernel, intermediate build layers, Windows
 SChannel, libraries loaded only at runtime, static code and the sample's
 external NGINX image require separate evidence. Findings with no fixed Ubuntu
 revision remain visible. Wasmtime is separately checked by exact package
@@ -49,9 +52,12 @@ source delivery mechanism that satisfies each relevant license and retain it
 for the required period. The generated TSV locates versions for this review.
 The [verified source manifest](evidence/20261122-source-link/README.md) records
 download and integrity checks for all source files indexed for the 94 installed
-package versions of the audited amd64 image. The files are retained locally.
-Preparing a public release still requires a source delivery mechanism and a
-review of superseded layers and exact SDK and compiler inputs.
+package versions of the audited amd64 image. The files are retained locally. The
+[verified Ubuntu bundle and single-layer evidence](evidence/20261122-production-layers/README.md)
+record a portable source archive and the final filesystem of the new
+production image. For a public release, attach the matching sources and
+notices alongside the image or supply another license-appropriate delivery
+mechanism. Include applicable SDK and compiler source and notice obligations.
 See [Ubuntu's archive documentation](https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/package-archive/),
 [GPL v2 section 3](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 and [Canonical's intellectual property policy](https://canonical.com/legal/intellectual-property-policy).

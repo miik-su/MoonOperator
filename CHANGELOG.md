@@ -1,5 +1,9 @@
 # 0.1.0 (unreleased)
 
+Export one final production filesystem layer and keep bootstrap trust in a
+build-only mount. Verify the portable Ubuntu source bundle against the signed
+package inventory.
+
 Archive authenticated corresponding-source coverage for the installed Ubuntu
 packages. Check selected native archive members using a byte-matched GNU link
 map, and retain exact exclusions for two public fingerprint scan matches.

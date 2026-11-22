@@ -63,6 +63,12 @@ ZIP notice verification, and both pinned Kind jobs. The
 verifies three exact Ubuntu source signatures and retains the vendor recheck
 for all 14 previous CVEs.
 
+Production layer revision `a66ca59` passed the amd64 single-layer image audit,
+both Kind jobs, native checks and the optional WASM check. The
+[layer and source-bundle evidence](evidence/20261122-production-layers/README.md)
+records the exact installed Ubuntu packages, source TAR and remaining SDK
+source provenance.
+
 Historical public evidence:
 
 - [Linux native checks](https://github.com/miik-su/MoonOperator/actions/runs/42444225315)
