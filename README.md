@@ -166,4 +166,7 @@ remaining obligations for distributing a built image. The
 identifies the scanned build, package findings and both Kind test results.
 The [redistribution evidence](docs/evidence/20261121-redistribution/README.md)
 records verified Ubuntu source signatures, the observed Linux linker inputs,
-the bundled license checks and the Canonical CVE status recheck.
+the bundled license checks and the Canonical CVE status recheck. The
+[Ubuntu source manifest and linker map](docs/evidence/20261122-source-link/README.md)
+cover the 94 installed packages and distinguish selected archive members
+from unused linker inputs.

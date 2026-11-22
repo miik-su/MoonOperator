@@ -20,7 +20,7 @@ application information is maintained in this repository.
 | Source archive integrity | Verified | Actual ZIP paths and ten notice payloads checked. Bundled async/YAML license texts match resolved modules |
 | Container distribution evidence | Verified for the recorded amd64 image | Installed package/source versions, 94 copyright records, ten matching notice files, executable SHA-256 and native linkage. [Evidence](evidence/20261121-redistribution/README.md) |
 | Experimental Wasmtime advisory check | Updated | Wasmtime 50.0.3 passed the exact-version OSV query and ten-case host probe. See [archived evidence](evidence/20261121-protocol/README.md) |
-| Distribution and vulnerability coverage | Partial | Signed source evidence for three Ubuntu packages, native link evidence and ten notice checks are archived. Exact SDK revisions, all-image source obligations and any formal binary release remain open |
+| Distribution and vulnerability coverage | Partial | All installed Ubuntu package sources mapped and downloaded. A byte-matched map confirms the selected archive members. Exact SDK revisions, lower layers and source delivery for a formal binary release remain open |
 | Full native regression | Available, not executed in this maintenance pass | Manual release-validation workflow; targeted testing was explicitly requested |
 | 1h/24h synthetic and real-cluster soak | Open | Manual entry points exist; no long-duration success or leak-freedom claim |
 | Multi-version Kubernetes/CNI/auth | Partially verified | Kind 1.36.4 and 1.37.0 with Calico 3.33.0 passed. Other versions, CNIs and identity providers remain open |

@@ -47,7 +47,11 @@ the matching source, packaging changes and build materials when required,
 including source for independently distributed GPL-covered utilities. Choose a
 source delivery mechanism that satisfies each relevant license and retain it
 for the required period. The generated TSV locates versions for this review.
-It does not download, mirror, or offer complete corresponding sources.
+The [verified source manifest](evidence/20261122-source-link/README.md) records
+download and integrity checks for all source files indexed for the 94 installed
+package versions of the audited amd64 image. The files are retained locally.
+Preparing a public release still requires a source delivery mechanism and a
+review of superseded layers and exact SDK and compiler inputs.
 See [Ubuntu's archive documentation](https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/package-archive/),
 [GPL v2 section 3](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 and [Canonical's intellectual property policy](https://canonical.com/legal/intellectual-property-policy).
@@ -61,4 +65,6 @@ required notice bytes. It records static mimalloc and simdutf code, additional
 link inputs and remaining component source gaps. The
 [dated production scan](evidence/20261121-container/README.md) retains the
 initial findings. The follow-up matches each remaining CVE to Canonical's
-Noble source-package status.
+Noble source-package status. A subsequent
+[GNU link-map audit](evidence/20261122-source-link/README.md#native-archive-member-selection)
+records the actual selected archive members of a byte-matched executable.
