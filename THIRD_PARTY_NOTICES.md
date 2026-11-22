@@ -8,8 +8,9 @@ https://github.com/bytecodealliance/wasmtime. It is not vendored into this repos
 MoonBit core/runtime are toolchain components. The native runtime source
 headers attribute International Digital Economy Academy under Apache-2.0,
 and the upstream runtime attributes some code to musl.
-The Linux amd64 executable contains mimalloc and simdutf code. We retain
-the MIT licenses in `third_party/mimalloc-LICENSE` and
+The audited Linux amd64 image uses MoonBit's scalar UTF runtime and includes
+mimalloc. The stock SDK can link simdutf in other Linux release builds.
+We retain the MIT notices in `third_party/mimalloc-LICENSE` and
 `third_party/simdutf-LICENSE-MIT`. We also retain the pinned SDK's BSD-style
 libbacktrace header notice in `third_party/libbacktrace-LICENSE` for that
 linker input. These copies complement the build-specific component review.

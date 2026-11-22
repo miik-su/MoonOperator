@@ -81,8 +81,10 @@ async fn main {
   elf.check()
   let symbols = @shell.Cmd("nm", ["-C", "--defined-only", executable], stdout=Capture).output(max_output_bytes=4194304)
   symbols.check()
-  guard !symbols.stdout().trim().is_empty() && !symbols.stdout().contains("simdutf") else {
-    fail("production executable must have auditable symbols and no simdutf symbols")
+  // Scalar functions in MoonBit's utf.c share some names with the shim.
+  // The GNU link map separately checks both optional object filenames.
+  guard !symbols.stdout().trim().is_empty() && !symbols.stdout().contains("simdutf::") else {
+    fail("production executable must have auditable symbols and no simdutf C++ library symbols")
   }
   let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
   source.check()
@@ -111,7 +113,7 @@ async fn main {
     "image_binary_matches_build": true,
     "symbol_table_available": true,
     "simdutf_sdk_objects_absent": true,
-    "simdutf_symbols_absent": true,
+    "simdutf_cpp_symbols_absent": true,
     "scope": "GNU link commands and map, ELF dynamic section and defined symbols for the Linux amd64 production executable",
   }
   @fs.write_file(output + "/link-provenance.json", metadata.stringify(indent=2) + "\n")

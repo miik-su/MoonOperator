@@ -25,7 +25,27 @@ explicit exclusions are in project-scope.md and transport/config.mbt.
 
 ## In-cluster process
 
-Build on a Linux host with the pinned toolchain:
+Build on Linux amd64 with the same isolated scalar UTF SDK used by CI.
+Download the pinned Linux SDK and core archives to the paths in
+[the setup action](../.github/actions/setup-moonbit/action.yml), then verify and
+extract them into a fresh directory. Local library development can continue
+using the normal SDK.
+
+```sh
+sha256sum --check tools/moonbit-linux.sha256
+sdk="$(mktemp -d)"
+mkdir -p "$sdk/lib"
+tar --exclude=./lib/simdutf.o --exclude=./lib/moonbit_simdutf.o -xzf /tmp/moonbit.tar.gz -C "$sdk"
+tar -xzf /tmp/core.tar.gz -C "$sdk/lib"
+test ! -e "$sdk/lib/simdutf.o"
+test ! -e "$sdk/lib/moonbit_simdutf.o"
+export PATH="$sdk/bin:$PATH"
+export MOON_TOOLCHAIN_ROOT="$sdk"
+moon -C "$sdk/lib/core" bundle --warn-list -a --all
+moon update
+```
+
+Build the native executable and image from the repository root:
 
 ```sh
 moon build cmd/moonapp --target native --release
