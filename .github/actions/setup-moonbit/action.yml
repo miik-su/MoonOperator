@@ -17,7 +17,9 @@ runs:
         sdk="$HOME/.moon"
         sdk_options=()
         if [ "$SCALAR_UTF" = 'true' ]; then
-          sdk=$(mktemp -d "$RUNNER_TEMP/moonoperator-scalar-sdk.XXXXXX")
+          # Jobs use fresh runners. Keep this path stable for runtime debug info.
+          sdk="$RUNNER_TEMP/moonoperator-scalar-sdk"
+          mkdir "$sdk"
           sdk_options=(--exclude=./lib/simdutf.o --exclude=./lib/moonbit_simdutf.o)
         fi
         mkdir -p "$sdk/lib"
