@@ -6,11 +6,11 @@ FROM base AS trust-bootstrap
 RUN apt-get update && apt-get download ca-certificates=20240203 && dpkg-deb -x ca-certificates_20240203_all.deb /bootstrap && cat /bootstrap/usr/share/ca-certificates/mozilla/*.crt > /bootstrap/ca-certificates.crt
 
 FROM base AS runtime
-COPY --from=trust-bootstrap /bootstrap/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-# Apply upgrades to inherited packages as well as the runtime TLS dependencies.
-RUN apt-get update --snapshot 20261120T000000Z \
-    && apt-get upgrade -y --no-install-recommends --snapshot 20261120T000000Z \
-    && apt-get install -y --no-install-recommends --snapshot 20261120T000000Z ca-certificates libssl3t64 \
+# Use bootstrap trust only during APT setup. Package installation owns runtime trust.
+RUN --mount=type=bind,from=trust-bootstrap,source=/bootstrap/ca-certificates.crt,target=/tmp/bootstrap-ca.crt \
+    apt-get -o Acquire::https::CaInfo=/tmp/bootstrap-ca.crt update --snapshot 20261120T000000Z \
+    && apt-get -o Acquire::https::CaInfo=/tmp/bootstrap-ca.crt upgrade -y --no-install-recommends --snapshot 20261120T000000Z \
+    && apt-get -o Acquire::https::CaInfo=/tmp/bootstrap-ca.crt install -y --no-install-recommends --snapshot 20261120T000000Z ca-certificates libssl3t64 \
     && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libc6)" ge 2.39-0ubuntu8.12 \
     && dpkg-query -W > /usr/share/moonoperator-runtime-packages.txt \
     && rm -rf /var/lib/apt/lists/*
@@ -25,5 +25,9 @@ COPY _build/native/release/build/tests/cluster_client/cluster_client.exe /usr/lo
 COPY _build/native/release/build/cmd/diagnostic_probe/diagnostic_probe.exe /usr/local/bin/diagnostic-probe
 COPY _build/native/release/build/tests/memory_profile/memory_profile.exe /usr/local/bin/memory-probe
 
-# Default builds select production; test-only tooling is in a sibling stage.
-FROM runtime AS production
+# Export the final filesystem into one layer. The old Ubuntu and bootstrap
+# files from intermediate layers are not carried in the production artifact.
+FROM scratch AS production
+COPY --from=runtime / /
+USER 65532:65532
+ENTRYPOINT ["/usr/local/bin/moonoperator"]

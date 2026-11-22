@@ -22,7 +22,9 @@ jobs:
       - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client tests/memory_profile --target native --release
       - name: Build the production image
         id: production
-        run: docker build --target production -t moonoperator:dev .
+        run: |
+          docker build --target production -t moonoperator:dev .
+          docker image inspect moonoperator:dev | jq -e '.[0] | (.RootFS.Layers | length == 1) and (.Config.User == "65532:65532") and (.Config.Entrypoint == ["/usr/local/bin/moonoperator"])'
       - run: docker build --target acceptance -t moonoperator-probe:dev .
       - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
       - name: Verify distributed license files
@@ -35,6 +37,9 @@ jobs:
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/async-LICENSE
           docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
       - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
+      - name: Capture the intermediate base package versions
+        if: matrix.kubernetes == 'v1.37.0'
+        run: docker build --target base -t moonoperator-base:audit .
       - name: Retain package sources, copyrights and native linkage
         if: matrix.kubernetes == 'v1.37.0'
         run: moon run scripts/distribution-inventory.mbtx -- distribution-evidence

@@ -3,7 +3,7 @@ import { "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/shell", "moonbitl
 ----
 async fn main {
   let args = @env.args()
-  guard args.length() == 2 else { fail("usage: distribution-inventory.mbtx OUTPUT_DIRECTORY (local moonoperator:dev image required)") }
+  guard args.length() == 2 else { fail("usage: distribution-inventory.mbtx OUTPUT_DIRECTORY (local moonoperator:dev and moonoperator-base:audit images required)") }
   let output = args[1]
   guard !@fs.exists(output) else { fail("use a fresh output directory; stale evidence is not accepted") }
   let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
@@ -21,6 +21,14 @@ async fn main {
   defer { ignore(@shell.Cmd("docker", ["rm", id], stdout=Capture).output(timeout_ms=10000)) }
   @fs.mkdir(output + "/copyright", recursive=true)
   @fs.write_file(output + "/packages.tsv", inventory.stdout())
+  let layers = @shell.Cmd("docker", ["image", "inspect", "--format", "{{json .RootFS.Layers}}", image], stdout=Capture).output(timeout_ms=10000)
+  layers.check()
+  let rootfs = @json.parse(layers.stdout())
+  guard rootfs is Array(entries) && entries.length() == 1 else { fail("production image must have one filesystem layer") }
+  @fs.write_file(output + "/production-rootfs.json", rootfs.stringify(indent=2) + "\n")
+  let base = @shell.Cmd("docker", ["run", "--rm", "--read-only", "--network", "none", "--entrypoint", "/usr/bin/dpkg-query", "moonoperator-base:audit", "-W"], stdout=Capture, stderr=Capture).output(timeout_ms=15000)
+  base.check()
+  @fs.write_file(output + "/intermediate-base-packages.tsv", base.stdout())
   let format = "-f=${binary:Package}\\t${Version}\\t${source:Package}\\t${source:Version}\\t${Architecture}\\n"
   let sources = @shell.Cmd("docker", ["run", "--rm", "--read-only", "--network", "none", "--entrypoint", "/usr/bin/dpkg-query", image, "-W", format], stdout=Capture, stderr=Capture).output(timeout_ms=15000, max_output_bytes=131072)
   sources.check()
@@ -64,7 +72,7 @@ async fn main {
     packages.push({ "package": binary, "version": version.trim().to_owned(), "copyright_path": if present { Json::string(destination) } else { Json::null() }, "license_expression": "not automatically inferred; inspect installed copyright evidence" })
   }
   guard !packages.is_empty() else { fail("empty OS inventory is not evidence") }
-  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "image_id": image, "scope": "installed dpkg packages, source package identities, available copyright texts, and startup dynamic linkage of the built MoonOperator binary; source module inventory is separate", "packages": packages, "missing_copyright": missing, "project_notices_match_checkout": true, "checked_notices": notices, "limitations": ["startup ldd omits statically linked and runtime-loaded components", "no automatic SPDX or license-compatibility verdict", "OS vulnerability scanning is a separate image job", "copyright files can reference external source offers or terms requiring distributor review"] }
+  let report : Json = { "source_commit": source.stdout().trim().to_owned(), "image_id": image, "production_rootfs_layers": rootfs, "scope": "installed dpkg packages, source package identities, available copyright texts, and startup dynamic linkage of the built MoonOperator binary; source module inventory is separate", "packages": packages, "missing_copyright": missing, "project_notices_match_checkout": true, "checked_notices": notices, "limitations": ["startup ldd omits statically linked and runtime-loaded components", "no automatic SPDX or license-compatibility verdict", "OS vulnerability scanning is a separate image job", "copyright files can reference external source offers or terms requiring distributor review"] }
   @fs.write_file(output + "/inventory.json", report.stringify(indent=2))
   println("Recorded \{packages.length()} OS packages; \{missing.length()} missing copyright texts remain explicit review gaps")
 }
