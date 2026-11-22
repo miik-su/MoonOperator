@@ -28,6 +28,8 @@ runs:
         if [ "$SCALAR_UTF" = 'true' ]; then
           test ! -e "$sdk/lib/simdutf.o"
           test ! -e "$sdk/lib/moonbit_simdutf.o"
+          export MOONBIT_ALLOCATOR=system
+          echo "MOONBIT_ALLOCATOR=$MOONBIT_ALLOCATOR" >> "$GITHUB_ENV"
         fi
         chmod +x "$sdk/bin/"* "$sdk/bin/internal/tcc"
         export PATH="$sdk/bin:$PATH" MOON_TOOLCHAIN_ROOT="$sdk"

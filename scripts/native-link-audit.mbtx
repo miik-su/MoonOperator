@@ -28,7 +28,9 @@ async fn map_link(executable : String, binary_sha : String, output : String) -> 
     fail("map-enabled executable differs from the ordinary image executable")
   }
   let map = @fs.read_file(output + "/native-link.map").text()
-  guard !map.contains("simdutf.o") else { fail("unexpected SDK SIMD UTF object in production link map") }
+  guard !map.contains("simdutf.o") && !map.contains("libmoonbitrun.o") else {
+    fail("unexpected prebuilt SDK UTF or allocator object in production link map")
+  }
   guard map.split_once("Archive member included to satisfy reference by file (symbol)") is Some((_, listing)) else {
     fail("GNU linker map has no archive selection section")
   }
@@ -76,6 +78,9 @@ async fn main {
     }
   }
   guard !links.is_empty() else { fail("no successful Linux executable link invocation captured") }
+  guard links.all(line => !line.contains("libmoonbitrun.o")) else {
+    fail("unexpected SDK allocator object in production link command")
+  }
   let executable = "_build/native/release/build/cmd/moonapp/moonapp.exe"
   let elf = @shell.Cmd("readelf", ["-d", executable], stdout=Capture).output()
   elf.check()
@@ -100,7 +105,15 @@ async fn main {
   guard binary_sha.length() == 64 && installed.stdout().has_prefix(binary_sha + " ") else {
     fail("built executable differs from the executable in the production image")
   }
+  let builder = @shell.Cmd("dpkg-query", [
+    "-W", "-f=${binary:Package}\\t${Version}\\t${source:Package}\\t${source:Version}\\n",
+    "libc6-dev", "libgcc-13-dev",
+  ], stdout=Capture).output()
+  builder.check()
+  let compiler = @shell.Cmd("gcc", ["-dumpfullversion"], stdout=Capture).output()
+  compiler.check()
   @fs.mkdir(output, recursive=true)
+  @fs.write_file(output + "/builder-source-packages.tsv", builder.stdout())
   @fs.write_file(output + "/link-commands.txt", links.join("\n") + "\n")
   @fs.write_file(output + "/elf-dynamic.txt", elf.stdout())
   @fs.write_file(output + "/defined-symbols.txt", symbols.stdout())
@@ -112,6 +125,8 @@ async fn main {
     "sha256": binary_sha,
     "image_binary_matches_build": true,
     "symbol_table_available": true,
+    "sdk_allocator_object_absent": true,
+    "builder_gcc_version": compiler.stdout().trim().to_owned(),
     "simdutf_sdk_objects_absent": true,
     "simdutf_cpp_symbols_absent": true,
     "scope": "GNU link commands and map, ELF dynamic section and defined symbols for the Linux amd64 production executable",
