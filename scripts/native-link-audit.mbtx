@@ -7,6 +7,53 @@ import {
 }
 ----
 
+///|
+async fn map_link(executable : String, binary_sha : String, output : String) -> Json {
+  // The map flag is Linux-specific. Leave the checked-out manifest unmodified.
+  let manifest = "cmd/moonapp/moon.pkg"
+  let original = @fs.read_file(manifest).binary()
+  let suffix =
+    "\noptions(link: {\"native\": {\"cc-link-flags\": \"-Wl,-Map," +
+    output + "/native-link.map\"}})\n"
+  let text = @fs.read_file(manifest).text()
+  guard !text.contains("cc-link-flags") else { fail("review existing native linker flags before auditing") }
+  defer { @fs.write_file(manifest, original) catch { _ => panic() } }
+  @fs.write_file(manifest, text + suffix)
+  let build = @shell.Cmd("moon", ["build", "cmd/moonapp", "--target", "native", "--release"], stdout=Capture, stderr=Capture).output(timeout_ms=120000, max_output_bytes=1048576)
+  if build.exit_code() != 0 { println(build.stderr()) }
+  build.check()
+  let rebuilt = @shell.Cmd("sha256sum", [executable], stdout=Capture).output()
+  rebuilt.check()
+  guard rebuilt.stdout().has_prefix(binary_sha + " ") else {
+    fail("map-enabled executable differs from the ordinary image executable")
+  }
+  let map = @fs.read_file(output + "/native-link.map").text()
+  guard map.split_once("Archive member included to satisfy reference by file (symbol)") is Some((_, listing)) else {
+    fail("GNU linker map has no archive selection section")
+  }
+  let selected : Array[String] = []
+  for line in listing.split("\n") {
+    let entry = line.trim().to_owned()
+    if entry.has_prefix("Discarded input sections") ||
+      entry.has_prefix("As-needed library included") ||
+      entry.has_prefix("Merging program properties") ||
+      entry.has_prefix("Allocating common symbols") ||
+      entry.has_prefix("Memory Configuration") { break }
+    if entry.split(" ").next() is Some(field) && field.contains(".a(") {
+      selected.push(field.to_owned())
+    }
+  }
+  guard selected.any(entry => entry.contains("libruntime.a(")) else {
+    fail("linker map did not identify a known selected archive member")
+  }
+  let backtrace = selected.filter(entry => entry.contains("/libbacktrace.a("))
+  {
+    "map_enabled_binary_matches_image": true,
+    "selected_archive_members": selected,
+    "libbacktrace_selected_members": backtrace,
+  }
+}
+
 async fn main {
   let args = @env.args()
   guard args.length() == 3 && !@fs.exists(args[2]) else {
@@ -14,6 +61,9 @@ async fn main {
   }
   let trace = @fs.read_file(args[1]).text()
   let output = args[2]
+  guard !output.is_empty() && output.all(c => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-') else {
+    fail("output must be a simple lowercase directory name")
+  }
   let links : Array[String] = []
   for line in trace.split("\n") {
     if line.contains("execve(") && line.contains("moonapp.exe") &&
@@ -46,13 +96,15 @@ async fn main {
   @fs.write_file(output + "/link-commands.txt", links.join("\n") + "\n")
   @fs.write_file(output + "/elf-dynamic.txt", elf.stdout())
   @fs.write_file(output + "/defined-symbols.txt", symbols.stdout())
+  let map_evidence = map_link(executable, binary_sha, output)
   let metadata : Json = {
+    "link_map": map_evidence,
     "source_commit": source.stdout().trim().to_owned(),
     "image_id": image_id,
     "sha256": binary_sha,
     "image_binary_matches_build": true,
     "symbol_table_available": !symbols.stdout().trim().is_empty(),
-    "scope": "successful GNU linker invocations, ELF dynamic section and defined symbols for the Linux amd64 production executable",
+    "scope": "GNU link commands and map, ELF dynamic section and defined symbols for the Linux amd64 production executable",
   }
   @fs.write_file(output + "/link-provenance.json", metadata.stringify(indent=2) + "\n")
 }
