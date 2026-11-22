@@ -28,6 +28,7 @@ async fn map_link(executable : String, binary_sha : String, output : String) -> 
     fail("map-enabled executable differs from the ordinary image executable")
   }
   let map = @fs.read_file(output + "/native-link.map").text()
+  guard !map.contains("simdutf.o") else { fail("unexpected SDK SIMD UTF object in production link map") }
   guard map.split_once("Archive member included to satisfy reference by file (symbol)") is Some((_, listing)) else {
     fail("GNU linker map has no archive selection section")
   }
@@ -80,6 +81,9 @@ async fn main {
   elf.check()
   let symbols = @shell.Cmd("nm", ["-C", "--defined-only", executable], stdout=Capture).output(max_output_bytes=4194304)
   symbols.check()
+  guard !symbols.stdout().trim().is_empty() && !symbols.stdout().contains("simdutf") else {
+    fail("production executable must have auditable symbols and no simdutf symbols")
+  }
   let source = @shell.Cmd("git", ["rev-parse", "HEAD"], stdout=Capture).output()
   source.check()
   let built = @shell.Cmd("sha256sum", [executable], stdout=Capture).output()
@@ -105,7 +109,9 @@ async fn main {
     "image_id": image_id,
     "sha256": binary_sha,
     "image_binary_matches_build": true,
-    "symbol_table_available": !symbols.stdout().trim().is_empty(),
+    "symbol_table_available": true,
+    "simdutf_sdk_objects_absent": true,
+    "simdutf_symbols_absent": true,
     "scope": "GNU link commands and map, ELF dynamic section and defined symbols for the Linux amd64 production executable",
   }
   @fs.write_file(output + "/link-provenance.json", metadata.stringify(indent=2) + "\n")

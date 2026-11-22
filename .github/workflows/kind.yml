@@ -19,6 +19,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-moonbit
+        with:
+          scalar-utf: 'true'
       - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client tests/memory_profile --target native --release
       - name: Build the production image
         id: production

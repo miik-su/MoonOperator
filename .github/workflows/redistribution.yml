@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/redistribution.yml
       - scripts/native-link-audit.mbtx
+      - .github/actions/setup-moonbit/action.yml
       - Dockerfile
       - third_party/**
 
@@ -20,10 +21,14 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-moonbit
+        with:
+          scalar-utf: 'true'
       - name: Build the release executable and capture linker invocations
         run: |
           sudo apt-get install -y --no-install-recommends strace binutils
           strace -f -qq -s 8192 -e trace=execve -o "$RUNNER_TEMP/moonapp-execve.txt" moon build cmd/moonapp --target native --release
+      - name: Verify release-mode Unicode framing
+        run: moon test watch/watch_test.mbt --target native --release
       - run: docker build --target production -t moonoperator:dev .
       - run: moon run scripts/native-link-audit.mbtx -- "$RUNNER_TEMP/moonapp-execve.txt" native-link-evidence
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
