@@ -31,3 +31,31 @@ FROM scratch AS production
 COPY --from=runtime / /
 USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/moonoperator"]
+
+# The downloadable application image contains only selected runtime
+# components and their notices. The Ubuntu filesystem stays in CI.
+FROM runtime AS distribution-files
+USER 0:0
+RUN set -eu; \
+    mkdir -p /distribution/lib64 /distribution/etc /distribution/var/lib/dpkg; \
+    for name in libc.so.6 libnss_dns.so.2 libnss_files.so.2 libcrypto.so.3 libssl.so.3; do \
+      cp -L --parents "/lib/x86_64-linux-gnu/$name" /distribution; \
+    done; \
+    cp -L /lib64/ld-linux-x86-64.so.2 /distribution/lib64/; \
+    cp -L --parents /etc/ssl/certs/ca-certificates.crt /usr/local/bin/moonoperator /distribution; \
+    cp -a --parents /usr/share/doc/moonoperator /usr/share/common-licenses /distribution; \
+    for package in libc6 libssl3t64 ca-certificates; do \
+      cp -L --parents "/usr/share/doc/$package/copyright" /distribution; \
+    done; \
+    dpkg-query --status libc6 libssl3t64 ca-certificates > /distribution/var/lib/dpkg/status; \
+    dpkg-query -W libc6 libssl3t64 ca-certificates > /distribution/usr/share/moonoperator-runtime-packages.txt; \
+    dpkg-query -W -f='${binary:Package}\t${Version}\t${source:Package}\t${source:Version}\t${Architecture}\n' \
+      libc6 libssl3t64 ca-certificates > /distribution/usr/share/doc/moonoperator/binary-source-packages.tsv; \
+    printf 'root:x:0:0:root:/root:/sbin/nologin\nmoonoperator:x:65532:65532:MoonOperator:/:/sbin/nologin\n' > /distribution/etc/passwd; \
+    printf 'root:x:0:\nmoonoperator:x:65532:\n' > /distribution/etc/group; \
+    printf 'passwd: files\ngroup: files\nhosts: files dns\n' > /distribution/etc/nsswitch.conf
+
+FROM scratch AS distribution
+COPY --from=distribution-files /distribution /
+USER 65532:65532
+ENTRYPOINT ["/usr/local/bin/moonoperator"]

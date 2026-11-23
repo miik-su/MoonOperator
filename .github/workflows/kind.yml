@@ -13,6 +13,9 @@ jobs:
   moonapp:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -31,26 +34,46 @@ jobs:
       - run: moon build cmd/moonapp cmd/manifests cmd/diagnostic_probe tests/cluster_client tests/memory_profile --target native --release
       - name: Build the production image
         id: production
+        env:
+          EXPORT_CANDIDATE: ${{ inputs.export-candidate }}
         run: |
-          docker build --target production -t moonoperator:dev .
+          target=production
+          if [ "$EXPORT_CANDIDATE" = true ]; then target=distribution; fi
+          docker build --target "$target" -t moonoperator:dev .
           docker image inspect moonoperator:dev | jq -e '.[0] | (.RootFS.Layers | length == 1) and (.Config.User == "65532:65532") and (.Config.Entrypoint == ["/usr/local/bin/moonoperator"])'
       - run: docker build --target acceptance -t moonoperator-probe:dev .
-      - run: docker run --rm --entrypoint /usr/bin/test moonoperator:dev ! -e /usr/local/bin/client-probe
-      - name: Verify distributed license files
+      - name: Verify the image filesystem and distributed notices
+        env:
+          EXPORT_CANDIDATE: ${{ inputs.export-candidate }}
         run: |
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/NOTICE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/LICENSING.md
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/THIRD_PARTY_NOTICES.md
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/yaml-LICENSE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/async-LICENSE
-          docker run --rm --entrypoint /usr/bin/test moonoperator:dev -s /usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
-      - run: docker run --rm --entrypoint /usr/bin/cat moonoperator:dev /usr/share/moonoperator-runtime-packages.txt > runtime-packages.txt
+          image=$(docker create moonoperator:dev)
+          trap 'docker rm "$image" >/dev/null' EXIT
+          docker export "$image" | tar -tf - > image-files.txt
+          if grep -Eq '(^|/)client-probe$' image-files.txt; then exit 1; fi
+          docker cp "$image:/usr/share/moonoperator-runtime-packages.txt" runtime-packages.txt
+          docker cp "$image:/usr/share/doc/moonoperator" image-notices
+          for file in LICENSE NOTICE LICENSING.md THIRD_PARTY_NOTICES.md; do
+            cmp "$file" "image-notices/$file"
+          done
+          diff -r third_party image-notices/third_party
+          if [ "$EXPORT_CANDIDATE" = true ]; then
+            if grep -Eq '(^|/)(os-release|lsb-release|dpkg-query|bash|apt-get)$' image-files.txt; then exit 1; fi
+            mkdir distribution-evidence
+            docker cp "$image:/usr/local/bin/moonoperator" distribution-evidence/moonoperator
+            docker cp "$image:/usr/share/doc/moonoperator/binary-source-packages.tsv" distribution-evidence/binary-source-packages.tsv
+            (cd distribution-evidence && sha256sum moonoperator > moonoperator-sha256.txt && rm moonoperator)
+            for file in libc6 libssl3t64 ca-certificates; do
+              docker cp "$image:/usr/share/doc/$file/copyright" "distribution-evidence/$file-copyright"
+              test -s "distribution-evidence/$file-copyright"
+            done
+            sort image-files.txt > distribution-evidence/image-files.txt
+            docker run --rm --read-only --network none --entrypoint /lib64/ld-linux-x86-64.so.2 moonoperator:dev --list /usr/local/bin/moonoperator > distribution-evidence/loader.txt
+          fi
       - name: Capture the intermediate base package versions
-        if: matrix.kubernetes == 'v1.37.0'
+        if: matrix.kubernetes == 'v1.37.0' && !inputs.export-candidate
         run: docker build --target base -t moonoperator-base:audit .
       - name: Retain package sources, copyrights and native linkage
-        if: matrix.kubernetes == 'v1.37.0'
+        if: matrix.kubernetes == 'v1.37.0' && !inputs.export-candidate
         run: moon run scripts/distribution-inventory.mbtx -- distribution-evidence
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
@@ -110,6 +133,8 @@ jobs:
 
       - name: Scan installed OS packages with pinned Trivy
         if: ${{ !cancelled() && steps.production.outcome == 'success' && matrix.kubernetes == 'v1.37.0' }}
+        env:
+          EXPORT_CANDIDATE: ${{ inputs.export-candidate }}
         run: |
           curl --retry 2 --retry-all-errors --connect-timeout 15 --max-time 90 -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz -o /tmp/trivy-linux.tar.gz || curl --retry 2 --connect-timeout 15 --max-time 90 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/aquasecurity/trivy/releases/assets/713401165 -o /tmp/trivy-linux.tar.gz
           sha256sum --check tools/trivy-linux.sha256
@@ -118,9 +143,14 @@ jobs:
           git rev-parse HEAD > os-scan/source-commit.txt
           image_id=$(docker image inspect --format '{{.Id}}' moonoperator:dev)
           printf '%s\n' "$image_id" > os-scan/image-id.txt
-          /tmp/trivy --cache-dir /tmp/moonoperator-trivy image --timeout 4m --image-src docker --scanners vuln --pkg-types os --list-all-pkgs --format json --output os-scan/trivy.json "$image_id"
+          distro=()
+          if [ "$EXPORT_CANDIDATE" = true ]; then distro=(--distro ubuntu/24.04); fi
+          /tmp/trivy --cache-dir /tmp/moonoperator-trivy image --timeout 4m --image-src docker --scanners vuln --pkg-types os "${distro[@]}" --list-all-pkgs --format json --output os-scan/trivy.json "$image_id"
           /tmp/trivy --cache-dir /tmp/moonoperator-trivy --version > os-scan/trivy-version.txt
           jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[]] | length > 0' os-scan/trivy.json
+          if [ "$EXPORT_CANDIDATE" = true ]; then
+            jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[].Name] | sort == ["ca-certificates","libc6","libssl3t64"]' os-scan/trivy.json
+          fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
         with:
@@ -175,7 +205,7 @@ jobs:
           (cd _build/native/release/build && find . -type f -name '*.c' -exec cp --parents '{}' "$source_root/generated-native/" \;)
           test -n "$(find "$source_root/generated-native/cmd/moonapp" -type f -name '*.c' -print -quit)"
           tar -czf "$output/moonoperator-v$version-project-runtime-sources.tar.gz" -C "$source_root" .
-          cp distribution-evidence/binary-source-packages.tsv distribution-evidence/moonoperator-sha256.txt "$output/"
+          cp distribution-evidence/* "$output/"
           cp os-scan/image-id.txt os-scan/source-commit.txt os-scan/trivy-version.txt "$output/"
           (cd "$output" && sha256sum *.tar.gz > candidate-SHA256SUMS)
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

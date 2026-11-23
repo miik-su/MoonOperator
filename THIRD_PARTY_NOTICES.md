@@ -32,5 +32,8 @@ from this repository's Apache-2.0 source license. The fixed ca-certificates
 bootstrap stage extracts trust data only; runtime CA/TLS packages are installed
 from the pinned snapshot. The example manifest references an external NGINX
 unprivileged image by digest; that image is not vendored into MoonOperator.
+The downloadable application image assembles the selected glibc and OpenSSL
+runtime files, CA trust data, and their package notices in a separate scratch
+filesystem. Its source-package inventory identifies those specific components.
 See the [container distribution guide](docs/container-distribution.md) for
 package-specific notices, startup dynamic linkage and source-package provenance.
