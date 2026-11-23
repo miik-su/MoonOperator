@@ -1,5 +1,12 @@
 name: Focused Kind acceptance
-on: [push, workflow_dispatch]
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      export-candidate:
+        description: Export the scanned Linux amd64 image and matching build sources
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -137,3 +144,44 @@ jobs:
             memory-evidence-report.json
             test-results-summary.md
           if-no-files-found: warn
+
+      - name: Export the tested Linux amd64 image and build sources
+        if: matrix.kubernetes == 'v1.37.0' && inputs.export-candidate
+        env:
+          RELEASE_VERSION: '0.1.0'
+        run: |
+          version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' moon.mod)
+          test "$version" = "$RELEASE_VERSION"
+          tag="moonoperator:$version"
+          prefix="moonoperator-v$version-linux-amd64"
+          output="$RUNNER_TEMP/release-candidate"
+          mkdir -p "$output" "$RUNNER_TEMP/release-source/moonbit-sdk"
+          source_root="$RUNNER_TEMP/release-source"
+          image_id=$(cat os-scan/image-id.txt)
+          docker image inspect "$image_id" | jq -e '.[0] | .Os == "linux" and .Architecture == "amd64"'
+          docker tag "$image_id" "$tag"
+          docker save "$tag" | gzip -n > "$output/$prefix-image.tar.gz"
+          # Exercise the recorded archive, including the image configuration digest.
+          docker image rm "$tag" moonoperator:dev
+          docker load -i "$output/$prefix-image.tar.gz"
+          test "$(docker image inspect --format '{{.Id}}' "$tag")" = "$image_id"
+          git archive --format=tar.gz --prefix=MoonOperator/ HEAD > "$source_root/project.tar.gz"
+          cp -R "$MOON_TOOLCHAIN_ROOT/lib/runtime" "$MOON_TOOLCHAIN_ROOT/include" "$MOON_TOOLCHAIN_ROOT/CREDITS.md" "$source_root/moonbit-sdk/"
+          cp /tmp/core.tar.gz "$source_root/moonbit-core.tar.gz"
+          mkdir -p "$source_root/mooncakes/moonbitlang" "$source_root/mooncakes/moonbit-community"
+          cp -R .mooncakes/moonbitlang/async "$source_root/mooncakes/moonbitlang/"
+          cp -R .mooncakes/moonbit-community/yaml "$source_root/mooncakes/moonbit-community/"
+          mkdir -p "$source_root/generated-native"
+          (cd _build/native/release/build && find . -type f -name '*.c' -exec cp --parents '{}' "$source_root/generated-native/" \;)
+          test -n "$(find "$source_root/generated-native/cmd/moonapp" -type f -name '*.c' -print -quit)"
+          tar -czf "$output/moonoperator-v$version-project-runtime-sources.tar.gz" -C "$source_root" .
+          cp distribution-evidence/binary-source-packages.tsv distribution-evidence/moonoperator-sha256.txt "$output/"
+          cp os-scan/image-id.txt os-scan/source-commit.txt os-scan/trivy-version.txt "$output/"
+          (cd "$output" && sha256sum *.tar.gz > candidate-SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: matrix.kubernetes == 'v1.37.0' && inputs.export-candidate
+        with:
+          name: linux-amd64-release-candidate
+          path: ${{ runner.temp }}/release-candidate/
+          if-no-files-found: error
+          retention-days: 7

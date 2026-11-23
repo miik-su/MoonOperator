@@ -40,7 +40,7 @@ tar -xzf /tmp/core.tar.gz -C "$sdk/lib"
 test ! -e "$sdk/lib/simdutf.o"
 test ! -e "$sdk/lib/moonbit_simdutf.o"
 export PATH="$sdk/bin:$PATH"
-export MOON_TOOLCHAIN_ROOT="$sdk"
+export MOON_TOOLCHAIN_ROOT="$sdk" MOONBIT_ALLOCATOR=system
 moon -C "$sdk/lib/core" bundle --warn-list -a --all
 moon update
 ```
