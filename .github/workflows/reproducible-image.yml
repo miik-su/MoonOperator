@@ -1,0 +1,113 @@
+name: Reproducible v0.1.0 image
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  compare-images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    defaults:
+      run:
+        shell: bash
+    env:
+      SOURCE_DATE_EPOCH: '1795440139'
+      RELEASE: https://github.com/miik-su/MoonOperator/releases/download/v0.1.0
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-moonbit
+        with:
+          scalar-utf: 'true'
+      - name: Verify the public build inputs
+        run: |
+          mkdir -p "$RUNNER_TEMP"/{download,source,report}
+          cd "$RUNNER_TEMP/download"
+          for asset in SHA256SUMS release-manifest.json moonoperator-v0.1.0-{project-runtime-sources.tar.gz,linux-amd64-image.tar.gz}; do
+            curl --retry 3 --retry-all-errors --max-time 120 -fsSLO "$RELEASE/$asset"
+          done
+          grep -E '  (release-manifest\.json|moonoperator-v0\.1\.0-(project-runtime-sources|linux-amd64-image)\.tar\.gz)$' SHA256SUMS |
+            sha256sum --check --strict | tee "$RUNNER_TEMP/report/downloads.txt"
+          test "$(grep -c ': OK$' "$RUNNER_TEMP/report/downloads.txt")" = 3
+          tar -xzf moonoperator-v0.1.0-project-runtime-sources.tar.gz -C "$RUNNER_TEMP/source"
+          docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
+          test "$(docker image inspect --format '{{.Id}}' moonoperator:0.1.0)" = "$(jq -er .image_id release-manifest.json)"
+      - name: Isolate the legacy image ID difference with the released executable
+        run: |
+          baseline="$RUNNER_TEMP/baseline"
+          download="$RUNNER_TEMP/download"
+          report="$RUNNER_TEMP/report"
+          mkdir "$baseline"
+          tar -xzf "$RUNNER_TEMP/source/project.tar.gz" -C "$baseline"
+          cd "$baseline/MoonOperator"
+          binary=_build/native/release/build/cmd/moonapp/moonapp.exe
+          mkdir -p "$(dirname "$binary")"
+          container=$(docker create moonoperator:0.1.0)
+          docker cp "$container:/usr/local/bin/moonoperator" "$binary"
+          docker rm "$container"
+          test "$(sha256sum "$binary" | cut -d ' ' -f 1)" = "$(jq -er .executable_sha256 "$download/release-manifest.json")"
+          env -u SOURCE_DATE_EPOCH docker build --no-cache --target distribution -t moonoperator:legacy-comparison .
+          mkdir -p "$baseline/legacy" "$baseline/public"
+          docker save moonoperator:legacy-comparison | tar -xf - -C "$baseline/legacy"
+          tar -xf "$download/moonoperator-v0.1.0-linux-amd64-image.tar.gz" -C "$baseline/public"
+          for name in public legacy; do
+            cd "$baseline/$name"
+            jq '{created, history, rootfs, config, architecture, os}' "$(jq -er '.[0].Config' manifest.json)" > "$report/$name-config.json"
+            layer=$(jq -er '.[0].Layers[0]' manifest.json)
+            tar -tvf "$layer" --full-time --numeric-owner > "$report/$name-layer.txt"
+            mkdir filesystem
+            tar -xf "$layer" --no-same-owner -C filesystem
+          done
+          diff -rq --no-dereference "$baseline/public/filesystem" "$baseline/legacy/filesystem" > "$report/legacy-content-diff.txt" || test "$?" = 1
+          diff -u "$report/public-config.json" "$report/legacy-config.json" > "$report/legacy-config-diff.txt" || test "$?" = 1
+          diff -u "$report/public-layer.txt" "$report/legacy-layer.txt" > "$report/legacy-timestamp-diff.txt" || test "$?" = 1
+          test -s "$report/legacy-config-diff.txt"
+          test -s "$report/legacy-timestamp-diff.txt"
+      - name: Rebuild the image from two different directories
+        run: |
+          source_archive="$RUNNER_TEMP/source"
+          report="$RUNNER_TEMP/report"
+          cfg_filter='.[0] | {id: .Id, created: .Created, platform: [.Os, .Architecture], rootfs: .RootFS.Layers, user: .Config.User, entrypoint: .Config.Entrypoint}'
+          for variant in a b; do
+            case "$variant" in
+              a) path="$RUNNER_TEMP/short"; tag=moonoperator:rebuild-v0.1.0 ;;
+              b) path="$RUNNER_TEMP/unrelated/longer/nested/location"; tag=moonoperator:rebuild-v0.1.0-b ;;
+            esac
+            mkdir -p "$path"
+            tar -xzf "$source_archive/project.tar.gz" -C "$path"
+            cd "$path/MoonOperator"
+            test ! -e _build
+            cp -a "$source_archive/mooncakes" .mooncakes
+            cp "$GITHUB_WORKSPACE/Dockerfile" Dockerfile
+            moon build --frozen --strip --target native --release cmd/moonapp cmd/manifests
+            sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe > "$report/$variant-executable.txt"
+            docker build --no-cache --build-arg "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" --target distribution -t "$tag" .
+            docker image inspect "$tag" | jq "$cfg_filter" > "$report/$variant-image.json"
+            printf '%s\n' "$PWD" > "$report/$variant-source-directory.txt"
+          done
+          cmp "$report/a-executable.txt" "$report/b-executable.txt"
+          cmp "$report/a-image.json" "$report/b-image.json"
+          jq -e --arg created "$(date -u -d "@$SOURCE_DATE_EPOCH" '+%Y-%m-%dT%H:%M:%SZ')" '
+            .created == $created and .platform == ["linux", "amd64"] and
+            (.rootfs | length) == 1 and .user == "65532:65532" and
+            .entrypoint == ["/usr/local/bin/moonoperator"]
+          ' "$report/a-image.json"
+      - name: Load the reproducible image in Kind
+        run: |
+          curl --retry 3 --retry-all-errors --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
+          sha256sum --check tools/kind-linux.sha256
+          chmod +x /tmp/kind
+          /tmp/kind create cluster --name moonoperator-release --image kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5 --wait 120s
+          /tmp/kind load docker-image moonoperator:0.1.0 moonoperator:rebuild-v0.1.0 --name moonoperator-release
+          kubectl --context kind-moonoperator-release version -o json > "$RUNNER_TEMP/report/kubernetes.json"
+          moon run scripts/published-release-check.mbtx -- "$RUNNER_TEMP/short/MoonOperator" "$RUNNER_TEMP/report"
+      - name: Remove the disposable cluster
+        if: always()
+        run: |
+          if test -x /tmp/kind; then /tmp/kind delete cluster --name moonoperator-release; fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: reproducible-image-evidence
+          path: ${{ runner.temp }}/report/
+          if-no-files-found: warn

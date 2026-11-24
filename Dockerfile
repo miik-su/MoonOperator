@@ -36,6 +36,7 @@ ENTRYPOINT ["/usr/local/bin/moonoperator"]
 # components and their notices. The Ubuntu filesystem stays in CI.
 FROM runtime AS distribution-files
 USER 0:0
+ARG SOURCE_DATE_EPOCH=0
 RUN set -eu; \
     mkdir -p /distribution/lib64 /distribution/etc /distribution/var/lib/dpkg; \
     for name in libc.so.6 libnss_dns.so.2 libnss_files.so.2 libcrypto.so.3 libssl.so.3; do \
@@ -53,7 +54,8 @@ RUN set -eu; \
       libc6 libssl3t64 ca-certificates > /distribution/usr/share/doc/moonoperator/binary-source-packages.tsv; \
     printf 'root:x:0:0:root:/root:/sbin/nologin\nmoonoperator:x:65532:65532:MoonOperator:/:/sbin/nologin\n' > /distribution/etc/passwd; \
     printf 'root:x:0:\nmoonoperator:x:65532:\n' > /distribution/etc/group; \
-    printf 'passwd: files\ngroup: files\nhosts: files dns\n' > /distribution/etc/nsswitch.conf
+    printf 'passwd: files\ngroup: files\nhosts: files dns\n' > /distribution/etc/nsswitch.conf; \
+    find /distribution -exec touch -h -d "@$SOURCE_DATE_EPOCH" {} +
 
 FROM scratch AS distribution
 COPY --from=distribution-files /distribution /
