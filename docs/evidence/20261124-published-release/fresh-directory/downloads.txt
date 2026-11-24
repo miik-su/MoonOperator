@@ -1,0 +1,4 @@
+moonoperator-v0.1.0-linux-amd64-image.tar.gz: OK
+moonoperator-v0.1.0-project-runtime-sources.tar.gz: OK
+moonoperator-v0.1.0-linux-amd64-system-sources.tar: OK
+release-manifest.json: OK

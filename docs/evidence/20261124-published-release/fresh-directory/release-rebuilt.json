@@ -1,0 +1,10 @@
+{
+  "namespace": "release-rebuilt",
+  "image": "moonoperator:rebuild-v0.1.0",
+  "running_image_id": "sha256:bd55b6e56df3fabd0df8713aa93e1ad7d107ce6f4bcca8f0cd139e27c35c7f31",
+  "operator_ready": true,
+  "moonapp_resources_applied": true,
+  "service_port_before": 8080,
+  "service_port_after": 8081,
+  "fixture_replicas": 0
+}
