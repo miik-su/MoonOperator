@@ -1,0 +1,101 @@
+--- /home/runner/work/_temp/report/public-layer.txt	2026-11-24 13:38:44.825876682 +0000
++++ /home/runner/work/_temp/report/legacy-layer.txt	2026-11-24 13:38:44.846877233 +0000
+@@ -1,24 +1,24 @@
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 etc/
+--rw-r--r-- 0/0              32 2026-11-23 13:24:12 etc/group
+--rw-r--r-- 0/0              44 2026-11-23 13:24:12 etc/nsswitch.conf
+--rw-r--r-- 0/0              92 2026-11-23 13:24:12 etc/passwd
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 etc/ssl/
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 etc/ssl/certs/
+--rw-r--r-- 0/0          180744 2026-11-23 13:24:12 etc/ssl/certs/ca-certificates.crt
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 lib/
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 lib/x86_64-linux-gnu/
+--rwxr-xr-x 0/0         2129424 2026-11-23 13:24:12 lib/x86_64-linux-gnu/libc.so.6
+--rw-r--r-- 0/0         5309400 2026-11-23 13:24:12 lib/x86_64-linux-gnu/libcrypto.so.3
+--rw-r--r-- 0/0           14336 2026-11-23 13:24:12 lib/x86_64-linux-gnu/libnss_dns.so.2
+--rw-r--r-- 0/0           14336 2026-11-23 13:24:12 lib/x86_64-linux-gnu/libnss_files.so.2
+--rw-r--r-- 0/0          696512 2026-11-23 13:24:12 lib/x86_64-linux-gnu/libssl.so.3
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 lib64/
+--rwxr-xr-x 0/0          236616 2026-11-23 13:24:12 lib64/ld-linux-x86-64.so.2
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 etc/
++-rw-r--r-- 0/0              32 2026-11-24 13:38:44 etc/group
++-rw-r--r-- 0/0              44 2026-11-24 13:38:44 etc/nsswitch.conf
++-rw-r--r-- 0/0              92 2026-11-24 13:38:44 etc/passwd
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 etc/ssl/
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 etc/ssl/certs/
++-rw-r--r-- 0/0          180744 2026-11-24 13:38:44 etc/ssl/certs/ca-certificates.crt
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 lib/
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 lib/x86_64-linux-gnu/
++-rwxr-xr-x 0/0         2129424 2026-11-24 13:38:44 lib/x86_64-linux-gnu/libc.so.6
++-rw-r--r-- 0/0         5309400 2026-11-24 13:38:44 lib/x86_64-linux-gnu/libcrypto.so.3
++-rw-r--r-- 0/0           14336 2026-11-24 13:38:44 lib/x86_64-linux-gnu/libnss_dns.so.2
++-rw-r--r-- 0/0           14336 2026-11-24 13:38:44 lib/x86_64-linux-gnu/libnss_files.so.2
++-rw-r--r-- 0/0          696512 2026-11-24 13:38:44 lib/x86_64-linux-gnu/libssl.so.3
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 lib64/
++-rwxr-xr-x 0/0          236616 2026-11-24 13:38:44 lib64/ld-linux-x86-64.so.2
+ drwxr-xr-x 0/0               0 2026-10-24 14:05:10 usr/
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/local/
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/local/bin/
+--rwxr-xr-x 0/0         1763400 2026-11-23 13:24:12 usr/local/bin/moonoperator
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/share/
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/local/
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/local/bin/
++-rwxr-xr-x 0/0         1763400 2026-11-24 13:38:44 usr/local/bin/moonoperator
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/share/
+ drwxr-xr-x 0/0               0 2026-10-24 14:11:52 usr/share/common-licenses/
+ -rw-r--r-- 0/0           11358 2025-01-30 09:27:20 usr/share/common-licenses/Apache-2.0
+ -rw-r--r-- 0/0            6111 2025-01-30 09:27:20 usr/share/common-licenses/Artistic
+@@ -37,28 +37,28 @@
+ -rw-r--r-- 0/0            7652 2025-01-30 09:27:20 usr/share/common-licenses/LGPL-3
+ -rw-r--r-- 0/0           25755 2025-01-30 09:27:20 usr/share/common-licenses/MPL-1.1
+ -rw-r--r-- 0/0           16726 2025-01-30 09:27:20 usr/share/common-licenses/MPL-2.0
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/share/doc/
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/share/doc/ca-certificates/
+--rw-r--r-- 0/0           18940 2026-11-23 13:24:12 usr/share/doc/ca-certificates/copyright
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/share/doc/libc6/
+--rw-r--r-- 0/0           26462 2026-11-23 13:24:12 usr/share/doc/libc6/copyright
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/share/doc/libssl3t64/
+--rw-r--r-- 0/0            2543 2026-11-23 13:24:12 usr/share/doc/libssl3t64/copyright
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 usr/share/doc/moonoperator/
+--rw-r--r-- 0/0           11358 2026-11-23 13:22:56 usr/share/doc/moonoperator/LICENSE
+--rw-r--r-- 0/0            3755 2026-11-23 13:22:56 usr/share/doc/moonoperator/LICENSING.md
+--rw-r--r-- 0/0             327 2026-11-23 13:22:56 usr/share/doc/moonoperator/NOTICE
+--rw-r--r-- 0/0            2789 2026-11-23 13:22:56 usr/share/doc/moonoperator/THIRD_PARTY_NOTICES.md
+--rw-r--r-- 0/0             211 2026-11-23 13:24:12 usr/share/doc/moonoperator/binary-source-packages.tsv
+-drwxr-xr-x 0/0               0 2026-11-23 13:22:56 usr/share/doc/moonoperator/third_party/
+--rw-r--r-- 0/0           11358 2026-11-23 13:22:56 usr/share/doc/moonoperator/third_party/async-LICENSE
+--rw-r--r-- 0/0            1529 2026-11-23 13:22:56 usr/share/doc/moonoperator/third_party/libbacktrace-LICENSE
+--rw-r--r-- 0/0            1096 2026-11-23 13:22:56 usr/share/doc/moonoperator/third_party/mimalloc-LICENSE
+--rw-r--r-- 0/0           11367 2026-11-23 13:22:56 usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
+--rw-r--r-- 0/0            1059 2026-11-23 13:22:56 usr/share/doc/moonoperator/third_party/simdutf-LICENSE-MIT
+--rw-r--r-- 0/0            2428 2026-11-23 13:22:56 usr/share/doc/moonoperator/third_party/yaml-LICENSE
+--rw-r--r-- 0/0             105 2026-11-23 13:24:12 usr/share/moonoperator-runtime-packages.txt
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 var/
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 var/lib/
+-drwxr-xr-x 0/0               0 2026-11-23 13:24:12 var/lib/dpkg/
+--rw-r--r-- 0/0            3204 2026-11-23 13:24:12 var/lib/dpkg/status
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/share/doc/
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/share/doc/ca-certificates/
++-rw-r--r-- 0/0           18940 2026-11-24 13:38:44 usr/share/doc/ca-certificates/copyright
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/share/doc/libc6/
++-rw-r--r-- 0/0           26462 2026-11-24 13:38:44 usr/share/doc/libc6/copyright
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/share/doc/libssl3t64/
++-rw-r--r-- 0/0            2543 2026-11-24 13:38:44 usr/share/doc/libssl3t64/copyright
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 usr/share/doc/moonoperator/
++-rw-r--r-- 0/0           11358 2026-11-23 13:22:19 usr/share/doc/moonoperator/LICENSE
++-rw-r--r-- 0/0            3755 2026-11-23 13:22:19 usr/share/doc/moonoperator/LICENSING.md
++-rw-r--r-- 0/0             327 2026-11-23 13:22:19 usr/share/doc/moonoperator/NOTICE
++-rw-r--r-- 0/0            2789 2026-11-23 13:22:19 usr/share/doc/moonoperator/THIRD_PARTY_NOTICES.md
++-rw-r--r-- 0/0             211 2026-11-24 13:38:44 usr/share/doc/moonoperator/binary-source-packages.tsv
++drwxr-xr-x 0/0               0 2026-11-23 13:22:19 usr/share/doc/moonoperator/third_party/
++-rw-r--r-- 0/0           11358 2026-11-23 13:22:19 usr/share/doc/moonoperator/third_party/async-LICENSE
++-rw-r--r-- 0/0            1529 2026-11-23 13:22:19 usr/share/doc/moonoperator/third_party/libbacktrace-LICENSE
++-rw-r--r-- 0/0            1096 2026-11-23 13:22:19 usr/share/doc/moonoperator/third_party/mimalloc-LICENSE
++-rw-r--r-- 0/0           11367 2026-11-23 13:22:19 usr/share/doc/moonoperator/third_party/moonbit-core-LICENSE
++-rw-r--r-- 0/0            1059 2026-11-23 13:22:19 usr/share/doc/moonoperator/third_party/simdutf-LICENSE-MIT
++-rw-r--r-- 0/0            2428 2026-11-23 13:22:19 usr/share/doc/moonoperator/third_party/yaml-LICENSE
++-rw-r--r-- 0/0             105 2026-11-24 13:38:44 usr/share/moonoperator-runtime-packages.txt
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 var/
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 var/lib/
++drwxr-xr-x 0/0               0 2026-11-24 13:38:44 var/lib/dpkg/
++-rw-r--r-- 0/0            3204 2026-11-24 13:38:44 var/lib/dpkg/status

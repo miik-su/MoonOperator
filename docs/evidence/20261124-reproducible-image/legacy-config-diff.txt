@@ -1,0 +1,35 @@
+--- /home/runner/work/_temp/report/public-config.json	2026-11-24 13:38:44.821876576 +0000
++++ /home/runner/work/_temp/report/legacy-config.json	2026-11-24 13:38:44.842877128 +0000
+@@ -1,19 +1,19 @@
+ {
+-  "created": "2026-11-23T13:24:12.290836419Z",
++  "created": "2026-11-24T13:38:44.649423983Z",
+   "history": [
+     {
+-      "created": "2026-11-23T13:24:12.290836419Z",
++      "created": "2026-11-24T13:38:44.649423983Z",
+       "created_by": "COPY /distribution / # buildkit",
+       "comment": "buildkit.dockerfile.v0"
+     },
+     {
+-      "created": "2026-11-23T13:24:12.290836419Z",
++      "created": "2026-11-24T13:38:44.649423983Z",
+       "created_by": "USER 65532:65532",
+       "comment": "buildkit.dockerfile.v0",
+       "empty_layer": true
+     },
+     {
+-      "created": "2026-11-23T13:24:12.290836419Z",
++      "created": "2026-11-24T13:38:44.649423983Z",
+       "created_by": "ENTRYPOINT [\"/usr/local/bin/moonoperator\"]",
+       "comment": "buildkit.dockerfile.v0",
+       "empty_layer": true
+@@ -22,7 +22,7 @@
+   "rootfs": {
+     "type": "layers",
+     "diff_ids": [
+-      "sha256:08d03351741e1374f667a0facea46cda7b167f8a354f3aeeae96542b279ffc4d"
++      "sha256:ad800b37527c9b876a85d24a6ec1f75d642bcb1bdb9ff0913bac6045d76a7210"
+     ]
+   },
+   "config": {
