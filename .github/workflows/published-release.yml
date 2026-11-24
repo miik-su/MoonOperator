@@ -81,7 +81,11 @@ jobs:
           moon -C "$sdk/lib/core" bundle --frozen --all
           moon version --all | tee "$RUNNER_TEMP/report/toolchain.txt"
           gcc -dumpfullversion | tee "$RUNNER_TEMP/report/gcc-version.txt"
+          # Frozen builds still need a registry index. Package sources are local.
+          moon update
           moon build --frozen cmd/moonapp cmd/manifests --target native --release
+          diff -r ../mooncakes/moonbitlang/async .mooncakes/moonbitlang/async
+          diff -r ../mooncakes/moonbit-community/yaml .mooncakes/moonbit-community/yaml
           sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe | tee "$RUNNER_TEMP/report/rebuilt-binary.txt"
           docker build --no-cache --target distribution -t moonoperator:rebuild-v0.1.0 .
           echo "$sdk/bin" >> "$GITHUB_PATH"
