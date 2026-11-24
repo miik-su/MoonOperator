@@ -33,3 +33,27 @@ SIMD UTF objects and libbacktrace archive supplied no code to the audited
 executable. The [GCC exception](https://www.gnu.org/licenses/gcc-exception-3.1.en.html)
 and [MoonBit compiler output terms](https://github.com/moonbitlang/moonbit-compiler/blob/main/LICENSE.TXT)
 are distinct from the project and runtime component licenses.
+
+## Release candidate checks
+
+The [focused Kind workflow](https://github.com/miik-su/MoonOperator/actions/runs/45183271041)
+passed on [Kubernetes v1.36.4](kind-v1.36.4.md) and
+[Kubernetes v1.37.0](kind-v1.37.0.md), both with Calico 3.33.0. The jobs
+verified MoonApp reconciliation and drift repair, restart recovery and garbage
+collection, real API operations and watch, TLS, RBAC and NetworkPolicy.
+The v1.37.0 job scanned the release image and reloaded its Docker archive,
+confirming that the saved image retained the tested image ID.
+
+[Trivy 0.76.2](os-scan.json) reported zero findings for the three runtime
+package records. The [package versions](runtime-source-packages.tsv) match the
+signed source archive. The scan covers those three package records with the
+recorded Ubuntu 24.04 advisory database. The native audit separately identifies
+the linked compiler objects. No full native regression or long soak was run
+for this release.
+
+Independent archive checks confirmed one Linux amd64 filesystem layer, user
+`65532:65532`, the expected startup command and an executable SHA-256 matching
+the native audit. The paired project archive includes the exact tested Git
+revision, generated native C and the pinned MoonBit runtime and core.
+See the [release manifest](release-manifest.json) and the
+[published checksums](https://github.com/miik-su/MoonOperator/releases/download/v0.1.0/SHA256SUMS).

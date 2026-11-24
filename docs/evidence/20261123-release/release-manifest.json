@@ -1,0 +1,38 @@
+{
+  "version": "0.1.0",
+  "source_commit": "e42f5734e1b1ef8f2b14797d2825a3c86ee16607",
+  "platform": "linux/amd64",
+  "image_tag": "moonoperator:0.1.0",
+  "image_id": "sha256:dde0d4357200878741b12ca33c51c05ffaeb681aaa362268e90378e27601de71",
+  "executable_sha256": "9b8a55f7cb737363765bcb9a62c5e6a5d81eba59376499874a47f0ae455a6119",
+  "runtime_user": "65532:65532",
+  "filesystem_layers": 1,
+  "kind_workflow": "https://github.com/miik-su/MoonOperator/actions/runs/45183271041",
+  "kind_server_versions": [
+    "v1.36.4",
+    "v1.37.0"
+  ],
+  "cni": "Calico 3.33.0",
+  "native_audit_workflow": "https://github.com/miik-su/MoonOperator/actions/runs/45039422655",
+  "package_scan": {
+    "scope": "Ubuntu 24.04 source package advisories for the three runtime package records",
+    "package_count": 3,
+    "findings": 0,
+    "scanner": "Trivy 0.76.2",
+    "database": "Version: 0.76.2\nVulnerability DB:\n  Version: 2\n  UpdatedAt: 2026-11-23 07:04:04.632673631 +0000 UTC\n  NextUpdate: 2026-11-24 07:04:04.63267311 +0000 UTC\n  DownloadedAt: 2026-11-23 13:28:50.420570501 +0000 UTC"
+  },
+  "assets": {
+    "moonoperator-v0.1.0-linux-amd64-image.tar.gz": {
+      "bytes": 4129990,
+      "sha256": "56d45b2c85a0d46f1aec6c5600aa15271a4663f164ff1ba3bf7fc7492b295f15"
+    },
+    "moonoperator-v0.1.0-project-runtime-sources.tar.gz": {
+      "bytes": 6466663,
+      "sha256": "0d3e73a1e4b9dd4cb4090aee9fcc170c325873d8c13be491dda0205d00b6297d"
+    },
+    "moonoperator-v0.1.0-linux-amd64-system-sources.tar": {
+      "bytes": 128751104,
+      "sha256": "f1a79b8e390844915fb47372007c20c4f0eaf8d7d7b923309ae9688d65bc29f3"
+    }
+  }
+}
