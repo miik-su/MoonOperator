@@ -79,13 +79,20 @@ jobs:
             test ! -e _build
             cp -a "$source_archive/mooncakes" .mooncakes
             cp "$GITHUB_WORKSPACE/Dockerfile" Dockerfile
-            moon build --frozen --strip --target native --release cmd/moonapp cmd/manifests
+            # Compile both physical directories at the original logical release
+            # path. The bind mount exists only inside the child namespace.
+            sudo -n unshare --mount --propagation private -- bash -euc '
+              mount --bind "$1" "$2"
+              cd "$2"
+              exec runuser -u "$3" -- env MOON_TOOLCHAIN_ROOT="$4" MOONBIT_ALLOCATOR=system +                "$4/bin/moon" build --frozen --target native --release cmd/moonapp cmd/manifests
+            ' bash "$PWD" "$GITHUB_WORKSPACE" "$(id -un)" "$MOON_TOOLCHAIN_ROOT"
             sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe > "$report/$variant-executable.txt"
             docker build --no-cache --build-arg "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" --target distribution -t "$tag" .
             docker image inspect "$tag" | jq "$cfg_filter" > "$report/$variant-image.json"
             printf '%s\n' "$PWD" > "$report/$variant-source-directory.txt"
           done
           cmp "$report/a-executable.txt" "$report/b-executable.txt"
+          test "$(cut -d ' ' -f 1 "$report/a-executable.txt")" = "$(jq -er .executable_sha256 "$RUNNER_TEMP/download/release-manifest.json")"
           cmp "$report/a-image.json" "$report/b-image.json"
           jq -e --arg created "$(date -u -d "@$SOURCE_DATE_EPOCH" '+%Y-%m-%dT%H:%M:%SZ')" '
             .created == $created and .platform == ["linux", "amd64"] and
