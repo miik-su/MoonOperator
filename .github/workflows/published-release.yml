@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
+          path: .acceptance-harness
       - name: Verify all public release downloads
         run: |
           mkdir "$RUNNER_TEMP/downloads" "$RUNNER_TEMP/report" "$RUNNER_TEMP/source" "$RUNNER_TEMP/system"
@@ -62,20 +63,25 @@ jobs:
         run: |
           gzip -dk project.tar.gz
           test "$(git get-tar-commit-id < project.tar)" = "$SOURCE_SHA"
+          # MoonBit emits absolute source paths. Use the release build directory
+          # to compare the executable without introducing a different prefix.
+          test ! -e "$GITHUB_WORKSPACE/moon.mod"
           tar -xf project.tar
-          cd MoonOperator
+          cp -a MoonOperator/. "$GITHUB_WORKSPACE/"
+          cd "$GITHUB_WORKSPACE"
           test ! -e _build
           test ! -e .mooncakes
-          cp -a ../mooncakes .mooncakes
+          archive="$RUNNER_TEMP/source"
+          cp -a "$archive/mooncakes" .mooncakes
           curl --retry 3 --retry-all-errors --max-time 120 -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
-          cp ../moonbit-core.tar.gz /tmp/core.tar.gz
+          cp "$archive/moonbit-core.tar.gz" /tmp/core.tar.gz
           sha256sum --check tools/moonbit-linux.sha256
           sdk="$RUNNER_TEMP/moonoperator-scalar-sdk"
           mkdir -p "$sdk/lib"
           tar --exclude=./lib/simdutf.o --exclude=./lib/moonbit_simdutf.o -xzf /tmp/moonbit.tar.gz -C "$sdk"
           tar -xzf /tmp/core.tar.gz -C "$sdk/lib"
-          diff -r ../moonbit-sdk/runtime "$sdk/lib/runtime"
-          diff -r ../moonbit-sdk/include "$sdk/include"
+          diff -r "$archive/moonbit-sdk/runtime" "$sdk/lib/runtime"
+          diff -r "$archive/moonbit-sdk/include" "$sdk/include"
           chmod +x "$sdk/bin/"* "$sdk/bin/internal/tcc"
           export PATH="$sdk/bin:$PATH" MOON_TOOLCHAIN_ROOT="$sdk" MOONBIT_ALLOCATOR=system
           moon -C "$sdk/lib/core" bundle --frozen --all
@@ -84,8 +90,10 @@ jobs:
           # Frozen builds still need a registry index. Package sources are local.
           moon update
           moon build --frozen cmd/moonapp cmd/manifests --target native --release
-          diff -r ../mooncakes/moonbitlang/async .mooncakes/moonbitlang/async
-          diff -r ../mooncakes/moonbit-community/yaml .mooncakes/moonbit-community/yaml
+          diff -r "$archive/mooncakes/moonbitlang/async" .mooncakes/moonbitlang/async
+          diff -r "$archive/mooncakes/moonbit-community/yaml" .mooncakes/moonbit-community/yaml
+          sha256sum "$archive/generated-native/cmd/moonapp/moonapp.c" _build/native/release/build/cmd/moonapp/moonapp.c | tee "$RUNNER_TEMP/report/generated-c.txt"
+          dpkg-query -W gcc-13 libc6-dev libgcc-13-dev | tee "$RUNNER_TEMP/report/builder-packages.tsv"
           sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe | tee "$RUNNER_TEMP/report/rebuilt-binary.txt"
           docker build --no-cache --target distribution -t moonoperator:rebuild-v0.1.0 .
           echo "$sdk/bin" >> "$GITHUB_PATH"
@@ -125,7 +133,7 @@ jobs:
           kubectl --context kind-moonoperator-release version -o json | tee "$RUNNER_TEMP/report/kubernetes.json"
       - name: Deploy both images and check reconciliation
         run: |
-          moon run scripts/published-release-check.mbtx -- "$RUNNER_TEMP/source/MoonOperator" "$RUNNER_TEMP/report"
+          moon run .acceptance-harness/scripts/published-release-check.mbtx -- "$GITHUB_WORKSPACE" "$RUNNER_TEMP/report"
       - name: Remove the disposable cluster
         if: always()
         run: |
