@@ -76,9 +76,11 @@ jobs:
           tar -xzf /tmp/core.tar.gz -C "$sdk/lib"
           diff -r ../moonbit-sdk/runtime "$sdk/lib/runtime"
           diff -r ../moonbit-sdk/include "$sdk/include"
+          chmod +x "$sdk/bin/"* "$sdk/bin/internal/tcc"
           export PATH="$sdk/bin:$PATH" MOON_TOOLCHAIN_ROOT="$sdk" MOONBIT_ALLOCATOR=system
           moon -C "$sdk/lib/core" bundle --frozen --all
           moon version --all | tee "$RUNNER_TEMP/report/toolchain.txt"
+          gcc -dumpfullversion | tee "$RUNNER_TEMP/report/gcc-version.txt"
           moon build --frozen cmd/moonapp cmd/manifests --target native --release
           sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe | tee "$RUNNER_TEMP/report/rebuilt-binary.txt"
           docker build --no-cache --target distribution -t moonoperator:rebuild-v0.1.0 .
