@@ -21,14 +21,16 @@ See [security reporting](SECURITY.md), [contributing](CONTRIBUTING.md),
 provides the Docker image archive, matching project and runtime sources,
 matching system and compiler sources, and SHA-256 checksums.
 
+Place all five release assets in one directory, then verify and load the image.
+
 ```sh
-sha256sum --check SHA256SUMS --ignore-missing
+sha256sum --check --strict SHA256SUMS
 docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
 ```
 
 The archive loads as `moonoperator:0.1.0`. See the
 [deployment instructions](docs/deployment.md#in-cluster-process) and
-[release verification](docs/evidence/20261123-release/README.md).
+[post-release download, rebuild and deployment results](docs/evidence/20261124-published-release/README.md).
 
 The implementation follows the linked MoonOperator design: dynamic resources,
 an injectable Kubernetes client, LIST/WATCH recovery, a bounded cache and work
@@ -188,5 +190,5 @@ cover the 94 installed packages and distinguish selected archive members
 from unused linker inputs. The [single-layer production evidence](docs/evidence/20261122-production-layers/README.md)
 records the final filesystem export and the verified Ubuntu source bundle.
 The Linux amd64 release profile uses the pinned scalar UTF runtime and system
-allocator. The [isolated build instructions](docs/deployment.md#in-cluster-process)
+allocator. The [release rebuild instructions](docs/deployment.md#rebuild-the-release-image)
 show how to build the same profile.

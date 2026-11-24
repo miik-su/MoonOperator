@@ -26,23 +26,37 @@ explicit exclusions are in project-scope.md and transport/config.mbt.
 ## In-cluster process
 
 To use the Linux amd64 release archive on a development cluster, download the
-image and `SHA256SUMS` from
+image, both source archives, `release-manifest.json` and `SHA256SUMS` from
 [GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0),
 verify the archive, and load it. The development manifest uses
 `moonoperator:dev`, so tag the loaded image with that name before importing
 it into your Kind cluster.
 
 ```sh
-sha256sum --check SHA256SUMS --ignore-missing
+sha256sum --check --strict SHA256SUMS
 docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
 docker tag moonoperator:0.1.0 moonoperator:dev
 ```
 
-Build on Linux amd64 with the same isolated scalar UTF SDK used by CI.
-Download the pinned Linux SDK and core archives to the paths in
-[the setup action](../.github/actions/setup-moonbit/action.yml), then verify and
-extract them into a fresh directory. Local library development can continue
-using the normal SDK.
+## Rebuild the release image
+
+Use Linux amd64 with GCC, OpenSSL development headers and Docker. After
+verifying the release downloads, extract the project and its supplied
+dependencies into a fresh directory. The core archive is also supplied.
+
+```sh
+mkdir release-source
+tar -xzf moonoperator-v0.1.0-project-runtime-sources.tar.gz -C release-source
+tar -xzf release-source/project.tar.gz -C release-source
+cp -a release-source/mooncakes release-source/MoonOperator/.mooncakes
+cp release-source/moonbit-core.tar.gz /tmp/core.tar.gz
+cd release-source/MoonOperator
+```
+
+Download the pinned Linux SDK to `/tmp/moonbit.tar.gz` using the URL in
+[the setup action](../.github/actions/setup-moonbit/action.yml). For a Git
+checkout, also download the core archive from the action. Use the same
+isolated scalar UTF SDK and system allocator as the release build.
 
 ```sh
 sha256sum --check tools/moonbit-linux.sha256
@@ -52,18 +66,27 @@ tar --exclude=./lib/simdutf.o --exclude=./lib/moonbit_simdutf.o -xzf /tmp/moonbi
 tar -xzf /tmp/core.tar.gz -C "$sdk/lib"
 test ! -e "$sdk/lib/simdutf.o"
 test ! -e "$sdk/lib/moonbit_simdutf.o"
+chmod +x "$sdk/bin/"* "$sdk/bin/internal/tcc"
 export PATH="$sdk/bin:$PATH"
 export MOON_TOOLCHAIN_ROOT="$sdk" MOONBIT_ALLOCATOR=system
 moon -C "$sdk/lib/core" bundle --warn-list -a --all
 moon update
 ```
 
-Build the native executable and image from the repository root:
+For the extracted release source, `moon update` supplies the registry index.
+The frozen build uses the module sources already copied into `.mooncakes`.
 
 ```sh
-moon build cmd/moonapp --target native --release
-docker build --target distribution -t moonoperator:dev .
+moon build --frozen cmd/moonapp cmd/manifests --target native --release
+docker build --no-cache --target distribution -t moonoperator:dev .
 ```
+
+For a Git checkout without the bundled module sources, omit `--frozen`.
+The image build installs binary packages from the pinned Ubuntu snapshot.
+The paired system source archive contains their source and packaging, plus the
+compiler source for the linked runtime helper and startup objects.
+
+## Install on Kind
 
 config/operator.yaml uses a local image and imagePullPolicy Never for disposable
 Kind acceptance. Load that Linux image into Kind before applying the deployment,
@@ -72,8 +95,22 @@ or adapt the image reference and pull policy for a reviewed registry artifact.
 runtime files. The broader `production` and `acceptance` targets are used for
 internal CI.
 
-Install the generated CRD/RBAC, then apply config/operator.yaml and
-config/diagnostics-networkpolicy.yaml in the same namespace. The runtime reads
+From the project directory, set `cluster` to the name of your disposable Kind
+cluster. Generate the CRD and namespaced RBAC before deploying the operator.
+
+```sh
+cluster=moonoperator-demo
+namespace=moonoperator-demo
+kind load docker-image moonoperator:dev --name "$cluster"
+kubectl --context "kind-$cluster" create namespace "$namespace"
+MOONOPERATOR_NAMESPACE="$namespace" moon run cmd/manifests --target native > bundle.json
+kubectl --context "kind-$cluster" -n "$namespace" apply -f bundle.json
+kubectl --context "kind-$cluster" wait --for=condition=Established crd/moonapps.moonoperator.dev --timeout=60s
+kubectl --context "kind-$cluster" -n "$namespace" apply -f config/operator.yaml
+kubectl --context "kind-$cluster" -n "$namespace" rollout status deployment/moonoperator --timeout=120s
+```
+
+The manifest generator also emits the diagnostics NetworkPolicy. The runtime reads
 the projected ServiceAccount CA/token. The example runs as UID 65532 with a
 read-only root, dropped capabilities, seccomp and 128 MiB memory limit. Keep
 replicas=1. Additional replicas have no leader-election protection.
