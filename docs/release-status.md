@@ -93,7 +93,12 @@ Historical public evidence:
 - `moon package` succeeds offline and produces the 0.1.0 source archive under
   `_build/publish`. No package has been published to Mooncakes.
 
-Remaining release gates are explicit: long-duration (hours/days) soak and leak
+[GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
+provides the experimental Linux amd64 application image and its corresponding
+sources. The [release evidence](evidence/20261123-release/README.md) records
+the tested artifact, package scan and both Kubernetes results.
+
+Remaining work for broader support includes long-duration soak and leak
 investigation, additional Kubernetes/CNI/auth matrices, package namespace/account
 confirmation and Mooncakes publication. The current module namespace is
 `miik-su/moonoperator`, migrated from `mik1e80/moonoperator` on November 14.

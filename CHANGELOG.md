@@ -1,4 +1,9 @@
-# 0.1.0 (unreleased)
+# 0.1.0
+
+Publish the experimental Linux amd64 application image with corresponding
+project, runtime and system sources. The release profile uses the system
+allocator and a minimal application filesystem. Release evidence records the
+image hash, matching sources, Kind acceptance and package scan.
 
 Use the pinned scalar UTF runtime in audited Linux container builds. Require
 the link map to exclude both optional SIMD UTF SDK objects and verify

@@ -2,8 +2,9 @@
 
 A MoonBit-native Kubernetes Operator development framework.
 
-Experimental, unreleased 0.1.0. The source and examples are usable from this
-checkout; no Mooncakes package or stable production support is claimed.
+Experimental 0.1.0 for single-replica development and testing. The source and
+examples are usable from this checkout. Mooncakes publication and stable
+production support remain outside this release scope.
 
 Module: `miik-su/moonoperator` (unpublished; migrated from the development
 namespace `mik1e80/moonoperator`). GitHub source: [miik-su/MoonOperator](https://github.com/miik-su/MoonOperator).
@@ -13,6 +14,21 @@ MoonBit. Third-party names and trademarks belong to their respective owners.
 See [security reporting](SECURITY.md), [contributing](CONTRIBUTING.md),
 [module boundaries](docs/module-boundaries.md) and the
 [security remediation record](docs/security-audit-20261108.md).
+
+## Download the Linux amd64 image
+
+[GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
+provides the Docker image archive, matching project and runtime sources,
+matching system and compiler sources, and SHA-256 checksums.
+
+```sh
+sha256sum --check SHA256SUMS --ignore-missing
+docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
+```
+
+The archive loads as `moonoperator:0.1.0`. See the
+[deployment instructions](docs/deployment.md#in-cluster-process) and
+[release verification](docs/evidence/20261123-release/README.md).
 
 The implementation follows the linked MoonOperator design: dynamic resources,
 an injectable Kubernetes client, LIST/WATCH recovery, a bounded cache and work
@@ -163,7 +179,7 @@ dependencies. The [container security and redistribution guide](docs/container-d
 describes the OS scan, binary linkage evidence, source-package versions and
 remaining obligations for distributing a built image. The
 [image and compatibility evidence](docs/evidence/20261121-container/README.md)
-identifies the scanned build, package findings and both Kind test results.
+identifies the earlier CI image, package findings and both Kind test results.
 The [redistribution evidence](docs/evidence/20261121-redistribution/README.md)
 records verified Ubuntu source signatures, the observed Linux linker inputs,
 the bundled license checks and the Canonical CVE status recheck. The
@@ -171,6 +187,6 @@ the bundled license checks and the Canonical CVE status recheck. The
 cover the 94 installed packages and distinguish selected archive members
 from unused linker inputs. The [single-layer production evidence](docs/evidence/20261122-production-layers/README.md)
 records the final filesystem export and the verified Ubuntu source bundle.
-The audited Linux image uses [the pinned scalar UTF runtime](docs/evidence/20261122-scalar-utf/README.md).
-Use the [isolated build instructions](docs/deployment.md#in-cluster-process) to
-use the same runtime selection.
+The Linux amd64 release profile uses the pinned scalar UTF runtime and system
+allocator. The [isolated build instructions](docs/deployment.md#in-cluster-process)
+show how to build the same profile.

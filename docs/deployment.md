@@ -25,6 +25,19 @@ explicit exclusions are in project-scope.md and transport/config.mbt.
 
 ## In-cluster process
 
+To use the Linux amd64 release archive on a development cluster, download the
+image and `SHA256SUMS` from
+[GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0),
+verify the archive, and load it. The development manifest uses
+`moonoperator:dev`, so tag the loaded image with that name before importing
+it into your Kind cluster.
+
+```sh
+sha256sum --check SHA256SUMS --ignore-missing
+docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
+docker tag moonoperator:0.1.0 moonoperator:dev
+```
+
 Build on Linux amd64 with the same isolated scalar UTF SDK used by CI.
 Download the pinned Linux SDK and core archives to the paths in
 [the setup action](../.github/actions/setup-moonbit/action.yml), then verify and
@@ -49,13 +62,15 @@ Build the native executable and image from the repository root:
 
 ```sh
 moon build cmd/moonapp --target native --release
-docker build --target production -t moonoperator:dev .
+docker build --target distribution -t moonoperator:dev .
 ```
 
 config/operator.yaml uses a local image and imagePullPolicy Never for disposable
 Kind acceptance. Load that Linux image into Kind before applying the deployment,
-or adapt the image reference/pull policy for a reviewed registry artifact. There
-is no published production image/release implied by that development tag.
+or adapt the image reference and pull policy for a reviewed registry artifact.
+`distribution` assembles the application and the selected Linux amd64
+runtime files. The broader `production` and `acceptance` targets are used for
+internal CI.
 
 Install the generated CRD/RBAC, then apply config/operator.yaml and
 config/diagnostics-networkpolicy.yaml in the same namespace. The runtime reads

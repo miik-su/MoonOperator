@@ -1,9 +1,14 @@
 # Production image security and redistribution
 
-The Dockerfile builds a Linux image for single-replica development and test
-deployments. CI builds and uses images on their runners and archives evidence
-files. The source tree and test reports are available on GitHub. There is no
-official production image release or written source offer from this project.
+The `distribution` Dockerfile target builds a Linux amd64 application image
+for single-replica development and testing. It assembles selected runtime files
+from the pinned Ubuntu packages into a scratch filesystem. The broader
+`production` and `acceptance` images remain internal CI artifacts.
+
+The [GitHub release](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
+offers the image and its two corresponding source archives together. The
+[release audit](evidence/20261123-release/README.md) identifies the exact
+package versions, selected native link inputs and check results.
 
 ## Package security and scope
 
@@ -17,11 +22,13 @@ target with probes. The image build checks the Ubuntu
 include distribution backports. Use vendor package revisions when evaluating
 [OpenSSL advisories](https://ubuntu.com/security/notices/USN-8847-1).
 
-The scan uses the locally built production image and a checksum-verified
+The scan uses the built image by ID and a checksum-verified
 Trivy release. It records the image ID, source commit, scanner version and
 database metadata. Its scope is installed OS packages in the effective image
-filesystem. The host kernel, intermediate build layers, Windows
-SChannel, libraries loaded only at runtime, static code and the sample's
+filesystem. The release image's package records cover the glibc, OpenSSL and CA
+files copied into it. Trivy uses the Ubuntu 24.04 advisory namespace explicitly
+for that scratch image. The host kernel, intermediate build layers, Windows
+SChannel, static code and the sample's
 external NGINX image require separate evidence. Findings with no fixed Ubuntu
 revision remain visible. Wasmtime is separately checked by exact package
 version and the optional executable is outside the production image.
@@ -59,11 +66,12 @@ production image. For a public release, attach the matching sources and
 notices alongside the image or supply another license-appropriate delivery
 mechanism. Include applicable SDK and compiler source and notice obligations.
 
-The production CI build extracts the pinned Linux SDK into an isolated
+The Linux release build extracts the pinned Linux SDK into an isolated
 toolchain directory and omits the two optional precompiled SIMD UTF objects.
 MoonBit compiles its scalar UTF implementation from the runtime source in
-that SDK. The redistribution workflow records the linker map and symbol table
-for the production executable it audits. See [the production UTF evidence](evidence/20261122-scalar-utf/README.md)
+that SDK, and the system allocator avoids the SDK's bundled allocator object.
+The redistribution workflow records the linker map and symbol table for the
+executable it audits. See [the production UTF evidence](evidence/20261122-scalar-utf/README.md)
 and [local build steps](deployment.md#in-cluster-process).
 See [Ubuntu's archive documentation](https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/package-archive/),
 [GPL v2 section 3](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
