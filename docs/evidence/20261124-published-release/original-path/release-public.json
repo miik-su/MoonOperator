@@ -1,0 +1,10 @@
+{
+  "namespace": "release-public",
+  "image": "moonoperator:0.1.0",
+  "running_image_id": "docker.io/library/import-2026-11-24@sha256:b543d3258a9d5e2307e2e4a02ac6db2cf5ed31112b49177421fc27f9ea9d72b4",
+  "operator_ready": true,
+  "moonapp_resources_applied": true,
+  "service_port_before": 8080,
+  "service_port_after": 8081,
+  "fixture_replicas": 0
+}

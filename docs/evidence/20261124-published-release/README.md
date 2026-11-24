@@ -31,3 +31,20 @@ found that the extracted SDK binaries needed executable permissions. The
 found that frozen dependency resolution still required registry metadata.
 Both setup issues were fixed before the successful run. The release assets
 keep their published checksums.
+
+## Original build path
+
+The archived generated C contains absolute source paths in its `#line`
+directives. A [second successful clean run](https://github.com/miik-su/MoonOperator/actions/runs/45403931694)
+extracted the same public source archive at the original release build path.
+It reproduced the archived [generated C](original-path/generated-c.txt) and
+the released [MoonApp executable](original-path/image-comparison.txt) byte for
+byte. The rebuilt image retained a distinct image ID. Both the
+[public image](original-path/release-public.json) and the
+[rebuilt image](original-path/release-rebuilt.json) passed the same deployment
+and reconciliation checks.
+
+The run used the recorded [GCC and glibc development packages](original-path/builder-packages.tsv).
+The report covers the public release, matching runtime package versions,
+executable reproduction under the original build conditions and a focused
+Kubernetes deployment. No full regression suite or long soak ran.
