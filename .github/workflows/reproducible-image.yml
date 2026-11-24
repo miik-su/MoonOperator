@@ -84,7 +84,7 @@ jobs:
             sudo -n unshare --mount --propagation private -- bash -euc '
               mount --bind "$1" "$2"
               cd "$2"
-              exec runuser -u "$3" -- env MOON_TOOLCHAIN_ROOT="$4" MOONBIT_ALLOCATOR=system +                "$4/bin/moon" build --frozen --target native --release cmd/moonapp cmd/manifests
+              exec runuser -u "$3" -- env MOON_TOOLCHAIN_ROOT="$4" MOONBIT_ALLOCATOR=system "$4/bin/moon" build --frozen --target native --release cmd/moonapp cmd/manifests
             ' bash "$PWD" "$GITHUB_WORKSPACE" "$(id -un)" "$MOON_TOOLCHAIN_ROOT"
             sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe > "$report/$variant-executable.txt"
             docker build --no-cache --build-arg "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" --target distribution -t "$tag" .

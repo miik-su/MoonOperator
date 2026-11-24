@@ -38,8 +38,12 @@ jobs:
           EXPORT_CANDIDATE: ${{ inputs.export-candidate }}
         run: |
           target=production
-          if [ "$EXPORT_CANDIDATE" = true ]; then target=distribution; fi
-          docker build --target "$target" -t moonoperator:dev .
+          build_args=()
+          if [ "$EXPORT_CANDIDATE" = true ]; then
+            target=distribution
+            build_args=(--build-arg "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)")
+          fi
+          docker build "${build_args[@]}" --target "$target" -t moonoperator:dev .
           docker image inspect moonoperator:dev | jq -e '.[0] | (.RootFS.Layers | length == 1) and (.Config.User == "65532:65532") and (.Config.Entrypoint == ["/usr/local/bin/moonoperator"])'
       - run: docker build --target acceptance -t moonoperator-probe:dev .
       - name: Verify the image filesystem and distributed notices
