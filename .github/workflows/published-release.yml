@@ -1,0 +1,132 @@
+name: Published v0.1.0 acceptance
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  clean-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    defaults:
+      run:
+        shell: bash
+    env:
+      RELEASE: https://github.com/miik-su/MoonOperator/releases/download/v0.1.0
+      SOURCE_SHA: e42f5734e1b1ef8f2b14797d2825a3c86ee16607
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Verify all public release downloads
+        run: |
+          mkdir "$RUNNER_TEMP/downloads" "$RUNNER_TEMP/report" "$RUNNER_TEMP/source" "$RUNNER_TEMP/system"
+          cd "$RUNNER_TEMP/downloads"
+          for asset in SHA256SUMS release-manifest.json moonoperator-v0.1.0-{linux-amd64-image.tar.gz,project-runtime-sources.tar.gz,linux-amd64-system-sources.tar}; do
+            curl --retry 3 --retry-all-errors --max-time 120 -fsSLO "$RELEASE/$asset"
+          done
+          sha256sum --check --strict SHA256SUMS | tee "$RUNNER_TEMP/report/downloads.txt"
+          test "$(grep -c ': OK$' "$RUNNER_TEMP/report/downloads.txt")" = 4
+          cp SHA256SUMS "$RUNNER_TEMP/report/"
+          jq -e --arg sha "$SOURCE_SHA" '.source_commit == $sha and .platform == "linux/amd64"' release-manifest.json
+          tar -xzf moonoperator-v0.1.0-project-runtime-sources.tar.gz -C "$RUNNER_TEMP/source"
+          tar -xf moonoperator-v0.1.0-linux-amd64-system-sources.tar -C "$RUNNER_TEMP/system"
+      - name: Verify the signed source index and unpack corresponding sources
+        working-directory: ${{ runner.temp }}/system
+        run: |
+          gpgv --status-fd 1 --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --output "$RUNNER_TEMP/Release" archive-auth/noble-security.InRelease | tee "$RUNNER_TEMP/report/archive-signature.txt"
+          grep -q 'VALIDSIG F6ECB3762474EDA9D21B7022871920D1991BC93C ' "$RUNNER_TEMP/report/archive-signature.txt"
+          expected=$(awk 'length($1) == 64 && $3 == "main/source/Sources.xz" {print $1}' "$RUNNER_TEMP/Release")
+          printf '%s  archive-auth/noble-security.Sources.xz\n' "$expected" | sha256sum --check --strict
+          xz -dc archive-auth/noble-security.Sources.xz > "$RUNNER_TEMP/Sources"
+          jq -r '.source_packages[] | .source as $name | .files[] | "\(.sha256)  \($name)/\(.file)"' source-manifest.json |
+            sha256sum --check --strict - | tee "$RUNNER_TEMP/report/system-files.txt"
+          mkdir "$RUNNER_TEMP/unpacked"
+          for name in ca-certificates gcc-13 glibc openssl; do
+            dsc=("$name"/*.dsc)
+            test "${#dsc[@]}" = 1
+            awk -v name="$name" -v version="$(jq -er --arg name "$name" '.source_packages[] | select(.source == $name) | .version' source-manifest.json)" '
+              BEGIN { RS=""; FS="\n" }
+              $0 ~ ("(^|\n)Package: " name "(\n|$)") {
+                for (i=1; i<=NF; i++) if ($i == "Version: " version) { print; found=1; exit }
+              }
+              END { if (!found) exit 1 }
+            ' "$RUNNER_TEMP/Sources" > "$RUNNER_TEMP/$name.index"
+            while IFS= read -r file; do
+              hash=$(sha256sum "$name/$file" | cut -d ' ' -f 1)
+              grep -Fx " $hash $(stat -c %s "$name/$file") $file" "$RUNNER_TEMP/$name.index"
+            done < <(jq -er --arg name "$name" '.source_packages[] | select(.source == $name) | .files[].file' source-manifest.json)
+            dpkg-source -x "${dsc[0]}" "$RUNNER_TEMP/unpacked/$name" > "$RUNNER_TEMP/$name.log" 2>&1 || { tail -40 "$RUNNER_TEMP/$name.log"; exit 1; }
+            printf '%s: unpacked\n' "$name" | tee -a "$RUNNER_TEMP/report/system-unpack.txt"
+          done
+      - name: Rebuild from extracted MoonBit sources
+        working-directory: ${{ runner.temp }}/source
+        run: |
+          gzip -dk project.tar.gz
+          test "$(git get-tar-commit-id < project.tar)" = "$SOURCE_SHA"
+          tar -xf project.tar
+          cd MoonOperator
+          test ! -e _build
+          test ! -e .mooncakes
+          cp -a ../mooncakes .mooncakes
+          curl --retry 3 --retry-all-errors --max-time 120 -fsSL 'https://cli.moonbitlang.com/binaries/0.10.17%2Bd971670cd/moonbit-linux-x86_64.tar.gz' -o /tmp/moonbit.tar.gz
+          cp ../moonbit-core.tar.gz /tmp/core.tar.gz
+          sha256sum --check tools/moonbit-linux.sha256
+          sdk="$RUNNER_TEMP/moonoperator-scalar-sdk"
+          mkdir -p "$sdk/lib"
+          tar --exclude=./lib/simdutf.o --exclude=./lib/moonbit_simdutf.o -xzf /tmp/moonbit.tar.gz -C "$sdk"
+          tar -xzf /tmp/core.tar.gz -C "$sdk/lib"
+          diff -r ../moonbit-sdk/runtime "$sdk/lib/runtime"
+          diff -r ../moonbit-sdk/include "$sdk/include"
+          export PATH="$sdk/bin:$PATH" MOON_TOOLCHAIN_ROOT="$sdk" MOONBIT_ALLOCATOR=system
+          moon -C "$sdk/lib/core" bundle --frozen --all
+          moon version --all | tee "$RUNNER_TEMP/report/toolchain.txt"
+          moon build --frozen cmd/moonapp cmd/manifests --target native --release
+          sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe | tee "$RUNNER_TEMP/report/rebuilt-binary.txt"
+          docker build --no-cache --target distribution -t moonoperator:rebuild-v0.1.0 .
+          echo "$sdk/bin" >> "$GITHUB_PATH"
+          echo "MOON_TOOLCHAIN_ROOT=$sdk" >> "$GITHUB_ENV"
+      - name: Load the public image and compare the two images
+        run: |
+          cd "$RUNNER_TEMP/downloads"
+          if docker image inspect moonoperator:0.1.0 >/dev/null 2>&1; then exit 1; fi
+          docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
+          compare="$RUNNER_TEMP/compare"
+          mkdir -p "$compare/public" "$compare/rebuilt"
+          for entry in public:0.1.0 rebuilt:rebuild-v0.1.0; do
+            label=${entry%%:*}
+            image="moonoperator:${entry#*:}"
+            docker image inspect "$image" | jq -e '.[0] | select(.Os == "linux" and .Architecture == "amd64" and .Config.User == "65532:65532" and .Config.Entrypoint == ["/usr/local/bin/moonoperator"] and (.RootFS.Layers | length) == 1) | .Id' > "$compare/$label/image-id"
+            container=$(docker create "$image")
+            docker cp "$container:/usr/local/bin/moonoperator" "$compare/$label/moonoperator"
+            docker cp "$container:/usr/share/doc/moonoperator/binary-source-packages.tsv" "$compare/$label/packages.tsv"
+            docker rm "$container"
+          done
+          diff -u "$compare/public/packages.tsv" "$compare/rebuilt/packages.tsv"
+          test "$(jq -r .image_id release-manifest.json)" = "$(jq -r . "$compare/public/image-id")"
+          test "$(jq -r .executable_sha256 release-manifest.json)" = "$(sha256sum "$compare/public/moonoperator" | cut -d ' ' -f 1)"
+          test "$(cut -d ' ' -f 1 "$RUNNER_TEMP/report/rebuilt-binary.txt")" = "$(sha256sum "$compare/rebuilt/moonoperator" | cut -d ' ' -f 1)"
+          {
+            jq -r . "$compare/public/image-id" "$compare/rebuilt/image-id"
+            sha256sum "$compare/public/moonoperator" "$compare/rebuilt/moonoperator"
+          } | tee "$RUNNER_TEMP/report/image-comparison.txt"
+          cp "$compare/public/packages.tsv" "$RUNNER_TEMP/report/"
+      - name: Start a clean Kubernetes cluster
+        run: |
+          curl --retry 3 --retry-all-errors --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
+          sha256sum --check "$RUNNER_TEMP/source/MoonOperator/tools/kind-linux.sha256"
+          chmod +x /tmp/kind
+          /tmp/kind create cluster --name moonoperator-release --image kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5 --wait 120s
+          /tmp/kind load docker-image moonoperator:0.1.0 moonoperator:rebuild-v0.1.0 --name moonoperator-release
+          kubectl --context kind-moonoperator-release version -o json | tee "$RUNNER_TEMP/report/kubernetes.json"
+      - name: Deploy both images and check reconciliation
+        run: |
+          moon run scripts/published-release-check.mbtx -- "$RUNNER_TEMP/source/MoonOperator" "$RUNNER_TEMP/report"
+      - name: Remove the disposable cluster
+        if: always()
+        run: |
+          if test -x /tmp/kind; then /tmp/kind delete cluster --name moonoperator-release; fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: published-release-acceptance
+          path: ${{ runner.temp }}/report/
+          if-no-files-found: warn

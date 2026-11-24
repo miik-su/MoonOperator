@@ -1,0 +1,134 @@
+----
+import {
+  "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/fs",
+  "moonbitlang/async@0.22.5/shell", "moonbitlang/core/env",
+}
+----
+
+///|
+async fn kubectl(
+  ns : String,
+  args : Array[String],
+  input~ : String = "",
+) -> String {
+  let command = ["--context", "kind-moonoperator-release", "-n", ns]
+  command.append(args)
+  let output = @shell.Cmd("kubectl", command, stdin=Text(input)).output(
+    timeout_ms=130000,
+  )
+  if output.exit_code() != 0 {
+    println(output.stderr())
+  }
+  output.check()
+  output.stdout()
+}
+
+///|
+async fn check_image(
+  source : String,
+  report_dir : String,
+  ns : String,
+  image : String,
+) -> Unit {
+  ignore(kubectl(ns, ["create", "namespace", ns]))
+  let generator = source +
+    "/_build/native/release/build/cmd/manifests/manifests.exe"
+  let bundle = @shell.Cmd(generator, [], env={ "MOONOPERATOR_NAMESPACE": ns }).output(
+    timeout_ms=10000,
+  )
+  bundle.check()
+  ignore(kubectl(ns, ["apply", "-f", "-"], input=bundle.stdout()))
+  ignore(
+    kubectl(ns, [
+      "wait", "--for=condition=Established", "crd/moonapps.moonoperator.dev", "--timeout=60s",
+    ]),
+  )
+  let deployment = @fs.read_file(source + "/config/operator.yaml").text()
+  guard deployment.contains("image: moonoperator:dev") else {
+    fail("release deployment image placeholder was not found")
+  }
+  ignore(
+    kubectl(
+      ns,
+      ["apply", "-f", "-"],
+      input=deployment.replace(
+        old="image: moonoperator:dev",
+        new="image: " + image,
+      ),
+    ),
+  )
+  ignore(
+    kubectl(ns, [
+      "rollout", "status", "deployment/moonoperator", "--timeout=115s",
+    ]),
+  )
+  let fixture : Json = {
+    "apiVersion": "moonoperator.dev/v1",
+    "kind": "MoonApp",
+    "metadata": { "name": "release-check" },
+    "spec": { "image": "nginx:1.27", "port": 8080, "replicas": 0 },
+  }
+  ignore(kubectl(ns, ["apply", "-f", "-"], input=fixture.stringify()))
+  ignore(
+    kubectl(ns, [
+      "wait", "--for=condition=ResourcesApplied", "moonapp/release-check", "--timeout=75s",
+    ]),
+  )
+  let service = kubectl(ns, [
+    "get", "service/release-check", "-o=jsonpath={.spec.ports[0].targetPort}",
+  ])
+  guard service == "8080" else {
+    fail("initial Service port did not reconcile")
+  }
+  ignore(
+    kubectl(ns, [
+      "patch", "moonapp/release-check", "--type=merge", "-p", "{\"spec\":{\"port\":8081}}",
+    ]),
+  )
+  ignore(
+    kubectl(ns, [
+      "wait", "--for=jsonpath={.spec.ports[0].targetPort}=8081", "service/release-check",
+      "--timeout=75s",
+    ]),
+  )
+  let replicas = kubectl(ns, [
+    "get", "deployment/release-check", "-o=jsonpath={.spec.replicas}",
+  ])
+  guard replicas == "0" else { fail("unexpected fixture replica count") }
+  let image_id = kubectl(ns, [
+    "get", "pods", "-l", "app=moonoperator", "-o=jsonpath={.items[0].status.containerStatuses[0].imageID}",
+  ])
+  guard !image_id.is_empty() else { fail("running operator image ID missing") }
+  let report : Json = {
+    "namespace": ns,
+    "image": image,
+    "running_image_id": image_id,
+    "operator_ready": true,
+    "moonapp_resources_applied": true,
+    "service_port_before": 8080,
+    "service_port_after": 8081,
+    "fixture_replicas": 0,
+  }
+  @fs.write_file(
+    report_dir + "/" + ns + ".json",
+    report.stringify(indent=2) + "\n",
+  )
+  println(report.stringify())
+}
+
+///|
+async fn main {
+  let args = @env.args()
+  guard args.length() == 3 else {
+    fail(
+      "usage: published-release-check.mbtx EXTRACTED_PROJECT REPORT_DIRECTORY",
+    )
+  }
+  check_image(args[1], args[2], "release-public", "moonoperator:0.1.0")
+  check_image(
+    args[1],
+    args[2],
+    "release-rebuilt",
+    "moonoperator:rebuild-v0.1.0",
+  )
+}
