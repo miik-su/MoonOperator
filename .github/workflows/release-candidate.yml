@@ -1,0 +1,140 @@
+name: Independent Linux amd64 release builds
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - builder: a
+            source-dir: short
+          - builder: b
+            source-dir: independent/nested/build
+    defaults:
+      run:
+        shell: bash
+    env:
+      PREVIOUS_RELEASE: https://github.com/miik-su/MoonOperator/releases/download/v0.1.0
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-moonbit
+        with:
+          scalar-utf: 'true'
+      - name: Prepare identical reviewed inputs on this clean runner
+        env:
+          SOURCE_DIR: ${{ matrix.source-dir }}
+        run: |
+          test "$(uname -m)" = x86_64
+          test "$(dpkg-query -W -f='${Version}' libc6-dev)" = '2.39-0ubuntu8.12'
+          test "$(dpkg-query -W -f='${Version}' libgcc-13-dev)" = '13.3.0-6ubuntu2~24.04.1'
+          test "$(gcc -dumpfullversion)" = '13.3.0'
+          mkdir "$RUNNER_TEMP"/{inputs,receipt,payload}
+          src="$RUNNER_TEMP/$SOURCE_DIR/MoonOperator"
+          mkdir -p "$src"
+          git archive HEAD | tar -xf - -C "$src"
+          test ! -e "$src/_build"
+          cd "$RUNNER_TEMP/inputs"
+          for asset in SHA256SUMS release-manifest.json moonoperator-v0.1.0-project-runtime-sources.tar.gz; do
+            curl --retry 3 --retry-all-errors --max-time 120 -fsSLO "$PREVIOUS_RELEASE/$asset"
+          done
+          printf '%s  SHA256SUMS\n' d2851bacc910985334dccc8ee0cba05d65c1f74ae7844b456586b855eaf6f3cb | sha256sum --check --strict
+          grep -E '  (release-manifest\.json|moonoperator-v0\.1\.0-project-runtime-sources\.tar\.gz)$' SHA256SUMS | sha256sum --check --strict
+          tar -xzf moonoperator-v0.1.0-project-runtime-sources.tar.gz ./mooncakes
+          cp -a mooncakes "$src/.mooncakes"
+          version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' "$src/moon.mod")
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$version" = 0.1.1
+          {
+            printf 'RELEASE_SOURCE=%s\nRELEASE_VERSION=%s\n' "$src" "$version"
+            printf 'SOURCE_DATE_EPOCH=%s\n' "$(git -C "$GITHUB_WORKSPACE" log -1 --format=%ct)"
+          } >> "$GITHUB_ENV"
+          dpkg-query -W gcc-13 libc6-dev libgcc-13-dev > "$RUNNER_TEMP/receipt/builder-packages.tsv"
+          jq -n --arg host "$(hostname)" --arg source_dir "$src" --arg runner "$RUNNER_NAME" '{host:$host,source_directory:$source_dir,runner:$runner}' > "$RUNNER_TEMP/receipt/runner.json"
+      - name: Compile and build the single-layer image without build cache
+        run: |
+          sudo -n unshare --mount --propagation private -- bash -euc '
+            mount --bind "$1" "$2"
+            cd "$2"
+            exec runuser -u "$3" -- env MOON_TOOLCHAIN_ROOT="$4" MOONBIT_ALLOCATOR=system "$4/bin/moon" build --frozen --target native --release cmd/moonapp cmd/manifests
+          ' bash "$RELEASE_SOURCE" "$GITHUB_WORKSPACE" "$(id -un)" "$MOON_TOOLCHAIN_ROOT"
+          cd "$RELEASE_SOURCE"
+          tag="moonoperator:$RELEASE_VERSION"
+          sha=$(sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe | cut -d ' ' -f 1)
+          test "$sha" = "$(jq -er .executable_sha256 "$RUNNER_TEMP/inputs/release-manifest.json")"
+          diff -r "$RUNNER_TEMP/inputs/mooncakes/moonbitlang/async" .mooncakes/moonbitlang/async
+          diff -r "$RUNNER_TEMP/inputs/mooncakes/moonbit-community/yaml" .mooncakes/moonbit-community/yaml
+          docker build --no-cache --build-arg "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" --target distribution -t "$tag" .
+          jq_args=(--arg sha "$sha" --arg commit "$GITHUB_SHA" --arg epoch "$SOURCE_DATE_EPOCH" --arg version "$RELEASE_VERSION")
+          docker image inspect "$tag" | jq -e "${jq_args[@]}" '.[0] |
+            select(.Os == "linux" and .Architecture == "amd64" and .Config.User == "65532:65532" and .Config.Entrypoint == ["/usr/local/bin/moonoperator"] and (.RootFS.Layers | length) == 1) |
+            {version:$version,source_commit:$commit,source_date_epoch:($epoch|tonumber),platform:"linux/amd64",image_id:.Id,created:.Created,filesystem_layers:.RootFS.Layers,runtime_user:.Config.User,executable_sha256:$sha}' > "$RUNNER_TEMP/receipt/image.json"
+          jq -e --arg date "$(date -u -d "@$SOURCE_DATE_EPOCH" '+%Y-%m-%dT%H:%M:%SZ')" '.created == $date' "$RUNNER_TEMP/receipt/image.json"
+          container=$(docker create "$tag")
+          docker cp "$container:/usr/local/bin/moonoperator" "$RUNNER_TEMP/image-binary"
+          docker cp "$container:/usr/share/doc/moonoperator/binary-source-packages.tsv" "$RUNNER_TEMP/receipt/runtime-source-packages.tsv"
+          docker rm "$container"
+          test "$(sha256sum "$RUNNER_TEMP/image-binary" | cut -d ' ' -f 1)" = "$sha"
+      - name: Export matching sources and reload the candidate archive
+        if: matrix.builder == 'a'
+        run: |
+          tag="moonoperator:$RELEASE_VERSION"
+          out="$RUNNER_TEMP/payload"
+          image="$out/moonoperator-v$RELEASE_VERSION-linux-amd64-image.tar.gz"
+          docker save "$tag" | gzip -n > "$image"
+          docker image rm "$tag"
+          docker load -i "$image"
+          test "$(docker image inspect --format '{{.Id}}' "$tag")" = "$(jq -er .image_id "$RUNNER_TEMP/receipt/image.json")"
+          archive="$RUNNER_TEMP/packed-sources"
+          mkdir -p "$archive/moonbit-sdk" "$archive/generated-native/cmd/moonapp"
+          git archive --format=tar.gz --prefix=MoonOperator/ HEAD > "$archive/project.tar.gz"
+          mkdir "$archive/mooncakes"
+          cp -a "$RELEASE_SOURCE/.mooncakes/moonbitlang" "$RELEASE_SOURCE/.mooncakes/moonbit-community" "$archive/mooncakes/"
+          cp -a "$MOON_TOOLCHAIN_ROOT/lib/runtime" "$MOON_TOOLCHAIN_ROOT/include" "$MOON_TOOLCHAIN_ROOT/CREDITS.md" "$archive/moonbit-sdk/"
+          cp /tmp/core.tar.gz "$archive/moonbit-core.tar.gz"
+          cp "$RELEASE_SOURCE/_build/native/release/build/cmd/moonapp/moonapp.c" "$archive/generated-native/cmd/moonapp/"
+          tar -czf "$out/moonoperator-v$RELEASE_VERSION-project-runtime-sources.tar.gz" -C "$archive" .
+          (cd "$out" && sha256sum *.tar.gz > payload-SHA256SUMS)
+      - name: Deploy the reloaded candidate and verify reconciliation
+        if: matrix.builder == 'a'
+        run: |
+          curl --retry 2 --retry-all-errors --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
+          sha256sum --check tools/kind-linux.sha256
+          chmod +x /tmp/kind
+          /tmp/kind create cluster --name moonoperator-release --image kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5 --wait 120s
+          /tmp/kind load docker-image "moonoperator:$RELEASE_VERSION" --name moonoperator-release
+          kubectl --context kind-moonoperator-release version -o json | tee "$RUNNER_TEMP/receipt/kubernetes.json"
+          jq -e '.serverVersion.gitVersion == "v1.37.0"' "$RUNNER_TEMP/receipt/kubernetes.json"
+          moon run scripts/published-release-check.mbtx -- "$RELEASE_SOURCE" "$RUNNER_TEMP/receipt" "moonoperator:$RELEASE_VERSION"
+      - name: Scan the three released runtime package records
+        if: matrix.builder == 'a'
+        run: |
+          curl --retry 2 --retry-all-errors --max-time 120 -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz -o /tmp/trivy-linux.tar.gz || curl --retry 2 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/aquasecurity/trivy/releases/assets/713401165 -o /tmp/trivy-linux.tar.gz
+          sha256sum --check tools/trivy-linux.sha256
+          tar -xzf /tmp/trivy-linux.tar.gz -C /tmp trivy
+          image_id=$(jq -er .image_id "$RUNNER_TEMP/receipt/image.json")
+          /tmp/trivy image --timeout 3m --image-src docker --distro ubuntu/24.04 --scanners vuln --pkg-types os --list-all-pkgs --format json --output "$RUNNER_TEMP/receipt/trivy.json" "$image_id"
+          jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[].Name] | sort == ["ca-certificates","libc6","libssl3t64"]' "$RUNNER_TEMP/receipt/trivy.json"
+          /tmp/trivy --version > "$RUNNER_TEMP/receipt/trivy-version.txt"
+      - name: Remove the disposable cluster
+        if: always() && matrix.builder == 'a'
+        run: |
+          if test -x /tmp/kind; then /tmp/kind delete cluster --name moonoperator-release; fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: release-evidence-${{ matrix.builder }}
+          path: ${{ runner.temp }}/receipt/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: matrix.builder == 'a'
+        with:
+          name: release-payload
+          path: ${{ runner.temp }}/payload/
+          if-no-files-found: error
+          retention-days: 7

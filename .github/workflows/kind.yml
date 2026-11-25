@@ -181,11 +181,9 @@ jobs:
 
       - name: Export the tested Linux amd64 image and build sources
         if: matrix.kubernetes == 'v1.37.0' && inputs.export-candidate
-        env:
-          RELEASE_VERSION: '0.1.0'
         run: |
           version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' moon.mod)
-          test "$version" = "$RELEASE_VERSION"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           tag="moonoperator:$version"
           prefix="moonoperator-v$version-linux-amd64"
           output="$RUNNER_TEMP/release-candidate"

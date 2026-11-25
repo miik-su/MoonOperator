@@ -119,10 +119,14 @@ async fn check_image(
 ///|
 async fn main {
   let args = @env.args()
-  guard args.length() == 3 else {
+  guard args.length() == 3 || args.length() == 4 else {
     fail(
-      "usage: published-release-check.mbtx EXTRACTED_PROJECT REPORT_DIRECTORY",
+      "usage: published-release-check.mbtx EXTRACTED_PROJECT REPORT_DIRECTORY [IMAGE]",
     )
+  }
+  if args.length() == 4 {
+    check_image(args[1], args[2], "release-candidate", args[3])
+    return
   }
   check_image(args[1], args[2], "release-public", "moonoperator:0.1.0")
   check_image(

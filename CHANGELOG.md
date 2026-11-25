@@ -1,3 +1,9 @@
+# 0.1.1
+
+Pin the image configuration, history and filesystem timestamps to the release
+source commit. Build at a stable logical source path and compare two clean
+Linux amd64 runners before exporting the image and its matching sources.
+
 # 0.1.0
 
 Publish the experimental Linux amd64 application image with corresponding
