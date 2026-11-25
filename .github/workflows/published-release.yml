@@ -23,6 +23,8 @@ jobs:
           persist-credentials: false
           path: .acceptance-harness
       - name: Verify all public release downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
           version="${RELEASE_TAG#v}"
@@ -31,9 +33,9 @@ jobs:
           asset_prefix="moonoperator-$RELEASE_TAG"
           mkdir "$RUNNER_TEMP/downloads" "$RUNNER_TEMP/report" "$RUNNER_TEMP/source" "$RUNNER_TEMP/system"
           cd "$RUNNER_TEMP/downloads"
-          curl --retry 3 --retry-all-errors --max-time 60 -fsSL "$api/releases/tags/$RELEASE_TAG" -o github-release.json
+          curl --retry 3 --retry-all-errors --max-time 60 -fsS -H "Authorization: Bearer $GH_TOKEN" "$api/releases/tags/$RELEASE_TAG" -o github-release.json
           jq -e --arg tag "$RELEASE_TAG" '.tag_name == $tag and .draft == false' github-release.json
-          source_sha=$(curl --retry 3 --retry-all-errors --max-time 60 -fsSL "$api/commits/$RELEASE_TAG" | jq -er '.sha | select(test("^[a-f0-9]{40}$"))')
+          source_sha=$(curl --retry 3 --retry-all-errors --max-time 60 -fsS -H "Authorization: Bearer $GH_TOKEN" "$api/commits/$RELEASE_TAG" | jq -er '.sha | select(test("^[a-f0-9]{40}$"))')
           for asset in SHA256SUMS release-manifest.json "$asset_prefix"-{linux-amd64-image.tar.gz,project-runtime-sources.tar.gz,linux-amd64-system-sources.tar}; do
             digest=$(jq -er --arg asset "$asset" '[.assets[] | select(.name == $asset and .state == "uploaded") | .digest] | select(length == 1) | .[0] | select(type == "string" and test("^sha256:[a-f0-9]{64}$"))' github-release.json)
             curl --retry 3 --retry-all-errors --max-time 120 -fsSLO "$release/$asset"
