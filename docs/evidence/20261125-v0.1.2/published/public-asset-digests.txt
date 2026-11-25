@@ -1,0 +1,5 @@
+e1b0063c1f3e7269662713f58b4678d2fa448fcbcabcbe568560353abeaa2f11  SHA256SUMS
+1b4823d2d9d145b96a51807ddd71040b990ebfbafd08b07a86e713f7e53978bd  release-manifest.json
+c58d76faa54ad669e36f5f836907d850d892d51c7eea49c6f7f41132c05bb94f  moonoperator-v0.1.2-linux-amd64-image.tar.gz
+aa2ce38838ef51029e87f9a40b03f7250bd2666614a05b46e1baa5029231f029  moonoperator-v0.1.2-project-runtime-sources.tar.gz
+f1148e55452e1dbe54dc49cb9acf36618f2b5289fe9058be21108500a546125a  moonoperator-v0.1.2-linux-amd64-system-sources.tar

@@ -19,3 +19,29 @@ system archive provides the recorded glibc, OpenSSL, CA and GCC source
 revisions. The signed Ubuntu index and all 12 corresponding source files
 were verified after repacking the system archive.
 See the [release manifest](release-manifest.json) and [asset hashes](SHA256SUMS).
+
+## Public release acceptance
+
+The [v0.1.2 release](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.2)
+offers the image, both corresponding source archives, the manifest and
+checksums. The [v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
+and [v0.1.1](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.1)
+asset IDs and digests were verified before and after publication.
+
+The [successful public acceptance run](https://github.com/miik-su/MoonOperator/actions/runs/45624215787)
+downloaded the five files anonymously and [verified their hashes](published/downloads.txt).
+The [four matching system source packages](published/system-unpack.txt)
+unpacked after Ubuntu's archive signature, source index and file hashes were
+verified. The clean runner rebuilt the application image without Docker
+cache from the downloaded project archive and pinned build profile. The
+[downloaded image](published/public-image.json) and
+[rebuilt image](published/rebuilt-image.json) matched the published image ID
+and layer digest, and [both executables matched](published/image-comparison.txt).
+The [downloaded image](published/release-candidate.json) also passed readiness
+and MoonApp Service reconciliation on Kubernetes 1.37.0 in Kind.
+
+The [initial run](https://github.com/miik-su/MoonOperator/actions/runs/45624014493)
+received HTTP 403 from GitHub's anonymous metadata API. The workflow now
+uses its read-only token for release and commit metadata lookups. The assets
+are still downloaded through their public URLs. This release ran the focused
+build, integrity and deployment checks.
