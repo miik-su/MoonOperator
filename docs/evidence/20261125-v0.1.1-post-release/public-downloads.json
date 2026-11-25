@@ -1,0 +1,33 @@
+{
+  "release_base": "https://github.com/miik-su/MoonOperator/releases/download/v0.1.1",
+  "download_authentication": "none",
+  "matches_github_release_api": true,
+  "checked_against_sha256sums": 4,
+  "assets": [
+    {
+      "name": "SHA256SUMS",
+      "bytes": 433,
+      "sha256": "b1fc018a7bf4e0144ee42bcd451ea84736843cfecfac37fb37781bb578675099"
+    },
+    {
+      "name": "release-manifest.json",
+      "bytes": 1794,
+      "sha256": "4e39702f0f8ad0650ed6bec3e0ed0cb4dfd21bf9a55159e34c53ed3ced0f58d7"
+    },
+    {
+      "name": "moonoperator-v0.1.1-linux-amd64-image.tar.gz",
+      "bytes": 4130382,
+      "sha256": "ac0f7f71bf26b9dc4e5cc710c6767ce088569097fed141c693198af797677ab0"
+    },
+    {
+      "name": "moonoperator-v0.1.1-project-runtime-sources.tar.gz",
+      "bytes": 4177480,
+      "sha256": "a261ee39f17244df8878157880024fda9dda1f31a37aea03264ecf8ec7ddd19e"
+    },
+    {
+      "name": "moonoperator-v0.1.1-linux-amd64-system-sources.tar",
+      "bytes": 128751104,
+      "sha256": "bde591c22966ad20ae2e17413dfb8a826d3f958b3c46fd20ca9d10ac80296ecb"
+    }
+  ]
+}
