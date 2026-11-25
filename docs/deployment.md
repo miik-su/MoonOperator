@@ -86,6 +86,29 @@ The image build installs binary packages from the pinned Ubuntu snapshot.
 The paired system source archive contains their source and packaging, plus the
 compiler source for the linked runtime helper and startup objects.
 
+### Reproduce the image ID
+
+Run the [Reproducible v0.1.0 image workflow](https://github.com/miik-su/MoonOperator/actions/workflows/reproducible-image.yml)
+for the fixed build profile. It takes the v0.1.0 source archive and bundled
+modules from GitHub Release, applies the current Dockerfile and builds without
+Docker cache from two separate source directories. A private mount namespace
+gives both native builds the original release source path. The workflow also
+uses the pinned SDK at the original toolchain path and verifies the resulting
+executable against the public release hash.
+
+With that executable at the expected build output path and the current
+Dockerfile, pass the v0.1.0 source commit time to BuildKit:
+
+```sh
+docker build --no-cache --build-arg SOURCE_DATE_EPOCH=1795440139 --target distribution -t moonoperator:rebuild-v0.1.0 .
+```
+
+BuildKit fixes the image configuration and history timestamps. The Dockerfile
+applies the same timestamp to the files in the exported layer, including
+symbolic links. The normalized profile produces a new image ID relative to the
+historical v0.1.0 archive. See the
+[image reproducibility evidence](evidence/20261124-reproducible-image/README.md).
+
 ## Install on Kind
 
 config/operator.yaml uses a local image and imagePullPolicy Never for disposable

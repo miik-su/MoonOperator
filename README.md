@@ -31,6 +31,10 @@ docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
 The archive loads as `moonoperator:0.1.0`. See the
 [deployment instructions](docs/deployment.md#in-cluster-process) and
 [post-release download, rebuild and deployment results](docs/evidence/20261124-published-release/README.md).
+The [reproducible image build](docs/deployment.md#reproduce-the-image-id) fixes
+the compiler's source path and image timestamps. The
+[image comparison evidence](docs/evidence/20261124-reproducible-image/README.md)
+records the differences in the historical archive and the two-directory check.
 
 The implementation follows the linked MoonOperator design: dynamic resources,
 an injectable Kubernetes client, LIST/WATCH recovery, a bounded cache and work
