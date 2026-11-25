@@ -1,0 +1,15 @@
+{
+  "id": "sha256:c6e159aa0f33e8b9f23f1fb688b9b34d3f6dd417f2b52e7f62d69732f1a7a86c",
+  "created": "2026-11-23T13:22:19Z",
+  "platform": [
+    "linux",
+    "amd64"
+  ],
+  "rootfs": [
+    "sha256:373aa671f06e27c0f947573335a112e1426cf4e45c7aab43348cdb3bd441037b"
+  ],
+  "user": "65532:65532",
+  "entrypoint": [
+    "/usr/local/bin/moonoperator"
+  ]
+}

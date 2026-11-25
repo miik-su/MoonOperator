@@ -21,3 +21,20 @@ logical release path and checks the original release executable digest. A
 private Linux mount namespace scopes the path mapping to the build. The image
 build uses one fixed `SOURCE_DATE_EPOCH` for the configuration, history and
 filesystem modification times.
+
+## Two-directory result
+
+The [successful workflow](https://github.com/miik-su/MoonOperator/actions/runs/45406477029)
+extracted the public sources into [directory A](rebuild/a-source-directory.txt)
+and [directory B](rebuild/b-source-directory.txt), compiled each copy and ran
+both Docker builds without build cache.
+
+| Check | Result |
+| --- | --- |
+| [Executable A](rebuild/a-executable.txt) and [B](rebuild/b-executable.txt) | Both matched the published executable SHA-256. |
+| [Image A](rebuild/a-image.json) and [B](rebuild/b-image.json) | Both had ID `sha256:c6e159aa0f33e8b9f23f1fb688b9b34d3f6dd417f2b52e7f62d69732f1a7a86c` and the same single filesystem layer digest. |
+| [Rebuilt image in Kind](rebuild/release-rebuilt.json) | The operator became ready and reconciled a MoonApp Service target port from 8080 to 8081. |
+
+This check covers Docker image identity under the tested Ubuntu 24.04 amd64
+build profile. The old public archive retains its original digest. The
+workflow ran the focused deployment and reconciliation checks.
