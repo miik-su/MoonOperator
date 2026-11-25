@@ -2,7 +2,7 @@
 
 A MoonBit-native Kubernetes Operator development framework.
 
-Experimental 0.1.2 for single-replica development and testing. The source and
+Experimental framework for single-replica development and testing. The source and
 examples are usable from this checkout. Mooncakes publication and stable
 production support remain outside this release scope.
 
@@ -37,6 +37,10 @@ See the
 [reproducible build instructions](docs/deployment.md#reproduce-the-image-id)
 and the [v0.1.2 release and public acceptance results](docs/evidence/20261125-v0.1.2/README.md).
 [Earlier releases](https://github.com/miik-su/MoonOperator/releases) remain available.
+
+The [v0.1.3 draft verification](docs/evidence/20261125-v0.1.3-draft/README.md)
+records the independent builds and the five verified draft assets. The public
+download above is v0.1.2.
 
 For future versions, see [release packaging and GitHub drafts](docs/deployment.md#prepare-a-new-release)
 and [public release acceptance](docs/deployment.md#reproduce-the-image-id).
