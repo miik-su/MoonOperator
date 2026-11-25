@@ -1,0 +1,20 @@
+[
+  {
+    "id": 14997335637,
+    "name": "release-evidence-b",
+    "size_in_bytes": 1170,
+    "digest": "sha256:e422394e353e3e0f2909cf83ce16f9f3aec01b1338026ac952815033049c7110"
+  },
+  {
+    "id": 14997221113,
+    "name": "release-evidence-a",
+    "size_in_bytes": 3628,
+    "digest": "sha256:d19b2a878f24e0e197f1fa6f0d91536eba19ba4f47d0b9b7aa43d01bb18068ff"
+  },
+  {
+    "id": 14996856601,
+    "name": "release-payload",
+    "size_in_bytes": 8291181,
+    "digest": "sha256:1384ab59d28f4f36638acb76803176e60d919d540c146249358f8231dafcb0ee"
+  }
+]

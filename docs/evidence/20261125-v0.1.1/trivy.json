@@ -1,0 +1,164 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.76.2"
+  },
+  "ReportID": "01a21152-0a89-7ef9-b411-22019dccec7c",
+  "CreatedAt": "2026-11-25T06:08:39.049982663Z",
+  "ArtifactID": "sha256:83bf44290072ff92ae626122bb049d3f9ad797fc34d85ec69033e3f5df1fe972",
+  "ArtifactName": "sha256:756fbf1ba23d245dc013941f2ebe85c83b5e1f091f7b889641094b0ea7385d59",
+  "ArtifactType": "container_image",
+  "Metadata": {
+    "Size": 10724864,
+    "OS": {
+      "Family": "ubuntu",
+      "Name": "24.04"
+    },
+    "ImageID": "sha256:756fbf1ba23d245dc013941f2ebe85c83b5e1f091f7b889641094b0ea7385d59",
+    "DiffIDs": [
+      "sha256:9474700ab66651003d743c11587a53c557adbea24ecd201e7f86599b0cbb8362"
+    ],
+    "RepoTags": [
+      "moonoperator:0.1.1"
+    ],
+    "Reference": "moonoperator:0.1.1",
+    "ImageConfig": {
+      "architecture": "amd64",
+      "created": "2026-11-25T06:05:25Z",
+      "history": [
+        {
+          "created": "2026-11-25T06:05:25Z",
+          "created_by": "COPY /distribution / # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2026-11-25T06:05:25Z",
+          "created_by": "USER 65532:65532",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2026-11-25T06:05:25Z",
+          "created_by": "ENTRYPOINT [\"/usr/local/bin/moonoperator\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        }
+      ],
+      "os": "linux",
+      "rootfs": {
+        "type": "layers",
+        "diff_ids": [
+          "sha256:9474700ab66651003d743c11587a53c557adbea24ecd201e7f86599b0cbb8362"
+        ]
+      },
+      "config": {
+        "Entrypoint": [
+          "/usr/local/bin/moonoperator"
+        ],
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        ],
+        "User": "65532:65532",
+        "WorkingDir": "/"
+      }
+    },
+    "Layers": [
+      {
+        "Size": 10724864,
+        "DiffID": "sha256:9474700ab66651003d743c11587a53c557adbea24ecd201e7f86599b0cbb8362"
+      }
+    ]
+  },
+  "Results": [
+    {
+      "Target": "sha256:756fbf1ba23d245dc013941f2ebe85c83b5e1f091f7b889641094b0ea7385d59 (ubuntu 24.04)",
+      "Class": "os-pkgs",
+      "Type": "ubuntu",
+      "Packages": [
+        {
+          "ID": "ca-certificates@20260816ubuntu0.24.04.2",
+          "Name": "ca-certificates",
+          "Identifier": {
+            "PURL": "pkg:deb/ubuntu/ca-certificates@20260816ubuntu0.24.04.2?arch=all\u0026distro=ubuntu-24.04",
+            "UID": "1b59764d0ed0160"
+          },
+          "Version": "20260816ubuntu0.24.04.2",
+          "Arch": "all",
+          "SrcName": "ca-certificates",
+          "SrcVersion": "20260816ubuntu0.24.04.2",
+          "Licenses": [
+            "GPL-2.0-or-later",
+            "GPL-2.0-only",
+            "MPL-2.0"
+          ],
+          "Maintainer": "Ubuntu Developers \u003cubuntu-devel-discuss@lists.ubuntu.com\u003e",
+          "Repository": {
+            "Class": "official"
+          },
+          "Layer": {
+            "DiffID": "sha256:9474700ab66651003d743c11587a53c557adbea24ecd201e7f86599b0cbb8362"
+          },
+          "AnalyzedBy": "dpkg"
+        },
+        {
+          "ID": "libc6@2.39-0ubuntu8.12",
+          "Name": "libc6",
+          "Identifier": {
+            "PURL": "pkg:deb/ubuntu/libc6@2.39-0ubuntu8.12?arch=amd64\u0026distro=ubuntu-24.04",
+            "UID": "ae3393bdaff6f793"
+          },
+          "Version": "2.39",
+          "Release": "0ubuntu8.12",
+          "Arch": "amd64",
+          "SrcName": "glibc",
+          "SrcVersion": "2.39",
+          "SrcRelease": "0ubuntu8.12",
+          "Licenses": [
+            "LGPL-2.1-only",
+            "GPL-2.0-only",
+            "GFDL-1.3-only"
+          ],
+          "Maintainer": "Ubuntu Developers \u003cubuntu-devel-discuss@lists.ubuntu.com\u003e",
+          "Repository": {
+            "Class": "official"
+          },
+          "Layer": {
+            "DiffID": "sha256:9474700ab66651003d743c11587a53c557adbea24ecd201e7f86599b0cbb8362"
+          },
+          "AnalyzedBy": "dpkg"
+        },
+        {
+          "ID": "libssl3t64@3.0.13-0ubuntu3.16",
+          "Name": "libssl3t64",
+          "Identifier": {
+            "PURL": "pkg:deb/ubuntu/libssl3t64@3.0.13-0ubuntu3.16?arch=amd64\u0026distro=ubuntu-24.04",
+            "UID": "ce7cfd98d758f1ef"
+          },
+          "Version": "3.0.13",
+          "Release": "0ubuntu3.16",
+          "Arch": "amd64",
+          "SrcName": "openssl",
+          "SrcVersion": "3.0.13",
+          "SrcRelease": "0ubuntu3.16",
+          "Licenses": [
+            "Apache-2.0",
+            "Artistic-2.0",
+            "GPL-1.0-or-later",
+            "GPL-1.0-only"
+          ],
+          "Maintainer": "Ubuntu Developers \u003cubuntu-devel-discuss@lists.ubuntu.com\u003e",
+          "Repository": {
+            "Class": "official"
+          },
+          "DependsOn": [
+            "libc6@2.39-0ubuntu8.12"
+          ],
+          "Layer": {
+            "DiffID": "sha256:9474700ab66651003d743c11587a53c557adbea24ecd201e7f86599b0cbb8362"
+          },
+          "AnalyzedBy": "dpkg"
+        }
+      ]
+    }
+  ]
+}
