@@ -1,0 +1,74 @@
+{
+  "tag": "v0.1.3",
+  "draft": true,
+  "published_at": null,
+  "release_id": 458201948,
+  "draft_url": "https://github.com/miik-su/MoonOperator/releases/tag/untagged-29e09db67a4b9204f18e",
+  "target_commit": "dddf77f6a4ba33ce44f797b341a235e1063257dc",
+  "workflow_run": "https://github.com/miik-su/MoonOperator/actions/runs/45629396174",
+  "image_id": "sha256:bab688eb63d886e87f625ae7d563c0d8cf21483b3fdb6c5979001d96731976eb",
+  "assets": [
+    {
+      "name": "moonoperator-v0.1.3-linux-amd64-image.tar.gz",
+      "size": 4130184,
+      "digest": "sha256:26b0218f23f1727dcbf11fb93dfd7402332da626a253c838dcd6b0ccfbf09bba",
+      "state": "uploaded"
+    },
+    {
+      "name": "moonoperator-v0.1.3-linux-amd64-system-sources.tar",
+      "size": 128757760,
+      "digest": "sha256:559a443e6c7fa98e707a428fc8b2f7672a2e2e0ac058833c0f3bfca9183ebe31",
+      "state": "uploaded"
+    },
+    {
+      "name": "moonoperator-v0.1.3-project-runtime-sources.tar.gz",
+      "size": 4192618,
+      "digest": "sha256:5ba72cc7a4f13a1305ba3cd7a001d5b312259dcee37ca5f67b44efc4edcebc00",
+      "state": "uploaded"
+    },
+    {
+      "name": "release-manifest.json",
+      "size": 1370,
+      "digest": "sha256:bb96f5603780d9bcc6894dc140ad2935554841f51ae6849e94c53ba1bfc62b15",
+      "state": "uploaded"
+    },
+    {
+      "name": "SHA256SUMS",
+      "size": 433,
+      "digest": "sha256:6eff13e24e91f954ad659c4cdb9f8b8ebe8fdcb6c8f234178f9a18c144b03b7f",
+      "state": "uploaded"
+    }
+  ],
+  "prior_releases_unchanged": [
+    "v0.1.2",
+    "v0.1.1",
+    "v0.1.0"
+  ],
+  "jobs": [
+    {
+      "id": 139258216737,
+      "name": "build (a, short)",
+      "conclusion": "success"
+    },
+    {
+      "id": 139258224202,
+      "name": "build (b, independent/nested/build)",
+      "conclusion": "success"
+    },
+    {
+      "id": 139262090552,
+      "name": "compare",
+      "conclusion": "success"
+    },
+    {
+      "id": 139262228366,
+      "name": "package",
+      "conclusion": "success"
+    },
+    {
+      "id": 139262702234,
+      "name": "draft",
+      "conclusion": "success"
+    }
+  ]
+}

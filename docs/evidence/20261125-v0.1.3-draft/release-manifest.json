@@ -1,0 +1,36 @@
+{
+  "version": "0.1.3",
+  "source_commit": "dddf77f6a4ba33ce44f797b341a235e1063257dc",
+  "source_date_epoch": 1795615227,
+  "platform": "linux/amd64",
+  "image_id": "sha256:bab688eb63d886e87f625ae7d563c0d8cf21483b3fdb6c5979001d96731976eb",
+  "created": "2026-11-25T14:00:27Z",
+  "filesystem_layers": [
+    "sha256:a01e6953602feed3127a8885a555dbb1176d53157a69081984068c706eda5088"
+  ],
+  "runtime_user": "65532:65532",
+  "executable_sha256": "9b8a55f7cb737363765bcb9a62c5e6a5d81eba59376499874a47f0ae455a6119",
+  "tag": "v0.1.3",
+  "image_tag": "moonoperator:0.1.3",
+  "assets": {
+    "moonoperator-v0.1.3-linux-amd64-image.tar.gz": {
+      "bytes": "4130184",
+      "sha256": "26b0218f23f1727dcbf11fb93dfd7402332da626a253c838dcd6b0ccfbf09bba"
+    },
+    "moonoperator-v0.1.3-project-runtime-sources.tar.gz": {
+      "bytes": "4192618",
+      "sha256": "5ba72cc7a4f13a1305ba3cd7a001d5b312259dcee37ca5f67b44efc4edcebc00"
+    },
+    "moonoperator-v0.1.3-linux-amd64-system-sources.tar": {
+      "bytes": "128757760",
+      "sha256": "559a443e6c7fa98e707a428fc8b2f7672a2e2e0ac058833c0f3bfca9183ebe31"
+    }
+  },
+  "validation": {
+    "workflow": "https://github.com/miik-su/MoonOperator/actions/runs/45629396174",
+    "independent_clean_linux_builds": 2,
+    "image_and_layer_digests_match": true,
+    "verified_archive_reload": true,
+    "system_source_tag": "v0.1.2"
+  }
+}
