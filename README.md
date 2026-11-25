@@ -29,10 +29,13 @@ docker load -i moonoperator-v0.1.1-linux-amd64-image.tar.gz
 ```
 
 The archive loads as `moonoperator:0.1.1`. Two independent clean Linux amd64
-runners produced the same image ID before publication. See the
+runners produced the same image ID before publication. After publication, a
+fresh Linux runner downloaded the public assets, reproduced the published
+image ID from the source archive and deployed the downloaded image to Kind.
+See the
 [deployment instructions](docs/deployment.md#in-cluster-process),
 [reproducible build instructions](docs/deployment.md#reproduce-the-image-id)
-and [v0.1.1 release evidence](docs/evidence/20261125-v0.1.1/README.md).
+and [v0.1.1 post-release acceptance](docs/evidence/20261125-v0.1.1-post-release/README.md).
 [GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
 remains available.
 

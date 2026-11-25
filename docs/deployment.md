@@ -88,21 +88,23 @@ compiler source for the linked runtime helper and startup objects.
 
 ### Reproduce the image ID
 
-Run the [independent Linux amd64 release workflow](https://github.com/miik-su/MoonOperator/actions/workflows/release-candidate.yml)
-at the `v0.1.1` tag, for example with GitHub CLI:
+Run the [public release acceptance workflow](https://github.com/miik-su/MoonOperator/actions/workflows/published-release.yml)
+from the current main branch, for example with GitHub CLI:
 
 ```sh
-gh workflow run release-candidate.yml --ref v0.1.1 --repo miik-su/MoonOperator
+gh workflow run published-release.yml --ref main --repo miik-su/MoonOperator -f version=0.1.1
 ```
 
-The two clean runners build at a stable logical source path with the pinned
-SDK and reviewed GCC/glibc development package revisions. The workflow passes
-the source commit time as `SOURCE_DATE_EPOCH` to fix the configuration,
-history and layer timestamps. Compare the two `image.json` receipts with
-`release-manifest.json` from the published release. The earlier commands in
-this guide cover a functional local build. Matching the released image ID
-also requires the recorded toolchain paths, package versions and timestamp.
-See the [v0.1.1 release evidence](evidence/20261125-v0.1.1/README.md).
+The workflow downloads the public release assets and compiles the extracted
+MoonBit project with the bundled module sources, pinned SDK, and reviewed
+GCC/glibc development packages. It builds the image without cache at the
+original source and toolchain paths and uses `SOURCE_DATE_EPOCH` from the
+verified release manifest. The v0.1.1 check requires the rebuilt image ID,
+layer digest and executable bytes to match the downloaded image, then deploys
+the downloaded image to a disposable Kind cluster. The earlier commands in
+this guide cover a functional local build.
+See the [v0.1.1 post-release results](evidence/20261125-v0.1.1-post-release/README.md)
+and the [independent pre-release builds](evidence/20261125-v0.1.1/README.md).
 
 ## Install on Kind
 
