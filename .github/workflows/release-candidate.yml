@@ -1,5 +1,15 @@
 name: Independent Linux amd64 release builds
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      system_source_tag:
+        description: Published release with the reviewed Ubuntu/GCC source archive
+        type: string
+        required: true
+      create_draft:
+        description: Create or resume a GitHub draft after all checks pass
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -46,7 +56,7 @@ jobs:
             printf 'RELEASE_SOURCE=%s\nRELEASE_VERSION=%s\n' "$src" "$version"
             printf 'SOURCE_DATE_EPOCH=%s\n' "$(git -C "$GITHUB_WORKSPACE" log -1 --format=%ct)"
           } >> "$GITHUB_ENV"
-          dpkg-query -W gcc-13 libc6-dev libgcc-13-dev > "$RUNNER_TEMP/receipt/builder-packages.tsv"
+          dpkg-query -W -f='${binary:Package}\t${Version}\t${source:Package}\t${source:Version}\n' gcc-13 libc6-dev libgcc-13-dev > "$RUNNER_TEMP/receipt/builder-packages.tsv"
           jq -n --arg host "$(hostname)" --arg source_dir "$src" --arg runner "$RUNNER_NAME" '{host:$host,source_directory:$source_dir,runner:$runner}' > "$RUNNER_TEMP/receipt/runner.json"
       - name: Compile and build the single-layer image without build cache
         run: |
@@ -154,3 +164,143 @@ jobs:
           cd candidate/release-payload
           sha256sum --check --strict payload-SHA256SUMS
           cat "../release-evidence-a/image.json" >> "$GITHUB_STEP_SUMMARY"
+  package:
+    needs: compare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-moonbit
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: release-*
+          path: candidate
+      - name: Verify and package the corresponding system sources
+        env:
+          SYSTEM_SOURCE_TAG: ${{ inputs.system_source_tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$SYSTEM_SOURCE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          mkdir "$RUNNER_TEMP"/{system-input,system-output,release}
+          input="$RUNNER_TEMP/system-input"
+          output="$RUNNER_TEMP/system-output"
+          receipt="candidate/release-evidence-a"
+          version=$(jq -er '.version | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))' "$receipt/image.json")
+          test "$(jq -er .source_commit "$receipt/image.json")" = "$GITHUB_SHA"
+          name="moonoperator-$SYSTEM_SOURCE_TAG-linux-amd64-system-sources.tar"
+          digest=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$SYSTEM_SOURCE_TAG" | jq -er --arg name "$name" --arg tag "$SYSTEM_SOURCE_TAG" 'select(.draft == false and .tag_name == $tag) | [.assets[] | select(.name == $name and .state == "uploaded") | .digest] | select(length == 1) | .[0] | select(test("^sha256:[a-f0-9]{64}$"))')
+          curl --retry 3 --retry-all-errors --max-time 180 -fsSL "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$SYSTEM_SOURCE_TAG/$name" -o "$input/$name"
+          printf '%s  %s\n' "${digest#sha256:}" "$input/$name" | sha256sum --check --strict
+          tar -xf "$input/$name" -C "$input"
+          gpgv --status-fd 1 --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --output "$RUNNER_TEMP/Release" "$input/archive-auth/noble-security.InRelease" > "$RUNNER_TEMP/signature.txt"
+          grep -q 'VALIDSIG F6ECB3762474EDA9D21B7022871920D1991BC93C ' "$RUNNER_TEMP/signature.txt"
+          read -r index_sha index_size < <(awk 'length($1) == 64 && $3 == "main/source/Sources.xz" {print $1, $2}' "$RUNNER_TEMP/Release")
+          index="$input/archive-auth/noble-security.Sources.xz"
+          test "$(stat -c %s "$index")" = "$index_size"
+          printf '%s  %s\n' "$index_sha" "$index" | sha256sum --check --strict
+          xz -dc "$index" > "$RUNNER_TEMP/Sources"
+          LC_ALL=C cut -f3,4 "$receipt/builder-packages.tsv" "$receipt/runtime-source-packages.tsv" | LC_ALL=C sort -u > "$RUNNER_TEMP/required-sources.tsv"
+          jq -er '.source_packages[] | [.source,.version] | @tsv' "$input/source-manifest.json" | LC_ALL=C sort > "$RUNNER_TEMP/manifest-sources.tsv"
+          diff -u "$RUNNER_TEMP/required-sources.tsv" "$RUNNER_TEMP/manifest-sources.tsv"
+          while IFS=$'\t' read -r source source_version; do
+            [[ "$source" =~ ^[a-z0-9][a-z0-9+.-]*$ ]]
+            awk -v "name=$source" -v "version=$source_version" '
+              BEGIN { RS=""; FS="\n" }
+              $1 == "Package: " name {
+                for (i=1; i<=NF; i++) if ($i == "Version: " version) {
+                  for (j=1; j<=NF; j++) if ($j == "Checksums-Sha256:") {
+                    for (k=j+1; k<=NF && $k ~ /^ /; k++) print substr($k, 2)
+                    found=1
+                    exit
+                  }
+                }
+              }
+              END { if (!found) exit 1 }
+            ' "$RUNNER_TEMP/Sources" | LC_ALL=C sort > "$RUNNER_TEMP/index-files"
+            jq -er --arg source "$source" '.source_packages[] | select(.source == $source) | .files[] | "\(.sha256) \(.bytes) \(.file)"' "$input/source-manifest.json" | LC_ALL=C sort > "$RUNNER_TEMP/manifest-files"
+            diff -u "$RUNNER_TEMP/index-files" "$RUNNER_TEMP/manifest-files"
+            mkdir "$output/$source"
+            while read -r hash bytes file; do
+              [[ "$file" =~ ^[A-Za-z0-9][A-Za-z0-9.+_~-]*$ ]]
+              test -f "$input/$source/$file" && test ! -L "$input/$source/$file"
+              test "$(stat -c %s "$input/$source/$file")" = "$bytes"
+              printf '%s  %s\n' "$hash" "$input/$source/$file" | sha256sum --check --strict
+              cp "$input/$source/$file" "$output/$source/"
+            done < "$RUNNER_TEMP/index-files"
+          done < "$RUNNER_TEMP/required-sources.tsv"
+          mkdir "$output/archive-auth"
+          cp "$input/archive-auth/noble-security.InRelease" "$index" "$output/archive-auth/"
+          cp "$input/source-manifest.json" "$output/"
+          printf '# MoonOperator v%s system sources\n\nExact Ubuntu source packages and their signed index. See source-manifest.json.\nUnpack each .dsc with dpkg-source -x. Component licenses accompany the sources.\n' "$version" > "$output/README.md"
+          epoch=$(jq -er .source_date_epoch "$receipt/image.json")
+          tar --sort=name --mtime="@$epoch" --owner=0 --group=0 --numeric-owner -cf "$RUNNER_TEMP/release/moonoperator-v$version-linux-amd64-system-sources.tar" -C "$output" .
+          (
+            cd candidate/release-payload
+            sha256sum --check --strict payload-SHA256SUMS
+            cp "moonoperator-v$version-linux-amd64-image.tar.gz" "moonoperator-v$version-project-runtime-sources.tar.gz" "$RUNNER_TEMP/release/"
+          )
+          moon run scripts/assemble-release.mbtx -- "$receipt/image.json" "$RUNNER_TEMP/release" "$SYSTEM_SOURCE_TAG" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          (cd "$RUNNER_TEMP/release" && sha256sum --check --strict SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verified-release
+          path: ${{ runner.temp }}/release/
+          if-no-files-found: error
+  draft:
+    needs: package
+    if: inputs.create_draft
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    concurrency:
+      group: release-draft-${{ github.repository }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: verified-release
+          path: release
+      - name: Create or resume the draft without replacing assets
+        working-directory: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          sha256sum --check --strict SHA256SUMS
+          tag=$(jq -er '.tag | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))' release-manifest.json)
+          commit=$(jq -er .source_commit release-manifest.json)
+          test "$commit" = "$GITHUB_SHA"
+          api="repos/$GH_REPO"
+          existing=$(gh api --paginate "$api/releases?per_page=100" | jq -sc --arg tag "$tag" '[.[][] | select(.tag_name == $tag)]')
+          if [ "$(jq length <<< "$existing")" = 0 ]; then
+            refs=$(gh api "$api/git/matching-refs/tags/$tag")
+            jq -e --arg ref "refs/tags/$tag" 'all(.[]; .ref != $ref)' <<< "$refs"
+            body=$(jq -n --arg tag "$tag" --arg sha "$commit" --arg run "$GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID" '{
+              tag_name:$tag,target_commitish:$sha,name:("MoonOperator "+$tag),draft:true,
+              body:("Linux amd64 image and corresponding project/runtime and system sources. Verify all files with SHA256SUMS.\n\n[Independent builds and Kind checks]("+$run+")")
+            }')
+            draft=$(gh api --method POST "$api/releases" --input - <<< "$body")
+          else
+            draft=$(jq -ce --arg sha "$commit" 'select(length == 1) | .[0] | select(.draft and .target_commitish == $sha)' <<< "$existing")
+          fi
+          id=$(jq -er --arg tag "$tag" --arg sha "$commit" 'select(.draft and .tag_name == $tag and .target_commitish == $sha) | .id' <<< "$draft")
+          files=("moonoperator-$tag-linux-amd64-image.tar.gz" "moonoperator-$tag-project-runtime-sources.tar.gz" "moonoperator-$tag-linux-amd64-system-sources.tar" release-manifest.json SHA256SUMS)
+          for file in "${files[@]}"; do
+            expected="sha256:$(sha256sum "$file" | cut -d ' ' -f1)"
+            assets=$(gh api "$api/releases/$id" --jq .assets)
+            if ! jq -e --arg name "$file" 'any(.[]; .name == $name)' <<< "$assets"; then
+              upload=(--fail-with-body --silent --show-error --max-time 300)
+              upload+=(-H "Authorization: Bearer $GH_TOKEN" -H 'Content-Type: application/octet-stream' --data-binary "@$file")
+              curl "${upload[@]}" "https://uploads.github.com/repos/$GH_REPO/releases/$id/assets?name=$file" > /dev/null
+              assets=$(gh api "$api/releases/$id" --jq .assets)
+            fi
+            jq -e --arg name "$file" --arg digest "$expected" 'any(.[]; .name == $name and .digest == $digest and .state == "uploaded")' <<< "$assets"
+          done
+          gh api "$api/releases/$id" | jq -er 'select(.draft and (.assets | length == 5)) | .html_url' >> "$GITHUB_STEP_SUMMARY"

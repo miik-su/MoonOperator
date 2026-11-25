@@ -1,0 +1,73 @@
+----
+import {
+  "moonbitlang/async@0.22.5", "moonbitlang/async@0.22.5/fs",
+  "moonbitlang/async@0.22.5/shell", "moonbitlang/core/env",
+  "moonbitlang/core/json",
+}
+----
+
+///|
+fn field(value : Json, key : String) -> Json {
+  match value {
+    Object(fields) => fields.get(key).unwrap_or(Json::null())
+    _ => Json::null()
+  }
+}
+
+///|
+async fn sha256(path : String) -> String {
+  let result = @shell.Cmd("sha256sum", ["--", path]).output()
+  result.check()
+  let hash = result.stdout().split(" ").next().unwrap().to_owned()
+  guard hash.length() == 64 else { fail("invalid SHA-256 output") }
+  hash
+}
+
+///|
+async fn main {
+  let args = @env.args()
+  guard args.length() == 5 else {
+    fail(
+      "usage: assemble-release.mbtx VERIFIED_IMAGE_JSON RELEASE_DIRECTORY SOURCE_TAG WORKFLOW_URL",
+    )
+  }
+  let image = @json.parse(@fs.read_file(args[1]).text())
+  guard image is Object(fields) &&
+    field(image, "version") is String(version) &&
+    field(image, "source_commit") is String(commit) &&
+    field(image, "platform") == Json::string("linux/amd64") &&
+    field(image, "filesystem_layers") is Array(layers) &&
+    layers.length() == 1 else {
+    fail("invalid compared image receipt")
+  }
+  let tag = "v" + version
+  let release_dir = args[2] + "/"
+  let prefix = "moonoperator-" + tag
+  let assets : Map[String, Json] = Map([])
+  let checksums : Array[String] = []
+  for
+    suffix in [
+      "-linux-amd64-image.tar.gz", "-project-runtime-sources.tar.gz", "-linux-amd64-system-sources.tar",
+    ] {
+    let name = prefix + suffix
+    let path = release_dir + name
+    let hash = sha256(path)
+    assets[name] = { "bytes": @fs.file_size(path), "sha256": hash }
+    checksums.push(hash + "  " + name)
+  }
+  fields["tag"] = Json::string(tag)
+  fields["image_tag"] = Json::string("moonoperator:" + version)
+  fields["assets"] = Json::object(assets)
+  fields["validation"] = {
+    "workflow": args[4],
+    "independent_clean_linux_builds": 2,
+    "image_and_layer_digests_match": true,
+    "verified_archive_reload": true,
+    "system_source_tag": args[3],
+  }
+  let manifest = release_dir + "release-manifest.json"
+  @fs.write_file(manifest, image.stringify(indent=2) + "\n")
+  checksums.push(sha256(manifest) + "  release-manifest.json")
+  @fs.write_file(release_dir + "SHA256SUMS", checksums.join("\n") + "\n")
+  println("Assembled " + tag + " from " + commit)
+}
