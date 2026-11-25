@@ -38,8 +38,8 @@ See the
 and the [v0.1.2 release and public acceptance results](docs/evidence/20261125-v0.1.2/README.md).
 [Earlier releases](https://github.com/miik-su/MoonOperator/releases) remain available.
 
-For future versions, see [reusable release builds and public acceptance](docs/deployment.md#reproduce-the-image-id)
-and the [workflow verification results](docs/evidence/20261125-release-workflows/README.md).
+For future versions, see [release packaging and GitHub drafts](docs/deployment.md#prepare-a-new-release)
+and [public release acceptance](docs/deployment.md#reproduce-the-image-id).
 
 The implementation follows the linked MoonOperator design: dynamic resources,
 an injectable Kubernetes client, LIST/WATCH recovery, a bounded cache and work

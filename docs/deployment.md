@@ -113,25 +113,29 @@ The strict acceptance workflow requires a reproducible release manifest with
 
 ### Prepare a new release
 
-1. Set the release version in `moon.mod`, refresh the reviewed source SBOM, and
-   run the [independent Linux amd64 release workflow](https://github.com/miik-su/MoonOperator/actions/workflows/release-candidate.yml)
-   from the intended release commit. It derives the image tag from the module
-   version and the build timestamp from the commit. Both clean jobs resolve
-   the declared modules and build with their frozen sources.
-2. Use the candidate payload only after the comparison job passes. It checks
-   the image ID, layer digest, executable, package records and module-source
-   digest across the two jobs. It also checks the image and project source
-   archive hashes and the Kind reconciliation result.
-3. Pair the verified image and project/runtime archive with the corresponding
-   system source archive. Use the naming convention shown on the
-   [GitHub Releases page](https://github.com/miik-su/MoonOperator/releases).
-   Use the verified `image.json` receipt for the release manifest's version,
-   source commit, timestamp, platform, image ID, layers and executable hash.
-   Include the three archives and `release-manifest.json` in `SHA256SUMS`
-   and publish all five files with the tag pointing to the tested commit.
-4. Run public release acceptance for the published tag.
+1. Set the version in `moon.mod` and refresh the source SBOM. Run the
+   [independent Linux amd64 release workflow](https://github.com/miik-su/MoonOperator/actions/workflows/release-candidate.yml)
+   from the intended release ref. For `system_source_tag`, choose a published
+   release whose reviewed system source archive covers the same Ubuntu and
+   GCC source revisions. A revision change needs a matching signed source
+   archive before packaging can pass.
+2. The comparison job requires the two clean builds to have the same image
+   ID, layer digest, executable hash, module source digest and package
+   records. It checks the candidate archive hashes and the Kind result.
+   Packaging then verifies the system archive against GitHub metadata and the
+   signed Ubuntu index, checks the exact runtime and builder source versions,
+   and writes the three archives, release manifest and `SHA256SUMS` to the
+   `verified-release` artifact.
+3. Set `create_draft=true` to have the workflow upload and verify all five
+   files in a draft targeting the tested commit. The default is a packaging
+   rehearsal. A draft for the same commit can resume with matching assets.
+   Existing public releases, existing tags without a matching draft, and
+   digest mismatches cause the draft step to fail.
+4. Review and publish the draft in GitHub. Publication triggers the
+   public download, rebuild and Kind checks. The manual dispatch above is
+   also available for rechecking a published tag.
 
-See the [reusable workflow test results](evidence/20261125-release-workflows/README.md).
+See the [release packaging and draft test results](evidence/20261125-release-draft/README.md).
 
 ## Install on Kind
 
