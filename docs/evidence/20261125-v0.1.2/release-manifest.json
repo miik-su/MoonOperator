@@ -1,0 +1,43 @@
+{
+  "version": "0.1.2",
+  "tag": "v0.1.2",
+  "source_commit": "cbf02c9f393d032e943452ce76aa7148ca7b061a",
+  "source_date_epoch": 1795612772,
+  "platform": "linux/amd64",
+  "image_tag": "moonoperator:0.1.2",
+  "image_id": "sha256:6a38a6bede181438c8ef4a4c0281a1a7306224c615707aee325a45ac2c4209b1",
+  "filesystem_layers": [
+    "sha256:5913e20e9f4ec1ba5b23cf6221875420896df71a30d7734fb132b8e5a6e12f35"
+  ],
+  "executable_sha256": "9b8a55f7cb737363765bcb9a62c5e6a5d81eba59376499874a47f0ae455a6119",
+  "validation": {
+    "workflow": "https://github.com/miik-su/MoonOperator/actions/runs/45622423043",
+    "independent_clean_linux_builds": 2,
+    "image_and_layer_digests_match": true,
+    "kubernetes": "v1.37.0",
+    "verified_archive_reload": true,
+    "system_archive_signer": "F6ECB3762474EDA9D21B7022871920D1991BC93C",
+    "system_source_files_checked": 12,
+    "native_link_audit_matches_executable": true,
+    "runtime_scan": {
+      "package_count": 3,
+      "findings": 0,
+      "scanner": "Trivy 0.76.2",
+      "database": "Version: 0.76.2\nVulnerability DB:\n  Version: 2\n  UpdatedAt: 2026-11-25 07:11:44.18325427 +0000 UTC\n  NextUpdate: 2026-11-26 07:11:44.18325381 +0000 UTC\n  DownloadedAt: 2026-11-25 13:26:07.15413944 +0000 UTC"
+    }
+  },
+  "assets": {
+    "moonoperator-v0.1.2-linux-amd64-image.tar.gz": {
+      "bytes": 4129885,
+      "sha256": "c58d76faa54ad669e36f5f836907d850d892d51c7eea49c6f7f41132c05bb94f"
+    },
+    "moonoperator-v0.1.2-project-runtime-sources.tar.gz": {
+      "bytes": 4184677,
+      "sha256": "aa2ce38838ef51029e87f9a40b03f7250bd2666614a05b46e1baa5029231f029"
+    },
+    "moonoperator-v0.1.2-linux-amd64-system-sources.tar": {
+      "bytes": 128751104,
+      "sha256": "f1148e55452e1dbe54dc49cb9acf36618f2b5289fe9058be21108500a546125a"
+    }
+  }
+}

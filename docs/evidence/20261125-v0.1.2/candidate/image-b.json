@@ -1,0 +1,13 @@
+{
+  "version": "0.1.2",
+  "source_commit": "cbf02c9f393d032e943452ce76aa7148ca7b061a",
+  "source_date_epoch": 1795612772,
+  "platform": "linux/amd64",
+  "image_id": "sha256:6a38a6bede181438c8ef4a4c0281a1a7306224c615707aee325a45ac2c4209b1",
+  "created": "2026-11-25T13:19:32Z",
+  "filesystem_layers": [
+    "sha256:5913e20e9f4ec1ba5b23cf6221875420896df71a30d7734fb132b8e5a6e12f35"
+  ],
+  "runtime_user": "65532:65532",
+  "executable_sha256": "9b8a55f7cb737363765bcb9a62c5e6a5d81eba59376499874a47f0ae455a6119"
+}

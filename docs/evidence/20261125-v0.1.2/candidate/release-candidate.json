@@ -1,0 +1,10 @@
+{
+  "namespace": "release-candidate",
+  "image": "moonoperator:0.1.2",
+  "running_image_id": "docker.io/library/import-2026-11-25@sha256:a85818b469a1ddf56332e42b03490ea0c20e8330a028d1446d9069da9b438601",
+  "operator_ready": true,
+  "moonapp_resources_applied": true,
+  "service_port_before": 8080,
+  "service_port_after": 8081,
+  "fixture_replicas": 0
+}
