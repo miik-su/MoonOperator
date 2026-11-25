@@ -89,22 +89,48 @@ compiler source for the linked runtime helper and startup objects.
 ### Reproduce the image ID
 
 Run the [public release acceptance workflow](https://github.com/miik-su/MoonOperator/actions/workflows/published-release.yml)
-from the current main branch, for example with GitHub CLI:
+from the current main branch. Set `tag` to an existing public release tag
+in the form `vMAJOR.MINOR.PATCH`.
 
 ```sh
-gh workflow run published-release.yml --ref main --repo miik-su/MoonOperator -f version=0.1.1
+gh workflow run published-release.yml --ref main --repo miik-su/MoonOperator -f "tag=$tag"
 ```
 
-The workflow downloads the public release assets and compiles the extracted
-MoonBit project with the bundled module sources, pinned SDK, and reviewed
-GCC/glibc development packages. It builds the image without cache at the
-original source and toolchain paths and uses `SOURCE_DATE_EPOCH` from the
-verified release manifest. The v0.1.1 check requires the rebuilt image ID,
-layer digest and executable bytes to match the downloaded image, then deploys
-the downloaded image to a disposable Kind cluster. The earlier commands in
-this guide cover a functional local build.
-See the [v0.1.1 post-release results](evidence/20261125-v0.1.1-post-release/README.md)
-and the [independent pre-release builds](evidence/20261125-v0.1.1/README.md).
+The workflow downloads the public release assets and checks their SHA-256
+against GitHub's release metadata and `SHA256SUMS`. It verifies that the
+project archive and release manifest identify the commit of the published tag.
+It compiles the extracted project from the bundled module sources with the
+pinned SDK and the GCC/glibc development package revisions in the signed
+system source inventory. It builds the image without cache with the recorded
+`SOURCE_DATE_EPOCH` and requires the rebuilt image ID, layer digest and
+executable bytes to match the public image. The downloaded image is then
+deployed to a disposable Kind cluster.
+
+The strict acceptance workflow requires a reproducible release manifest with
+`source_date_epoch` and `filesystem_layers`. Earlier releases have their
+[historical acceptance records](evidence/20261124-published-release/README.md).
+
+### Prepare a new release
+
+1. Set the release version in `moon.mod`, refresh the reviewed source SBOM, and
+   run the [independent Linux amd64 release workflow](https://github.com/miik-su/MoonOperator/actions/workflows/release-candidate.yml)
+   from the intended release commit. It derives the image tag from the module
+   version and the build timestamp from the commit. Both clean jobs resolve
+   the declared modules and build with their frozen sources.
+2. Use the candidate payload only after the comparison job passes. It checks
+   the image ID, layer digest, executable, package records and module-source
+   digest across the two jobs. It also checks the image and project source
+   archive hashes and the Kind reconciliation result.
+3. Pair the verified image and project/runtime archive with the corresponding
+   system source archive. Use the naming convention shown on the
+   [GitHub Releases page](https://github.com/miik-su/MoonOperator/releases).
+   Use the verified `image.json` receipt for the release manifest's version,
+   source commit, timestamp, platform, image ID, layers and executable hash.
+   Include the three archives and `release-manifest.json` in `SHA256SUMS`
+   and publish all five files with the tag pointing to the tested commit.
+4. Run public release acceptance for the published tag.
+
+See the [reusable workflow test results](evidence/20261125-release-workflows/README.md).
 
 ## Install on Kind
 

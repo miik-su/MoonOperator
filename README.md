@@ -39,6 +39,9 @@ and [v0.1.1 post-release acceptance](docs/evidence/20261125-v0.1.1-post-release/
 [GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
 remains available.
 
+For future versions, see [reusable release builds and public acceptance](docs/deployment.md#reproduce-the-image-id)
+and the [workflow verification results](docs/evidence/20261125-release-workflows/README.md).
+
 The implementation follows the linked MoonOperator design: dynamic resources,
 an injectable Kubernetes client, LIST/WATCH recovery, a bounded cache and work
 queue, and idempotent reconciliation. See [the roadmap](docs/roadmap.md).
