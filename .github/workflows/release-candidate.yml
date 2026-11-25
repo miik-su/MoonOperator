@@ -279,9 +279,9 @@ jobs:
           test "$commit" = "$GITHUB_SHA"
           api="repos/$GH_REPO"
           existing=$(gh api --paginate "$api/releases?per_page=100" | jq -sc --arg tag "$tag" '[.[][] | select(.tag_name == $tag)]')
+          tag_exists=$(gh api "$api/git/matching-refs/tags/$tag" | jq -er --arg ref "refs/tags/$tag" '[.[] | select(.ref == $ref)] | length')
           if [ "$(jq length <<< "$existing")" = 0 ]; then
-            refs=$(gh api "$api/git/matching-refs/tags/$tag")
-            jq -e --arg ref "refs/tags/$tag" 'all(.[]; .ref != $ref)' <<< "$refs"
+            test "$tag_exists" = 0
             body=$(jq -n --arg tag "$tag" --arg sha "$commit" --arg run "$GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID" '{
               tag_name:$tag,target_commitish:$sha,name:("MoonOperator "+$tag),draft:true,
               body:("Linux amd64 image and corresponding project/runtime and system sources. Verify all files with SHA256SUMS.\n\n[Independent builds and Kind checks]("+$run+")")
@@ -289,6 +289,9 @@ jobs:
             draft=$(gh api --method POST "$api/releases" --input - <<< "$body")
           else
             draft=$(jq -ce --arg sha "$commit" 'select(length == 1) | .[0] | select(.draft and .target_commitish == $sha)' <<< "$existing")
+            if [ "$tag_exists" != 0 ]; then
+              test "$(gh api "$api/commits/$tag" --jq .sha)" = "$commit"
+            fi
           fi
           id=$(jq -er --arg tag "$tag" --arg sha "$commit" 'select(.draft and .tag_name == $tag and .target_commitish == $sha) | .id' <<< "$draft")
           files=("moonoperator-$tag-linux-amd64-image.tar.gz" "moonoperator-$tag-project-runtime-sources.tar.gz" "moonoperator-$tag-linux-amd64-system-sources.tar" release-manifest.json SHA256SUMS)
