@@ -27,15 +27,15 @@ explicit exclusions are in project-scope.md and transport/config.mbt.
 
 To use the Linux amd64 release archive on a development cluster, download the
 image, both source archives, `release-manifest.json` and `SHA256SUMS` from
-[GitHub Release v0.1.1](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.1),
+[GitHub Release v0.1.2](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.2),
 verify the archive, and load it. The development manifest uses
 `moonoperator:dev`, so tag the loaded image with that name before importing
 it into your Kind cluster.
 
 ```sh
 sha256sum --check --strict SHA256SUMS
-docker load -i moonoperator-v0.1.1-linux-amd64-image.tar.gz
-docker tag moonoperator:0.1.1 moonoperator:dev
+docker load -i moonoperator-v0.1.2-linux-amd64-image.tar.gz
+docker tag moonoperator:0.1.2 moonoperator:dev
 ```
 
 ## Rebuild the release image
@@ -46,7 +46,7 @@ dependencies into a fresh directory. The core archive is also supplied.
 
 ```sh
 mkdir release-source
-tar -xzf moonoperator-v0.1.1-project-runtime-sources.tar.gz -C release-source
+tar -xzf moonoperator-v0.1.2-project-runtime-sources.tar.gz -C release-source
 tar -xzf release-source/project.tar.gz -C release-source
 cp -a release-source/mooncakes release-source/MoonOperator/.mooncakes
 cp release-source/moonbit-core.tar.gz /tmp/core.tar.gz
@@ -96,12 +96,13 @@ in the form `vMAJOR.MINOR.PATCH`.
 gh workflow run published-release.yml --ref main --repo miik-su/MoonOperator -f "tag=$tag"
 ```
 
-The workflow downloads the public release assets and checks their SHA-256
-against GitHub's release metadata and `SHA256SUMS`. It verifies that the
-project archive and release manifest identify the commit of the published tag.
-It compiles the extracted project from the bundled module sources with the
-pinned SDK and the GCC/glibc development package revisions in the signed
-system source inventory. It builds the image without cache with the recorded
+The workflow downloads the public release assets anonymously and checks their
+SHA-256 against GitHub's release metadata and `SHA256SUMS`. The workflow's
+read-only token is used for release and commit metadata lookups. The workflow
+checks that the project archive and release manifest identify the commit of the
+published tag, then compiles the extracted project from the bundled module
+sources with the pinned SDK and the GCC/glibc development package revisions in
+the signed system source inventory. It builds the image without cache with the recorded
 `SOURCE_DATE_EPOCH` and requires the rebuilt image ID, layer digest and
 executable bytes to match the public image. The downloaded image is then
 deployed to a disposable Kind cluster.

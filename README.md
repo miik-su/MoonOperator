@@ -2,7 +2,7 @@
 
 A MoonBit-native Kubernetes Operator development framework.
 
-Experimental 0.1.1 for single-replica development and testing. The source and
+Experimental 0.1.2 for single-replica development and testing. The source and
 examples are usable from this checkout. Mooncakes publication and stable
 production support remain outside this release scope.
 
@@ -17,7 +17,7 @@ See [security reporting](SECURITY.md), [contributing](CONTRIBUTING.md),
 
 ## Download the Linux amd64 image
 
-[GitHub Release v0.1.1](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.1)
+[GitHub Release v0.1.2](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.2)
 provides the Docker image archive, matching project and runtime sources,
 matching system and compiler sources, and SHA-256 checksums.
 
@@ -25,19 +25,18 @@ Place all five release assets in one directory, then verify and load the image.
 
 ```sh
 sha256sum --check --strict SHA256SUMS
-docker load -i moonoperator-v0.1.1-linux-amd64-image.tar.gz
+docker load -i moonoperator-v0.1.2-linux-amd64-image.tar.gz
 ```
 
-The archive loads as `moonoperator:0.1.1`. Two independent clean Linux amd64
+The archive loads as `moonoperator:0.1.2`. Two independent clean Linux amd64
 runners produced the same image ID before publication. After publication, a
 fresh Linux runner downloaded the public assets, reproduced the published
 image ID from the source archive and deployed the downloaded image to Kind.
 See the
 [deployment instructions](docs/deployment.md#in-cluster-process),
 [reproducible build instructions](docs/deployment.md#reproduce-the-image-id)
-and [v0.1.1 post-release acceptance](docs/evidence/20261125-v0.1.1-post-release/README.md).
-[GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
-remains available.
+and the [v0.1.2 release and public acceptance results](docs/evidence/20261125-v0.1.2/README.md).
+[Earlier releases](https://github.com/miik-su/MoonOperator/releases) remain available.
 
 For future versions, see [reusable release builds and public acceptance](docs/deployment.md#reproduce-the-image-id)
 and the [workflow verification results](docs/evidence/20261125-release-workflows/README.md).
