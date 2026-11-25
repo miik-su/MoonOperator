@@ -15,19 +15,26 @@ async fn main {
   guard field(tree, "status") == Json::string("success") else { fail("dependency resolution failed") }
   guard field(tree, "modules") is Array(modules) else { fail("missing module graph") }
   let expected : Map[String, (String, String)] = {
-    "miik-su/moonoperator": ("0.1.1", "Apache-2.0"),
     "moonbitlang/async": ("0.22.5", "Apache-2.0"),
     "moonbit-community/yaml": ("0.0.8", "MIT"),
   }
-  guard modules.length() == expected.length() else { fail("review new dependencies before updating inventory") }
+  guard modules.length() == expected.length() + 1 else { fail("review new dependencies before updating inventory") }
   let components : Array[Json] = []
   let dependencies : Array[Json] = []
   for index, entry in modules {
     guard field(entry, "name") is String(name) else { fail("missing module name") }
-    guard expected.get(name) is Some((version, license)) else { fail("unreviewed dependency") }
-    guard field(entry, "version") == Json::string(version) else { fail("dependency version changed") }
+    guard field(entry, "version") is String(version) else { fail("missing module version") }
+    let license = if index == 0 {
+      guard name == "miik-su/moonoperator" else { fail("unexpected root module") }
+      "Apache-2.0"
+    } else {
+      guard expected.get(name) is Some((expected_version, license)) else { fail("unreviewed dependency") }
+      guard version == expected_version else { fail("dependency version changed") }
+      license
+    }
     let path = if index == 0 { "moon.mod" } else { ".mooncakes/" + name + "/moon.mod" }
     let manifest = @fs.read_file(path).text()
+    guard manifest.contains("version = \"" + version + "\"") else { fail("resolved version differs from manifest") }
     guard manifest.contains("license = \"" + license + "\"") else { fail("review dependency license change") }
     components.push({ "type": "library", "bom-ref": name, "name": name, "version": version, "purl": "pkg:generic/" + name + "@" + version, "licenses": [{ "license": { "id": license } }] })
     let children : Array[String] = []

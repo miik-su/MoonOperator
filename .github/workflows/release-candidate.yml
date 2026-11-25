@@ -17,8 +17,6 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      PREVIOUS_RELEASE: https://github.com/miik-su/MoonOperator/releases/download/v0.1.0
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -34,22 +32,16 @@ jobs:
           test "$(dpkg-query -W -f='${Version}' libc6-dev)" = '2.39-0ubuntu8.12'
           test "$(dpkg-query -W -f='${Version}' libgcc-13-dev)" = '13.3.0-6ubuntu2~24.04.1'
           test "$(gcc -dumpfullversion)" = '13.3.0'
-          mkdir "$RUNNER_TEMP"/{inputs,receipt,payload}
+          mkdir "$RUNNER_TEMP"/{receipt,payload}
           src="$RUNNER_TEMP/$SOURCE_DIR/MoonOperator"
           mkdir -p "$src"
           git archive HEAD | tar -xf - -C "$src"
           test ! -e "$src/_build"
-          cd "$RUNNER_TEMP/inputs"
-          for asset in SHA256SUMS release-manifest.json moonoperator-v0.1.0-project-runtime-sources.tar.gz; do
-            curl --retry 3 --retry-all-errors --max-time 120 -fsSLO "$PREVIOUS_RELEASE/$asset"
-          done
-          printf '%s  SHA256SUMS\n' d2851bacc910985334dccc8ee0cba05d65c1f74ae7844b456586b855eaf6f3cb | sha256sum --check --strict
-          grep -E '  (release-manifest\.json|moonoperator-v0\.1\.0-project-runtime-sources\.tar\.gz)$' SHA256SUMS | sha256sum --check --strict
-          tar -xzf moonoperator-v0.1.0-project-runtime-sources.tar.gz ./mooncakes
-          cp -a mooncakes "$src/.mooncakes"
           version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' "$src/moon.mod")
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
-          test "$version" = 0.1.1
+          cd "$src"
+          moon tree --package --target native --json > /dev/null
+          (cd .mooncakes && tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - -- */ | sha256sum) > "$RUNNER_TEMP/receipt/module-sources.sha256"
           {
             printf 'RELEASE_SOURCE=%s\nRELEASE_VERSION=%s\n' "$src" "$version"
             printf 'SOURCE_DATE_EPOCH=%s\n' "$(git -C "$GITHUB_WORKSPACE" log -1 --format=%ct)"
@@ -66,9 +58,8 @@ jobs:
           cd "$RELEASE_SOURCE"
           tag="moonoperator:$RELEASE_VERSION"
           sha=$(sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe | cut -d ' ' -f 1)
-          test "$sha" = "$(jq -er .executable_sha256 "$RUNNER_TEMP/inputs/release-manifest.json")"
-          diff -r "$RUNNER_TEMP/inputs/mooncakes/moonbitlang/async" .mooncakes/moonbitlang/async
-          diff -r "$RUNNER_TEMP/inputs/mooncakes/moonbit-community/yaml" .mooncakes/moonbit-community/yaml
+          (cd .mooncakes && tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - -- */ | sha256sum) |
+            cmp "$RUNNER_TEMP/receipt/module-sources.sha256" -
           docker build --no-cache --build-arg "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" --target distribution -t "$tag" .
           jq_args=(--arg sha "$sha" --arg commit "$GITHUB_SHA" --arg epoch "$SOURCE_DATE_EPOCH" --arg version "$RELEASE_VERSION")
           docker image inspect "$tag" | jq -e "${jq_args[@]}" '.[0] |
@@ -94,7 +85,7 @@ jobs:
           mkdir -p "$archive/moonbit-sdk" "$archive/generated-native/cmd/moonapp"
           git archive --format=tar.gz --prefix=MoonOperator/ HEAD > "$archive/project.tar.gz"
           mkdir "$archive/mooncakes"
-          cp -a "$RELEASE_SOURCE/.mooncakes/moonbitlang" "$RELEASE_SOURCE/.mooncakes/moonbit-community" "$archive/mooncakes/"
+          cp -a "$RELEASE_SOURCE/.mooncakes/"*/ "$archive/mooncakes/"
           cp -a "$MOON_TOOLCHAIN_ROOT/lib/runtime" "$MOON_TOOLCHAIN_ROOT/include" "$MOON_TOOLCHAIN_ROOT/CREDITS.md" "$archive/moonbit-sdk/"
           cp /tmp/core.tar.gz "$archive/moonbit-core.tar.gz"
           cp "$RELEASE_SOURCE/_build/native/release/build/cmd/moonapp/moonapp.c" "$archive/generated-native/cmd/moonapp/"
@@ -138,3 +129,28 @@ jobs:
           path: ${{ runner.temp }}/payload/
           if-no-files-found: error
           retention-days: 7
+  compare:
+    needs: build
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: release-*
+          path: candidate
+      - name: Require matching build identities and verify candidate hashes
+        run: |
+          a=candidate/release-evidence-a
+          b=candidate/release-evidence-b
+          for receipt in image.json module-sources.sha256 builder-packages.tsv runtime-source-packages.tsv; do
+            cmp "$a/$receipt" "$b/$receipt"
+          done
+          for key in host source_directory; do
+            test "$(jq -er --arg key "$key" '.[$key]' "$a/runner.json")" != "$(jq -er --arg key "$key" '.[$key]' "$b/runner.json")"
+          done
+          jq -e '.operator_ready and .moonapp_resources_applied and .service_port_after == 8081' "$a/release-candidate.json"
+          cd candidate/release-payload
+          sha256sum --check --strict payload-SHA256SUMS
+          cat "../release-evidence-a/image.json" >> "$GITHUB_STEP_SUMMARY"
