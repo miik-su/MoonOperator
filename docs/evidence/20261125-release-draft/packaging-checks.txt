@@ -1,0 +1,25 @@
+/tmp/moonbit.tar.gz: OK
+/tmp/core.tar.gz: OK
+/home/runner/work/_temp/system-input/moonoperator-v0.1.2-linux-amd64-system-sources.tar: OK
+/home/runner/work/_temp/system-input/archive-auth/noble-security.Sources.xz: OK
+/home/runner/work/_temp/system-input/ca-certificates/ca-certificates_20260816ubuntu0.24.04.2.dsc: OK
+/home/runner/work/_temp/system-input/ca-certificates/ca-certificates_20260816ubuntu0.24.04.2.tar.xz: OK
+/home/runner/work/_temp/system-input/gcc-13/gcc-13_13.3.0.orig.tar.gz: OK
+/home/runner/work/_temp/system-input/gcc-13/gcc-13_13.3.0-6ubuntu2~24.04.1.debian.tar.xz: OK
+/home/runner/work/_temp/system-input/gcc-13/gcc-13_13.3.0-6ubuntu2~24.04.1.dsc: OK
+/home/runner/work/_temp/system-input/glibc/glibc_2.39.orig.tar.xz.asc: OK
+/home/runner/work/_temp/system-input/glibc/glibc_2.39-0ubuntu8.12.dsc: OK
+/home/runner/work/_temp/system-input/glibc/glibc_2.39-0ubuntu8.12.debian.tar.xz: OK
+/home/runner/work/_temp/system-input/glibc/glibc_2.39.orig.tar.xz: OK
+/home/runner/work/_temp/system-input/openssl/openssl_3.0.13-0ubuntu3.16.debian.tar.xz: OK
+/home/runner/work/_temp/system-input/openssl/openssl_3.0.13-0ubuntu3.16.dsc: OK
+/home/runner/work/_temp/system-input/openssl/openssl_3.0.13.orig.tar.gz: OK
+moonoperator-v0.1.2-linux-amd64-image.tar.gz: OK
+moonoperator-v0.1.2-project-runtime-sources.tar.gz: OK
+Assembled v0.1.2 from 9c11986d3b5e23af00cb402c5849733f5d3be2fc
+moonoperator-v0.1.2-linux-amd64-image.tar.gz: OK
+moonoperator-v0.1.2-project-runtime-sources.tar.gz: OK
+moonoperator-v0.1.2-linux-amd64-system-sources.tar: OK
+release-manifest.json: OK
+With the provided path, there will be 5 files uploaded
+Artifact verified-release.zip successfully finalized. Artifact ID 15028289100

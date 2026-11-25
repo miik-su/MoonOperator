@@ -1,0 +1,18 @@
+SHA256SUMS: OK
+release-manifest.json: OK
+moonoperator-v0.1.2-linux-amd64-image.tar.gz: OK
+moonoperator-v0.1.2-project-runtime-sources.tar.gz: OK
+moonoperator-v0.1.2-linux-amd64-system-sources.tar: OK
+moonoperator-v0.1.2-linux-amd64-image.tar.gz: OK
+moonoperator-v0.1.2-project-runtime-sources.tar.gz: OK
+moonoperator-v0.1.2-linux-amd64-system-sources.tar: OK
+release-manifest.json: OK
+ca-certificates: unpacked
+gcc-13: unpacked
+glibc: unpacked
+openssl: unpacked
+sha256:6a38a6bede181438c8ef4a4c0281a1a7306224c615707aee325a45ac2c4209b1
+sha256:6a38a6bede181438c8ef4a4c0281a1a7306224c615707aee325a45ac2c4209b1
+9b8a55f7cb737363765bcb9a62c5e6a5d81eba59376499874a47f0ae455a6119  /home/runner/work/_temp/compare/public/moonoperator
+9b8a55f7cb737363765bcb9a62c5e6a5d81eba59376499874a47f0ae455a6119  /home/runner/work/_temp/compare/rebuilt/moonoperator
+{"namespace":"release-candidate","image":"moonoperator:0.1.2","running_image_id":"docker.io/library/import-2026-11-25@sha256:a85818b469a1ddf56332e42b03490ea0c20e8330a028d1446d9069da9b438601","operator_ready":true,"moonapp_resources_applied":true,"service_port_before":8080,"service_port_after":8081,"fixture_replicas":0}

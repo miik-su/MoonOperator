@@ -1,0 +1,11 @@
+{
+  "network": "simulated GitHub responses",
+  "fixture_tag": "v42.17.3",
+  "created_draft": true,
+  "verified_assets": 5,
+  "resume_without_replacement": true,
+  "reject_published_release": true,
+  "reject_digest_mismatch": true,
+  "reject_existing_tag": true,
+  "reject_retargeted_draft_tag": true
+}
