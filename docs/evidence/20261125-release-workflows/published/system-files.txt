@@ -1,0 +1,12 @@
+ca-certificates/ca-certificates_20260816ubuntu0.24.04.2.tar.xz: OK
+ca-certificates/ca-certificates_20260816ubuntu0.24.04.2.dsc: OK
+glibc/glibc_2.39.orig.tar.xz: OK
+glibc/glibc_2.39.orig.tar.xz.asc: OK
+glibc/glibc_2.39-0ubuntu8.12.debian.tar.xz: OK
+glibc/glibc_2.39-0ubuntu8.12.dsc: OK
+openssl/openssl_3.0.13.orig.tar.gz: OK
+openssl/openssl_3.0.13-0ubuntu3.16.debian.tar.xz: OK
+openssl/openssl_3.0.13-0ubuntu3.16.dsc: OK
+gcc-13/gcc-13_13.3.0.orig.tar.gz: OK
+gcc-13/gcc-13_13.3.0-6ubuntu2~24.04.1.debian.tar.xz: OK
+gcc-13/gcc-13_13.3.0-6ubuntu2~24.04.1.dsc: OK
