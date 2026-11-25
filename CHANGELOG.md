@@ -1,3 +1,9 @@
+# 0.1.3
+
+Package the Linux amd64 image and corresponding sources after independent
+builds agree. Generate the release manifest and SHA-256 list before uploading
+and verifying the GitHub draft assets.
+
 # 0.1.2
 
 Use the reusable release workflows to compare independent Linux amd64
