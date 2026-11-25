@@ -2,7 +2,7 @@
 
 A MoonBit-native Kubernetes Operator development framework.
 
-Experimental 0.1.0 for single-replica development and testing. The source and
+Experimental 0.1.1 for single-replica development and testing. The source and
 examples are usable from this checkout. Mooncakes publication and stable
 production support remain outside this release scope.
 
@@ -17,7 +17,7 @@ See [security reporting](SECURITY.md), [contributing](CONTRIBUTING.md),
 
 ## Download the Linux amd64 image
 
-[GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
+[GitHub Release v0.1.1](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.1)
 provides the Docker image archive, matching project and runtime sources,
 matching system and compiler sources, and SHA-256 checksums.
 
@@ -25,16 +25,16 @@ Place all five release assets in one directory, then verify and load the image.
 
 ```sh
 sha256sum --check --strict SHA256SUMS
-docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
+docker load -i moonoperator-v0.1.1-linux-amd64-image.tar.gz
 ```
 
-The archive loads as `moonoperator:0.1.0`. See the
-[deployment instructions](docs/deployment.md#in-cluster-process) and
-[post-release download, rebuild and deployment results](docs/evidence/20261124-published-release/README.md).
-The [reproducible image build](docs/deployment.md#reproduce-the-image-id) fixes
-the compiler's source path and image timestamps. The
-[image comparison evidence](docs/evidence/20261124-reproducible-image/README.md)
-records the differences in the historical archive and the two-directory check.
+The archive loads as `moonoperator:0.1.1`. Two independent clean Linux amd64
+runners produced the same image ID before publication. See the
+[deployment instructions](docs/deployment.md#in-cluster-process),
+[reproducible build instructions](docs/deployment.md#reproduce-the-image-id)
+and [v0.1.1 release evidence](docs/evidence/20261125-v0.1.1/README.md).
+[GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
+remains available.
 
 The implementation follows the linked MoonOperator design: dynamic resources,
 an injectable Kubernetes client, LIST/WATCH recovery, a bounded cache and work

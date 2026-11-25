@@ -98,6 +98,12 @@ provides the experimental Linux amd64 application image and its corresponding
 sources. The [release evidence](evidence/20261123-release/README.md) records
 the tested artifact, package scan and both Kubernetes results.
 
+[GitHub Release v0.1.1](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.1)
+provides the reproducible Linux amd64 image and corresponding sources. Two
+independent Ubuntu 24.04 runners produced identical image IDs and layer
+digests. The released archive passed the focused Kind deployment check.
+See the [v0.1.1 release evidence](evidence/20261125-v0.1.1/README.md).
+
 Remaining work for broader support includes long-duration soak and leak
 investigation, additional Kubernetes/CNI/auth matrices, package namespace/account
 confirmation and Mooncakes publication. The current module namespace is

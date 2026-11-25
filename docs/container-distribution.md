@@ -5,9 +5,9 @@ for single-replica development and testing. It assembles selected runtime files
 from the pinned Ubuntu packages into a scratch filesystem. The broader
 `production` and `acceptance` images remain internal CI artifacts.
 
-The [GitHub release](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
+The [GitHub release](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.1)
 offers the image and its two corresponding source archives together. The
-[release audit](evidence/20261123-release/README.md) identifies the exact
+[release audit](evidence/20261125-v0.1.1/README.md) identifies the exact
 package versions, selected native link inputs and check results.
 
 ## Package security and scope

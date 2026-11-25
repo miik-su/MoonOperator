@@ -27,15 +27,15 @@ explicit exclusions are in project-scope.md and transport/config.mbt.
 
 To use the Linux amd64 release archive on a development cluster, download the
 image, both source archives, `release-manifest.json` and `SHA256SUMS` from
-[GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0),
+[GitHub Release v0.1.1](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.1),
 verify the archive, and load it. The development manifest uses
 `moonoperator:dev`, so tag the loaded image with that name before importing
 it into your Kind cluster.
 
 ```sh
 sha256sum --check --strict SHA256SUMS
-docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
-docker tag moonoperator:0.1.0 moonoperator:dev
+docker load -i moonoperator-v0.1.1-linux-amd64-image.tar.gz
+docker tag moonoperator:0.1.1 moonoperator:dev
 ```
 
 ## Rebuild the release image
@@ -46,7 +46,7 @@ dependencies into a fresh directory. The core archive is also supplied.
 
 ```sh
 mkdir release-source
-tar -xzf moonoperator-v0.1.0-project-runtime-sources.tar.gz -C release-source
+tar -xzf moonoperator-v0.1.1-project-runtime-sources.tar.gz -C release-source
 tar -xzf release-source/project.tar.gz -C release-source
 cp -a release-source/mooncakes release-source/MoonOperator/.mooncakes
 cp release-source/moonbit-core.tar.gz /tmp/core.tar.gz
@@ -88,26 +88,21 @@ compiler source for the linked runtime helper and startup objects.
 
 ### Reproduce the image ID
 
-Run the [Reproducible v0.1.0 image workflow](https://github.com/miik-su/MoonOperator/actions/workflows/reproducible-image.yml)
-for the fixed build profile. It takes the v0.1.0 source archive and bundled
-modules from GitHub Release, applies the current Dockerfile and builds without
-Docker cache from two separate source directories. A private mount namespace
-gives both native builds the original release source path. The workflow also
-uses the pinned SDK at the original toolchain path and verifies the resulting
-executable against the public release hash.
-
-With that executable at the expected build output path and the current
-Dockerfile, pass the v0.1.0 source commit time to BuildKit:
+Run the [independent Linux amd64 release workflow](https://github.com/miik-su/MoonOperator/actions/workflows/release-candidate.yml)
+at the `v0.1.1` tag, for example with GitHub CLI:
 
 ```sh
-docker build --no-cache --build-arg SOURCE_DATE_EPOCH=1795440139 --target distribution -t moonoperator:rebuild-v0.1.0 .
+gh workflow run release-candidate.yml --ref v0.1.1 --repo miik-su/MoonOperator
 ```
 
-BuildKit fixes the image configuration and history timestamps. The Dockerfile
-applies the same timestamp to the files in the exported layer, including
-symbolic links. The normalized profile produces a new image ID relative to the
-historical v0.1.0 archive. See the
-[image reproducibility evidence](evidence/20261124-reproducible-image/README.md).
+The two clean runners build at a stable logical source path with the pinned
+SDK and reviewed GCC/glibc development package revisions. The workflow passes
+the source commit time as `SOURCE_DATE_EPOCH` to fix the configuration,
+history and layer timestamps. Compare the two `image.json` receipts with
+`release-manifest.json` from the published release. The earlier commands in
+this guide cover a functional local build. Matching the released image ID
+also requires the recorded toolchain paths, package versions and timestamp.
+See the [v0.1.1 release evidence](evidence/20261125-v0.1.1/README.md).
 
 ## Install on Kind
 
