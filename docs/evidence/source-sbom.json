@@ -7,8 +7,8 @@
       "type": "library",
       "bom-ref": "miik-su/moonoperator",
       "name": "miik-su/moonoperator",
-      "version": "0.1.1",
-      "purl": "pkg:generic/miik-su/moonoperator@0.1.1",
+      "version": "0.1.2",
+      "purl": "pkg:generic/miik-su/moonoperator@0.1.2",
       "licenses": [
         {
           "license": {

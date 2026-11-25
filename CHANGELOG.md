@@ -1,3 +1,10 @@
+# 0.1.2
+
+Use the reusable release workflows to compare independent Linux amd64
+builds and verify the public image against a rebuild from its source archive.
+Release version and build timestamp come from the module and source commit.
+Public acceptance resolves the release tag and asset digests from GitHub.
+
 # 0.1.1
 
 Pin the image configuration, history and filesystem timestamps to the release
