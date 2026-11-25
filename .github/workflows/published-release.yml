@@ -1,5 +1,12 @@
-name: Published v0.1.0 acceptance
-on: workflow_dispatch
+name: Published release acceptance
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Public release to verify
+        type: choice
+        options: ['0.1.1', '0.1.0']
+        default: '0.1.1'
 permissions:
   contents: read
 jobs:
@@ -10,8 +17,7 @@ jobs:
       run:
         shell: bash
     env:
-      RELEASE: https://github.com/miik-su/MoonOperator/releases/download/v0.1.0
-      SOURCE_SHA: e42f5734e1b1ef8f2b14797d2825a3c86ee16607
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -19,17 +25,34 @@ jobs:
           path: .acceptance-harness
       - name: Verify all public release downloads
         run: |
+          case "$RELEASE_VERSION" in
+            0.1.1)
+              source_sha=6a7eb2ee0e3fba7631ea185982d6ce3ec46cb4ca
+              sums_sha=b1fc018a7bf4e0144ee42bcd451ea84736843cfecfac37fb37781bb578675099
+              ;;
+            0.1.0)
+              source_sha=e42f5734e1b1ef8f2b14797d2825a3c86ee16607
+              sums_sha=d2851bacc910985334dccc8ee0cba05d65c1f74ae7844b456586b855eaf6f3cb
+              ;;
+            *) exit 1 ;;
+          esac
+          release="https://github.com/miik-su/MoonOperator/releases/download/v$RELEASE_VERSION"
+          asset_prefix="moonoperator-v$RELEASE_VERSION"
           mkdir "$RUNNER_TEMP/downloads" "$RUNNER_TEMP/report" "$RUNNER_TEMP/source" "$RUNNER_TEMP/system"
           cd "$RUNNER_TEMP/downloads"
-          for asset in SHA256SUMS release-manifest.json moonoperator-v0.1.0-{linux-amd64-image.tar.gz,project-runtime-sources.tar.gz,linux-amd64-system-sources.tar}; do
-            curl --retry 3 --retry-all-errors --max-time 120 -fsSLO "$RELEASE/$asset"
+          for asset in SHA256SUMS release-manifest.json "$asset_prefix"-{linux-amd64-image.tar.gz,project-runtime-sources.tar.gz,linux-amd64-system-sources.tar}; do
+            curl --retry 3 --retry-all-errors --max-time 120 -fsSLO "$release/$asset"
           done
-          sha256sum --check --strict SHA256SUMS | tee "$RUNNER_TEMP/report/downloads.txt"
-          test "$(grep -c ': OK$' "$RUNNER_TEMP/report/downloads.txt")" = 4
+          {
+            printf '%s  SHA256SUMS\n' "$sums_sha" | sha256sum --check --strict
+            sha256sum --check --strict SHA256SUMS
+          } | tee "$RUNNER_TEMP/report/downloads.txt"
+          test "$(grep -c ': OK$' "$RUNNER_TEMP/report/downloads.txt")" = 5
           cp SHA256SUMS "$RUNNER_TEMP/report/"
-          jq -e --arg sha "$SOURCE_SHA" '.source_commit == $sha and .platform == "linux/amd64"' release-manifest.json
-          tar -xzf moonoperator-v0.1.0-project-runtime-sources.tar.gz -C "$RUNNER_TEMP/source"
-          tar -xf moonoperator-v0.1.0-linux-amd64-system-sources.tar -C "$RUNNER_TEMP/system"
+          jq -e --arg sha "$source_sha" --arg version "$RELEASE_VERSION" '.source_commit == $sha and .version == $version and .platform == "linux/amd64"' release-manifest.json
+          echo "SOURCE_SHA=$source_sha" >> "$GITHUB_ENV"
+          tar -xzf "$asset_prefix-project-runtime-sources.tar.gz" -C "$RUNNER_TEMP/source"
+          tar -xf "$asset_prefix-linux-amd64-system-sources.tar" -C "$RUNNER_TEMP/system"
       - name: Verify the signed source index and unpack corresponding sources
         working-directory: ${{ runner.temp }}/system
         run: |
@@ -87,6 +110,11 @@ jobs:
           moon -C "$sdk/lib/core" bundle --frozen --all
           moon version --all | tee "$RUNNER_TEMP/report/toolchain.txt"
           gcc -dumpfullversion | tee "$RUNNER_TEMP/report/gcc-version.txt"
+          if [ "$RELEASE_VERSION" = 0.1.1 ]; then
+            test "$(dpkg-query -W -f='${Version}' libc6-dev)" = '2.39-0ubuntu8.12'
+            test "$(dpkg-query -W -f='${Version}' libgcc-13-dev)" = '13.3.0-6ubuntu2~24.04.1'
+            test "$(gcc -dumpfullversion)" = '13.3.0'
+          fi
           # Frozen builds still need a registry index. Package sources are local.
           moon update
           moon build --frozen cmd/moonapp cmd/manifests --target native --release
@@ -95,45 +123,65 @@ jobs:
           sha256sum "$archive/generated-native/cmd/moonapp/moonapp.c" _build/native/release/build/cmd/moonapp/moonapp.c | tee "$RUNNER_TEMP/report/generated-c.txt"
           dpkg-query -W gcc-13 libc6-dev libgcc-13-dev | tee "$RUNNER_TEMP/report/builder-packages.tsv"
           sha256sum _build/native/release/build/cmd/moonapp/moonapp.exe | tee "$RUNNER_TEMP/report/rebuilt-binary.txt"
-          docker build --no-cache --target distribution -t moonoperator:rebuild-v0.1.0 .
+          build_args=()
+          if [ "$RELEASE_VERSION" = 0.1.1 ]; then
+            epoch=$(jq -er '.source_date_epoch | select(type == "number")' "$RUNNER_TEMP/downloads/release-manifest.json")
+            build_args=(--build-arg "SOURCE_DATE_EPOCH=$epoch")
+          fi
+          docker build --no-cache "${build_args[@]}" --target distribution -t "moonoperator:rebuild-v$RELEASE_VERSION" .
           echo "$sdk/bin" >> "$GITHUB_PATH"
           echo "MOON_TOOLCHAIN_ROOT=$sdk" >> "$GITHUB_ENV"
       - name: Load the public image and compare the two images
         run: |
           cd "$RUNNER_TEMP/downloads"
-          if docker image inspect moonoperator:0.1.0 >/dev/null 2>&1; then exit 1; fi
-          docker load -i moonoperator-v0.1.0-linux-amd64-image.tar.gz
+          if docker image inspect "moonoperator:$RELEASE_VERSION" >/dev/null 2>&1; then exit 1; fi
+          docker load -i "moonoperator-v$RELEASE_VERSION-linux-amd64-image.tar.gz"
           compare="$RUNNER_TEMP/compare"
           mkdir -p "$compare/public" "$compare/rebuilt"
-          for entry in public:0.1.0 rebuilt:rebuild-v0.1.0; do
+          for entry in "public:$RELEASE_VERSION" "rebuilt:rebuild-v$RELEASE_VERSION"; do
             label=${entry%%:*}
             image="moonoperator:${entry#*:}"
-            docker image inspect "$image" | jq -e '.[0] | select(.Os == "linux" and .Architecture == "amd64" and .Config.User == "65532:65532" and .Config.Entrypoint == ["/usr/local/bin/moonoperator"] and (.RootFS.Layers | length) == 1) | .Id' > "$compare/$label/image-id"
+            docker image inspect "$image" | jq -e '.[0] | select(.Os == "linux" and .Architecture == "amd64" and .Config.User == "65532:65532" and .Config.Entrypoint == ["/usr/local/bin/moonoperator"] and (.RootFS.Layers | length) == 1) | {image_id:.Id,created:.Created,filesystem_layers:.RootFS.Layers}' > "$compare/$label/image.json"
             container=$(docker create "$image")
             docker cp "$container:/usr/local/bin/moonoperator" "$compare/$label/moonoperator"
             docker cp "$container:/usr/share/doc/moonoperator/binary-source-packages.tsv" "$compare/$label/packages.tsv"
             docker rm "$container"
           done
           diff -u "$compare/public/packages.tsv" "$compare/rebuilt/packages.tsv"
-          test "$(jq -r .image_id release-manifest.json)" = "$(jq -r . "$compare/public/image-id")"
+          test "$(jq -r .image_id release-manifest.json)" = "$(jq -r .image_id "$compare/public/image.json")"
           test "$(jq -r .executable_sha256 release-manifest.json)" = "$(sha256sum "$compare/public/moonoperator" | cut -d ' ' -f 1)"
           test "$(cut -d ' ' -f 1 "$RUNNER_TEMP/report/rebuilt-binary.txt")" = "$(sha256sum "$compare/rebuilt/moonoperator" | cut -d ' ' -f 1)"
           {
-            jq -r . "$compare/public/image-id" "$compare/rebuilt/image-id"
+            jq -r .image_id "$compare/public/image.json" "$compare/rebuilt/image.json"
             sha256sum "$compare/public/moonoperator" "$compare/rebuilt/moonoperator"
           } | tee "$RUNNER_TEMP/report/image-comparison.txt"
+          cp "$compare/public/image.json" "$RUNNER_TEMP/report/public-image.json"
+          cp "$compare/rebuilt/image.json" "$RUNNER_TEMP/report/rebuilt-image.json"
           cp "$compare/public/packages.tsv" "$RUNNER_TEMP/report/"
+          if [ "$RELEASE_VERSION" = 0.1.1 ]; then
+            cmp "$compare/public/image.json" "$compare/rebuilt/image.json"
+            cmp "$compare/public/moonoperator" "$compare/rebuilt/moonoperator"
+            test "$(jq -c .filesystem_layers release-manifest.json)" = "$(jq -c .filesystem_layers "$compare/public/image.json")"
+            while IFS=$'\t' read -r binary version source source_version architecture; do
+              jq -e --arg src "$source" --arg ver "$source_version" 'any(.source_packages[]; .source == $src and .version == $ver)' "$RUNNER_TEMP/system/source-manifest.json"
+            done < "$compare/public/packages.tsv"
+          fi
       - name: Start a clean Kubernetes cluster
         run: |
           curl --retry 3 --retry-all-errors --max-time 120 -fsSL https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64 -o /tmp/kind || curl --retry 2 --max-time 120 -fsSL -H 'Accept: application/octet-stream' https://api.github.com/repos/kubernetes-sigs/kind/releases/assets/531396433 -o /tmp/kind
           sha256sum --check "$RUNNER_TEMP/source/MoonOperator/tools/kind-linux.sha256"
           chmod +x /tmp/kind
           /tmp/kind create cluster --name moonoperator-release --image kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5 --wait 120s
-          /tmp/kind load docker-image moonoperator:0.1.0 moonoperator:rebuild-v0.1.0 --name moonoperator-release
+          images=("moonoperator:$RELEASE_VERSION")
+          if [ "$RELEASE_VERSION" = 0.1.0 ]; then images+=(moonoperator:rebuild-v0.1.0); fi
+          /tmp/kind load docker-image "${images[@]}" --name moonoperator-release
           kubectl --context kind-moonoperator-release version -o json | tee "$RUNNER_TEMP/report/kubernetes.json"
-      - name: Deploy both images and check reconciliation
+          jq -e '.serverVersion.gitVersion == "v1.37.0"' "$RUNNER_TEMP/report/kubernetes.json"
+      - name: Deploy the public image and check reconciliation
         run: |
-          moon run .acceptance-harness/scripts/published-release-check.mbtx -- "$GITHUB_WORKSPACE" "$RUNNER_TEMP/report"
+          args=("$GITHUB_WORKSPACE" "$RUNNER_TEMP/report")
+          if [ "$RELEASE_VERSION" = 0.1.1 ]; then args+=("moonoperator:$RELEASE_VERSION"); fi
+          moon run .acceptance-harness/scripts/published-release-check.mbtx -- "${args[@]}"
       - name: Remove the disposable cluster
         if: always()
         run: |
