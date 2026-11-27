@@ -42,6 +42,15 @@ the bundled async and YAML licenses against the resolved Mooncakes copies.
 The MoonBit core notice was also compared with the installed pinned core license
 in the [local release evidence](docs/evidence/20261121-scope-license/README.md).
 
+For the public Linux amd64 v0.1.2 image, use the
+[release manifest](docs/evidence/20261125-v0.1.2/release-manifest.json) to match
+the binary and both corresponding source archives to the release.
+The [public verification record](docs/evidence/20261125-v0.1.2/README.md#public-release-acceptance)
+records archive checksums, Ubuntu source verification and the image rebuild.
+The image's dated package scan covers the package records in that artifact.
+The [linkage and distribution evidence](docs/evidence/20261123-release/README.md)
+records components considered separately from the installed package scan.
+
 Architecture references client-go and controller-runtime are Apache-2.0; their
 Go implementation is not copied or vendored here. Sources and reference scope:
 [client-go license](https://github.com/kubernetes/client-go/blob/v0.37.0/LICENSE),

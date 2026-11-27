@@ -1,4 +1,4 @@
-# Compatibility and evidence — 2026-11-21
+# Compatibility and evidence
 
 This matrix separates implemented behavior from dated execution evidence.
 New local maintenance regressions are listed in maintenance.md. CI links in
@@ -16,7 +16,7 @@ release-status.md identify their exact source; historical data is not rewritten.
 | Informer reconnect / relist runtime | Scope and bookmark checks with synthetic fixtures; injected 410/403 and startup backpressure; real MoonApp restart recovery |
 | Cache | Verified atomic replacement, bounds, snapshots; label equality maps |
 | Workqueue | Verified dirty/in-flight dedup and delayed retries |
-| Controller / Manager | Verified failure release, concurrent-key exclusion, shutdown drain, registration |
+| Controller / Manager | Verified failure release, retry scheduling from reconcile completion, concurrent-key exclusion, shutdown drain and registration. [Retry regression and CI](evidence/20261126-mooncakes/README.md) |
 | Finalizers / owners / conditions / predicates | Cleanup failure retains finalizer; status-only filtering retains deletion transitions |
 | CRD / RBAC | Multiple served versions with equal schemas, exactly one served storage version, defaults/bounds, validated CRD names/root schema/version identifiers and explicit RBAC |
 | MoonApp | Fake and real Kind verified: create/update, idempotence, drift repair, restart and GC |
@@ -29,9 +29,9 @@ release-status.md identify their exact source; historical data is not rewritten.
 | Benchmarks / load | Fixed dataset and 10s fault probe; Linux short container RSS matrix recorded; one-hour/24-hour soak still pending |
 | Source archive / publication | Offline source ZIP and notice byte checks passed. Mooncakes installation and publication are unverified |
 | Follow-up security review | Redacted Resource debug, explicit finalizer results, scoped ownership/adoption, mandatory watch RVs, typed capacity failure policy, bounded file/LIST reads and API type validation verified by focused regressions |
-| Container delivery | Separate production and acceptance images. Production Ubuntu packages, startup linkage and notices are recorded. The [dated OS scan](evidence/20261121-container/README.md) is scoped to the tested amd64 image |
+| Container delivery | Linux amd64 v0.1.2 public assets verified and the image rebuilt and deployed to Kind 1.37.0. The [release record](evidence/20261125-v0.1.2/README.md) identifies the exact artifact and scan coverage. The [November 21 OS scan](evidence/20261121-container/README.md) applies to an earlier, different image |
 | Diagnostics ingress | Loopback default. Pod interface acceptance verified Calico 3.33.0 allow/deny/recovery on Kubernetes 1.36.4 and 1.37.0. Other CNIs are unverified |
-| Independent library consumer | Separate source-workspace module runs through public APIs; not a registry-install test |
+| Independent library consumer | Public API example verified from the checkout and from an extracted source ZIP via a local workspace. [Source archive run](evidence/20261126-mooncakes/source-archive-consumer.json) |
 | macOS / other Kubernetes versions | Not verified; compilation or interface similarity is not runtime compatibility evidence |
 
 Optional-adoption acceptance passed for final code source 31d7390 with explicit

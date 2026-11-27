@@ -1,8 +1,21 @@
-# Delivery status — 2026-11-21
+# Delivery status
 
 Core and example control loops are implemented with focused local and public CI
 verification. The original multi-stage implementation plan is reflected in
 roadmap.md; compatibility.md states the supported subset for each capability.
+
+## Public image and current development evidence
+
+The latest public Linux amd64 image is
+[v0.1.2](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.2).
+Its [public acceptance record](evidence/20261125-v0.1.2/README.md) covers
+anonymous asset downloads, SHA-256 checks, a matching rebuild and deployment
+on Kubernetes 1.37.0 in Kind. The
+[v0.1.3 draft evidence](evidence/20261125-v0.1.3-draft/README.md) covers candidate
+builds and draft assets. The focused Linux CI for controller retry changes is
+linked from the [November 26 test record](evidence/20261126-mooncakes/README.md).
+
+## Earlier validation
 
 Earlier bounded evidence is archived in
 [the November 13 follow-up](review-followup-20261113.md) and
