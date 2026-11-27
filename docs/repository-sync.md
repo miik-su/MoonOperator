@@ -6,7 +6,7 @@
 | Verified GitHub default branch | main |
 | MoonBit module | miik-su/moonoperator |
 | Previous unpublished development module | mik1e80/moonoperator |
-| Mooncakes publication | Not published; authenticate the intended account and verify namespace rights before publication |
+| Mooncakes registry | [miik-su/moonoperator](https://mooncakes.io/docs/miik-su/moonoperator) |
 | Optional additional mirror | Not configured; not a prerequisite for maintaining this GitHub project |
 
 The module rename on 2026-11-14 changes internal imports, generated interfaces

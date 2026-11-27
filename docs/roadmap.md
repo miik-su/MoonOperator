@@ -21,7 +21,7 @@ commits add actual Kind acceptance, metrics/logs, queue backpressure recovery,
 generation predicates, retry-safe cleanup, typed spec views, multiversion CRDs,
 JSON/YAML configuration, scalar WASM execution and reproducible load observations.
 See release-status.md for exact evidence and remaining gates. Long-duration
-soak, full-distribution review, Mooncakes publication, HA/Lease, webhooks and general JSON plugin ABI
+soak, broader distribution review, HA/Lease, webhooks and general JSON plugin ABI
 remain separate work. Single replica only; no unexecuted verification is marked
 as passing.
 

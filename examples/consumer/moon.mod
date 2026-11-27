@@ -7,6 +7,6 @@ license = "Apache-2.0"
 preferred_target = "native"
 
 import {
-  "miik-su/moonoperator@0.1.0",
+  "miik-su/moonoperator@0.1.3",
   "moonbitlang/async@0.22.5",
 }

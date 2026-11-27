@@ -24,7 +24,7 @@ application information is maintained in this repository.
 | Full native regression | Available, not executed in this maintenance pass | Manual release-validation workflow; targeted testing was explicitly requested |
 | 1h/24h synthetic and real-cluster soak | Open | Manual entry points exist; no long-duration success or leak-freedom claim |
 | Multi-version Kubernetes/CNI/auth | Partially verified | Kind 1.36.4 and 1.37.0 with Calico 3.33.0 passed. Other versions, CNIs and identity providers remain open |
-| Mooncakes / formal release | Open | Namespace authentication, published-version clean consumer and release gates must precede publication |
+| Mooncakes library release | Versioned | Verify each published version with an independent consumer and no source override. [Registry](https://mooncakes.io/docs/miik-su/moonoperator) |
 
 For each meaningful change, record the problem, resulting behavior, affected
 public API/docs, narrow verification and remaining limitations. Keep separate

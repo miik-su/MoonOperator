@@ -28,5 +28,6 @@ the deployer's responsibility. See deployment.md and compatibility.md.
 The [compatibility matrix](compatibility.md) identifies the tested Kubernetes
 and CNI combinations. The public [Linux amd64 v0.1.2 image](evidence/20261125-v0.1.2/README.md)
 was rebuilt and deployed in Kind 1.37.0. Broader Kubernetes and CNI coverage,
-full regression, 1h/24h stability and registry installation remain release gates.
-No Mooncakes package or stable production version is published.
+full regression and 1h/24h stability remain gates for broader support.
+The [Mooncakes library](https://mooncakes.io/docs/miik-su/moonoperator) and
+GitHub image releases follow the experimental single-replica scope above.

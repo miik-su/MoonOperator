@@ -30,6 +30,5 @@ drains eligible ready work; delayed retries are not durable and process restart
 starts a new LIST. Graceful shutdown cannot make arbitrary blocking application
 callbacks safe or persist their side effects. Use one replica; there is no Lease.
 
-No release has been published to Mooncakes. A future installed-package smoke
-test must use an authenticated published version in a clean module without the
-workspace override. Passing this source consumer is not evidence of publication.
+See the [consumer instructions](../examples/consumer/README.md) for running the
+same example from an independent directory using the Mooncakes dependency.

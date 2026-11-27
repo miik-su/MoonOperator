@@ -27,7 +27,7 @@ release-status.md identify their exact source; historical data is not rewritten.
 | Experimental WASM host | Current pin is Wasmtime 50.0.3. Dated guest and failure-path verification is linked from release-status.md |
 | HA / webhooks | Not implemented; single replica deployment contract |
 | Benchmarks / load | Fixed dataset and 10s fault probe; Linux short container RSS matrix recorded; one-hour/24-hour soak still pending |
-| Source archive / publication | Offline source ZIP and notice byte checks passed. Mooncakes installation and publication are unverified |
+| Source archive / publication | Offline source ZIP and notice byte checks passed. Use the [Mooncakes module page](https://mooncakes.io/docs/miik-su/moonoperator) for available registry versions |
 | Follow-up security review | Redacted Resource debug, explicit finalizer results, scoped ownership/adoption, mandatory watch RVs, typed capacity failure policy, bounded file/LIST reads and API type validation verified by focused regressions |
 | Container delivery | Linux amd64 v0.1.2 public assets verified and the image rebuilt and deployed to Kind 1.37.0. The [release record](evidence/20261125-v0.1.2/README.md) identifies the exact artifact and scan coverage. The [November 21 OS scan](evidence/20261121-container/README.md) applies to an earlier, different image |
 | Diagnostics ingress | Loopback default. Pod interface acceptance verified Calico 3.33.0 allow/deny/recovery on Kubernetes 1.36.4 and 1.37.0. Other CNIs are unverified |

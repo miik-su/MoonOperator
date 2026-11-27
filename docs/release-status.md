@@ -104,7 +104,7 @@ Historical public evidence:
 - Windows fixed-data observations and a 10-second fault/duplicate load run are
   retained under evidence/. No full test suite was run.
 - `moon package` succeeds offline and produces the 0.1.0 source archive under
-  `_build/publish`. No package has been published to Mooncakes.
+  `_build/publish` in that earlier validation.
 
 [GitHub Release v0.1.0](https://github.com/miik-su/MoonOperator/releases/tag/v0.1.0)
 provides the experimental Linux amd64 application image and its corresponding
@@ -118,8 +118,7 @@ digests. The released archive passed the focused Kind deployment check.
 See the [v0.1.1 release evidence](evidence/20261125-v0.1.1/README.md).
 
 Remaining work for broader support includes long-duration soak and leak
-investigation, additional Kubernetes/CNI/auth matrices, package namespace/account
-confirmation and Mooncakes publication. The current module namespace is
+investigation and additional Kubernetes/CNI/auth matrices. The module namespace is
 `miik-su/moonoperator`, migrated from `mik1e80/moonoperator` on November 14.
 Internal imports, generated interfaces and the current source SBOM use the new
 name. Historical raw observations keep their original source identity. Selecting

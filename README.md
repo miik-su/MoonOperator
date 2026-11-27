@@ -3,11 +3,10 @@
 A MoonBit-native Kubernetes Operator development framework.
 
 Experimental framework for single-replica development and testing. The source and
-examples are usable from this checkout. Mooncakes publication and stable
-production support remain outside this release scope.
+examples are usable from this checkout.
 
-Module: `miik-su/moonoperator` (unpublished; migrated from the development
-namespace `mik1e80/moonoperator`). GitHub source: [miik-su/MoonOperator](https://github.com/miik-su/MoonOperator).
+MoonBit module: [miik-su/moonoperator](https://mooncakes.io/docs/miik-su/moonoperator).
+GitHub source: [miik-su/MoonOperator](https://github.com/miik-su/MoonOperator).
 
 An independent community project, with no claimed endorsement by Kubernetes or
 MoonBit. Third-party names and trademarks belong to their respective owners.
@@ -70,10 +69,23 @@ client-certificate authentication, admission/conversion webhooks, or general JSO
 guest ABI is provided. ResourcesApplied does not mean Pod Ready. See the
 [scope contract](docs/project-scope.md) and [CRD/RBAC subset](docs/crd-rbac.md).
 
+## Use the library in another project
+
+In the root of a separate MoonBit module, add the native library dependency.
+
+```sh
+moon add miik-su/moonoperator@0.1.3
+moon check --target native
+```
+
+See [developing your own controller](docs/developing-controllers.md) for public
+API imports and [the consumer example](examples/consumer/README.md) for a runnable
+ConfigMap reconciliation.
+
 ## Start without a cluster
 
 Use the pinned MoonBit toolchain below, clone this repository and enter its root.
-The separate consumer module resolves the unpublished library from a local
+The separate consumer module resolves the library from a local
 workspace; it needs no credentials, Kubernetes, Docker or Wasmtime:
 
 ```sh
