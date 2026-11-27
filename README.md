@@ -111,41 +111,52 @@ MoonBit 0.10.17+d971670cd / moon 0.1.20261023, native target; kubectl and a
 disposable development cluster are required. Linux and Windows native have
 bounded evidence. Kind passed with Kubernetes 1.36.4 and 1.37.0 on amd64,
 using Calico 3.33.0. macOS and other cluster combinations remain unverified. The
-current kubectl context and default namespace are used below. An authorized
-administrator installs the cluster-scoped CRD; the runtime can use a dedicated
-ServiceAccount as described in [deployment](docs/deployment.md).
+commands below use the `default` namespace on a disposable development cluster.
+Check the active context before applying the bundle. An authorized administrator
+installs the cluster-scoped CRD. The in-cluster path uses a dedicated
+ServiceAccount as described in [deployment](docs/deployment.md#in-cluster-process).
 
 ```sh
+kubectl config current-context
+moon update
 moon check --target native
-moon run cmd/manifests --target native > install.json
+MOONOPERATOR_NAMESPACE=default moon run cmd/manifests --target native > install.json
 kubectl --namespace default apply -f install.json
 kubectl wait --for=condition=Established crd/moonapps.moonoperator.dev --timeout=60s
-kubectl proxy --port=8001
+kubectl proxy --address=127.0.0.1 --port=8001
 ```
 
 In separate terminals:
 
 ```sh
-moon run cmd/moonapp --target native
-kubectl --namespace default apply -f config/moonapp.yaml
-kubectl --namespace default get deployment,service demo-app
+MOONOPERATOR_NAMESPACE=default moon run cmd/moonapp --target native
 ```
 
-Default namespace is `default`; set `MOONOPERATOR_NAMESPACE` to override both
-the manifest generator and operator. MoonApp creates owned Deployment/Service
-resources, updates spec/status idempotently and repairs drift every 30 seconds.
-Deleting the MoonApp lets Kubernetes garbage-collect its owned children.
+Apply and verify from the other terminal.
+
+```sh
+kubectl --namespace default apply -f config/moonapp.yaml
+kubectl --namespace default wait --for=condition=ResourcesApplied moonapp/demo-app --timeout=90s
+kubectl --namespace default get deployment/demo-app service/demo-app
+```
+
+MoonApp creates owned Deployment/Service resources, updates spec/status
+idempotently and repairs drift every 30 seconds. `ResourcesApplied=True` checks
+the resource reconciliation. To check the workload too, run
+`kubectl --namespace default rollout status deployment/demo-app --timeout=120s`.
 Existing same-name children are never adopted by default. The generated workload
 requires a non-root image and applies seccomp, dropped capabilities, disabled
 privilege escalation and resource limits. The bundled example uses a pinned
 non-root NGINX image on port 8080; arbitrary images must meet this contract.
-Set the same namespace in kubectl, manifest generation and the operator. Deleting
-the test MoonApp removes its owned children via Kubernetes GC. Stop the local
-operator/proxy when finished; CRD removal is an administrator operation affecting
-all instances, so it is not part of routine example cleanup.
+For a different namespace or PowerShell syntax, see the [local deployment guide](docs/deployment.md#local-process).
+To clean up the example, run `kubectl --namespace default delete moonapp/demo-app`
+and stop the local operator and proxy. Kubernetes garbage-collects the owned
+children. CRD removal affects all instances and requires a separate administrator
+operation.
 
-Local development uses an explicitly enabled loopback kubectl proxy. Set
-`MOONOPERATOR_KUBECONFIG` to a JSON or restricted YAML kubeconfig file for HTTPS
+The local process uses the loopback proxy when neither a kubeconfig override
+nor in-cluster configuration is present. Set `MOONOPERATOR_KUBECONFIG` to a JSON
+or restricted YAML kubeconfig file for HTTPS
 bearer authentication (`MOONOPERATOR_KUBECONFIG_JSON` remains an alias). Relative
 CA/tokenFile paths resolve against that file. In-cluster ServiceAccount config
 is selected via `KUBERNETES_SERVICE_HOST/PORT`; mounted tokens are reread per
@@ -161,8 +172,8 @@ Metrics include reconcile outcomes/durations, retries, watch reconnects and API
 duration/counts, bounded latency buckets and fixed error categories.
 Structured event logs exclude raw server errors and credentials. Metric timing
 is defined in [diagnostics](docs/observability.md); it excludes queue wait.
-The cluster manifest explicitly exposes port 8080 on the pod interface. Apply
-`config/diagnostics-networkpolicy.yaml` in the operator namespace. For monitoring,
+The in-cluster example exposes port 8080 on the pod interface. The generated
+bundle includes the diagnostics NetworkPolicy. For monitoring,
 label both the monitoring namespace `moonoperator.dev/diagnostics-access=true`
 and its client pod `moonoperator.dev/diagnostics-client=true`. A NetworkPolicy
 capable CNI is required; default Kind does not prove traffic enforcement.

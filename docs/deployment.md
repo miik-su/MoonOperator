@@ -12,14 +12,18 @@ Install the README's pinned MoonBit toolchain, kubectl and a development cluster
 Run moon update at the repository root. An authorized administrator generates
 and applies the bundle, then waits for moonapps.moonoperator.dev Established.
 Start kubectl proxy on loopback port 8001 and run cmd/moonapp in another terminal.
-Apply config/moonapp.yaml and inspect Deployment/Service and MoonApp conditions.
+Apply config/moonapp.yaml and wait for `ResourcesApplied=True`. Use
+`kubectl rollout status` for the Deployment when verifying Pod availability.
+The complete command sequence is in the [README](../README.md#moonapp-on-a-development-cluster).
 No Docker/Wasmtime is required for this path; the cluster pulls the example image.
 
 To change namespaces, set MOONOPERATOR_NAMESPACE before both manifest generation
 and operator execution, and pass that same namespace to kubectl. Environment
 syntax differs between PowerShell (`$env:MOONOPERATOR_NAMESPACE='demo'`) and
-POSIX shells (`export MOONOPERATOR_NAMESPACE=demo`). Create the namespace before
-applying namespaced objects. MOONOPERATOR_KUBECONFIG selects a restricted HTTPS
+POSIX shells (`export MOONOPERATOR_NAMESPACE=demo`). In PowerShell, set the
+variable in each terminal that runs a MoonOperator command. Generate the bundle
+with `moon run cmd/manifests --target native | Set-Content -Encoding utf8 install.json`.
+Create the namespace before applying namespaced objects. MOONOPERATOR_KUBECONFIG selects a restricted HTTPS
 bearer/CA-file kubeconfig instead of the loopback proxy. Supported fields and
 explicit exclusions are in project-scope.md and transport/config.mbt.
 

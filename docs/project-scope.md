@@ -25,6 +25,8 @@ be built on Linux; a Windows native build is not an Ubuntu executable. External
 workload images and their own runtime readiness/security requirements remain
 the deployer's responsibility. See deployment.md and compatibility.md.
 
-Published support is limited to actual dated evidence. Full regression,
-1h/24h stability, multiple Kubernetes versions and registry installation remain
-release gates. No Mooncakes package or stable production version is published.
+The [compatibility matrix](compatibility.md) identifies the tested Kubernetes
+and CNI combinations. The public [Linux amd64 v0.1.2 image](evidence/20261125-v0.1.2/README.md)
+was rebuilt and deployed in Kind 1.37.0. Broader Kubernetes and CNI coverage,
+full regression, 1h/24h stability and registry installation remain release gates.
+No Mooncakes package or stable production version is published.
