@@ -14,6 +14,8 @@ on Kubernetes 1.37.0 in Kind. The
 [v0.1.3 draft evidence](evidence/20261125-v0.1.3-draft/README.md) covers candidate
 builds and draft assets. The focused Linux CI for controller retry changes is
 linked from the [November 26 test record](evidence/20261126-mooncakes/README.md).
+The Mooncakes 0.1.3 library passed a clean consumer install and run after
+publication. See the [registry verification](evidence/20261128-mooncakes/README.md).
 
 ## Earlier validation
 

@@ -80,7 +80,8 @@ moon check --target native
 
 See [developing your own controller](docs/developing-controllers.md) for public
 API imports and [the consumer example](examples/consumer/README.md) for a runnable
-ConfigMap reconciliation.
+ConfigMap reconciliation. The [registry verification](docs/evidence/20261128-mooncakes/README.md)
+records the clean install, source archive checksum and observed result.
 
 ## Start without a cluster
 

@@ -31,7 +31,7 @@ release-status.md identify their exact source; historical data is not rewritten.
 | Follow-up security review | Redacted Resource debug, explicit finalizer results, scoped ownership/adoption, mandatory watch RVs, typed capacity failure policy, bounded file/LIST reads and API type validation verified by focused regressions |
 | Container delivery | Linux amd64 v0.1.2 public assets verified and the image rebuilt and deployed to Kind 1.37.0. The [release record](evidence/20261125-v0.1.2/README.md) identifies the exact artifact and scan coverage. The [November 21 OS scan](evidence/20261121-container/README.md) applies to an earlier, different image |
 | Diagnostics ingress | Loopback default. Pod interface acceptance verified Calico 3.33.0 allow/deny/recovery on Kubernetes 1.36.4 and 1.37.0. Other CNIs are unverified |
-| Independent library consumer | Public API example verified from the checkout and from an extracted source ZIP via a local workspace. [Source archive run](evidence/20261126-mooncakes/source-archive-consumer.json) |
+| Independent library consumer | Public API example passed from the checkout and from an independent module installed from Mooncakes 0.1.3. [Registry install and run](evidence/20261128-mooncakes/README.md) |
 | macOS / other Kubernetes versions | Not verified; compilation or interface similarity is not runtime compatibility evidence |
 
 Optional-adoption acceptance passed for final code source 31d7390 with explicit

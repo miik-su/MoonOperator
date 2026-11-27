@@ -1,0 +1,9 @@
+{
+  "consumer_module": "moonoperator-examples/consumer",
+  "public_api_only": true,
+  "reconcile_attempts": 2,
+  "child_updates": 1,
+  "unrelated_annotation_preserved": true,
+  "pending": 0,
+  "transport": "in-memory fake; no cluster or GC validation"
+}
