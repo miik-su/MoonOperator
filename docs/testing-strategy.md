@@ -22,8 +22,9 @@ New targeted regressions cover omitted LIST TypeMeta, Retry-After, non-JSON prox
 failures, oversized responses, peer closure on cancellation, four-worker key
 exclusion/draining, YAML configuration, finalizer failures, safe logs and schema
 versions. Experimental WASM execution is a separate opt-in probe. Fixed dataset
-benchmarks and a 10-second bounded fault load report are recorded in evidence/;
-no hours-long soak result is claimed. Short Linux RSS observations now exist in
+benchmarks and a 10-second bounded fault load report are recorded in evidence/.
+The [one-hour Linux run](evidence/20261128-linux-soak/README.md) retains timed
+RSS samples and final cache and queue checks. Short Linux RSS observations are in
 [the November 13 archive](evidence/20261113-linux/README.md); encoded cache
 budgets, process peak RSS and container limits remain separate measurements.
 
@@ -32,8 +33,7 @@ full-native option invokes `moon run scripts/release-validation.mbtx -- full`
 and retains stdout, stderr, toolchain, source SHA, exit code and test totals.
 Its soak option supports 60 seconds or one hour. For a suitable local runner,
 `moon run scripts/release-validation.mbtx -- soak 86400` requests 24 hours with
-bounded progress samples. These are available entry points, not completed runs;
-the current review continues to honor focused-only testing.
+bounded progress samples. The 24-hour run and full native regression remain open.
 
 The maintenance fault suite adds runtime/model_test.mbt, controller/storm_test.mbt,
 observability/metrics_test.mbt and crd/generator_test.mbt. They verify final data,

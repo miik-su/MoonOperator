@@ -29,6 +29,6 @@ Evidence indexes identify the available source SHA and execution environment.
 Archived reports may use shorter filenames, with original artifact IDs and digests
 listed alongside them. A previous green run does not imply a newer commit
 was retested. Public CI summaries and artifacts include source provenance.
-Full regression and 1h/24h synthetic/real-cluster soak remain distinct unexecuted
-release gates. No leak-freedom, universal Kubernetes compatibility or production
-security guarantee follows from this model set. See test-results.md for data.
+The [one-hour synthetic run](evidence/20261128-linux-soak/README.md) records
+process RSS along with queue and cache invariants. Full regression, 24-hour
+synthetic testing and prolonged real-cluster testing remain open.

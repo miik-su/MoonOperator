@@ -119,8 +119,8 @@ independent Ubuntu 24.04 runners produced identical image IDs and layer
 digests. The released archive passed the focused Kind deployment check.
 See the [v0.1.1 release evidence](evidence/20261125-v0.1.1/README.md).
 
-Remaining work for broader support includes long-duration soak and leak
-investigation and additional Kubernetes/CNI/auth matrices. The module namespace is
+Remaining work for broader support includes 24-hour and real-cluster soak,
+memory investigation and additional Kubernetes/CNI/auth matrices. The module namespace is
 `miik-su/moonoperator`, migrated from `mik1e80/moonoperator` on November 14.
 Internal imports, generated interfaces and the current source SBOM use the new
 name. Historical raw observations keep their original source identity. Selecting
@@ -138,7 +138,6 @@ The separate acceptance stage requires a release build of tests/cluster_client.
 Ubuntu is digest-pinned and runtime APT packages use a dated archive snapshot.
 CI retains the exact installed package list alongside Kind version evidence.
 Short Linux RSS observations now cover six fresh read-only containers at
-128/256/512 MiB. They are not a long-duration memory guarantee. Full regression
-and longer soak have manual entry points and were not run under this task's
-focused-testing constraint. See review-followup-20261113.md for current findings
-and review-followup-20261108.md for earlier API migration.
+128/256/512 MiB. The [one-hour Linux synthetic run](evidence/20261128-linux-soak/README.md)
+records process RSS along with the workload and observed limits. Full regression
+and longer runs remain manual. Earlier API migration is in review-followup-20261108.md.

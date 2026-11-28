@@ -20,8 +20,8 @@ queue capacity and drains on shutdown. A short run cannot establish long-term
 stability. Linux reports process RSS/peak RSS initially, every minute and at the
 end, with a bounded progress report; unsupported platforms label RSS unavailable.
 No leak-freedom claim is made. The manual release-validation workflow offers
-60-second or one-hour runs; 24 hours requires a suitable local runner. Neither
-one-hour nor 24-hour execution has been completed in this review.
+60-second or one-hour runs. See the [completed Linux one-hour run](evidence/20261128-linux-soak/README.md)
+for observed RSS and queue state. A 24-hour run still requires a suitable runner.
 
 Separate fresh-container 128/256/512 MiB observations are retained in
 [the Linux snapshot](evidence/20261113-linux/README.md). They measure short

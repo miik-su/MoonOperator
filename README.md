@@ -115,8 +115,9 @@ Linux container memory limits, actual Calico/RBAC decisions, TLS rejection and
 queue-scale evidence, and states the remaining release checks.
 The [test model catalog](docs/test-models.md) distinguishes input provenance,
 invariants, actual evidence and untested scope. A historical green source revision
-does not mean newer code was rerun. Full regression and 1h/24h soak remain manual
-and unexecuted in this maintenance pass.
+does not mean newer code was rerun. The [one-hour Linux synthetic soak](docs/evidence/20261128-linux-soak/README.md)
+records queue drain, cache bounds and the measured RSS rise. Full regression,
+a 24-hour soak and prolonged real-cluster testing remain manual.
 
 ## MoonApp on a development cluster
 
