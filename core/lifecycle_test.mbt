@@ -44,6 +44,31 @@ test "condition upsert repairs missing transition timestamps without losing othe
   )
   guard updated is Array(items) else { fail("missing conditions") }
   assert_eq(items.length(), 2)
-  assert_eq(@core.field(items[0], "type"), "External")
-  assert_eq(@core.field(items[1], "lastTransitionTime"), "2026-11-28T00:00:00Z")
+  assert_eq(@core.field(items[1], "type"), "External")
+  assert_eq(@core.field(items[0], "lastTransitionTime"), "2026-11-28T00:00:00Z")
+}
+
+///|
+test "condition updates keep the original order and remove duplicate types" {
+  let replacement : Json = {
+    "type": "Accepted",
+    "status": "True",
+    "lastTransitionTime": "new",
+  }
+  let result = @core.conditions_upsert(
+    [
+      { "type": "Accepted", "status": "True", "lastTransitionTime": "old" },
+      { "type": "External", "status": "True" },
+      {
+        "type": "Accepted",
+        "status": "False",
+        "lastTransitionTime": "duplicate",
+      },
+    ],
+    replacement,
+  )
+  assert_eq(result, [
+    { "type": "Accepted", "status": "True", "lastTransitionTime": "old" },
+    { "type": "External", "status": "True" },
+  ])
 }

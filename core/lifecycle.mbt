@@ -80,7 +80,7 @@ pub fn Resource::controlled_by(
 }
 
 ///|
-/// Preserve a recorded lastTransitionTime while status is unchanged.
+/// Update a condition in place and preserve its recorded time while status is unchanged.
 pub fn conditions_upsert(
   conditions : Json,
   condition : Json,
@@ -98,16 +98,26 @@ pub fn conditions_upsert(
     _ => []
   }
   let replacement = copy_json(condition)
+  let result = []
+  let mut replaced = false
   for old in items {
-    if text(field(old, "type")) == kind &&
-      field(old, "status") == field(condition, "status") &&
+    if text(field(old, "type")) != kind {
+      result.push(old)
+      continue
+    }
+    if !replaced {
+      replaced = true
+      result.push(replacement)
+    }
+    if field(old, "status") == field(condition, "status") &&
       field(old, "lastTransitionTime") is String(previous) &&
       !previous.is_empty() &&
       replacement is Object(fields) {
       fields["lastTransitionTime"] = Json::string(previous)
     }
   }
-  let result = items.filter(item => text(field(item, "type")) != kind)
-  result.push(replacement)
+  if !replaced {
+    result.push(replacement)
+  }
   Json::array(result)
 }

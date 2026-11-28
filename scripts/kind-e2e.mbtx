@@ -129,7 +129,22 @@ async fn main {
     @async.sleep(500)
   }
   ignore(kubectl(["get", "service", "demo-app"]))
-  ignore(kubectl(["patch", "moonapp", "demo-app", "--type=merge", "-p", "{\"spec\":{\"replicas\":2}} "]))
+  let external : Json = { "type": "ExternalCheck", "status": "True", "reason": "Fixture" }
+  let status_patch : Json = [
+    { "op": "add", "path": "/status/externalRevision", "value": 7 },
+    { "op": "add", "path": "/status/conditions/-", "value": external },
+  ]
+  ignore(kubectl(["patch", "moonapp/demo-app", "--subresource=status", "--type=json", "-p", status_patch.stringify()]))
+  let updated = @json.parse(kubectl(["patch", "moonapp/demo-app", "--type=merge", "-p", "{\"spec\":{\"replicas\":2}}", "-o", "json"]))
+  let generation = field(field(updated, "metadata"), "generation")
+  assert_true(generation is Number(_))
+  ignore(kubectl(["wait", "--for=jsonpath={.status.observedGeneration}=" + generation.stringify(), "moonapp/demo-app", "--timeout=60s"]))
+  let reconciled = @json.parse(kubectl(["get", "moonapp/demo-app", "-o", "json"]))
+  let status = field(reconciled, "status")
+  assert_eq(field(status, "externalRevision"), Json::number(7.0))
+  guard field(status, "conditions") is Array(conditions) else { fail("missing conditions after spec update") }
+  assert_eq(conditions.last(), Some(external))
+  println("MoonApp preserved external status and condition order across a spec update")
   replicas(2.0)
   ignore(kubectl(["scale", "deployment/demo-app", "--replicas=1"]))
   replicas(2.0)
@@ -141,7 +156,7 @@ async fn main {
   ignore(kubectl(["delete", "moonapp", "demo-app", "--wait=true"]))
   ignore(kubectl(["wait", "--for=delete", "deployment/demo-app", "--timeout=90s"]))
   ignore(kubectl(["wait", "--for=delete", "service/demo-app", "--timeout=90s"]))
-  let report : Json = { "suite": "kind-moonapp", "create_update_drift_restart_gc": true, "empty_image_rejected_by_admission": true, "rbac_positive_negative": true, "generation_conditions": true, "ready_not_overclaimed": true, "explicit_adoption_permissions": true }
+  let report : Json = { "suite": "kind-moonapp", "create_update_drift_restart_gc": true, "empty_image_rejected_by_admission": true, "rbac_positive_negative": true, "generation_conditions": true, "external_status_and_condition_order_preserved": true, "ready_not_overclaimed": true, "explicit_adoption_permissions": true }
   @fs.write_file("kind-e2e-report.json", report.stringify(indent=2))
   println("Kind MoonApp create/update/drift/restart/GC verified")
 }
