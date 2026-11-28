@@ -9,6 +9,13 @@
 测试数据以合成 Kubernetes Pod、MoonApp 和 Watch 事件为主。
 输入模板、生成规则、原始结果均已保存到仓库，无需登录 Actions 下载即可阅读。
 
+## RSS 对照与真实 Kind 一小时长稳 · 2026-11-28
+
+样本改为流式写入后，Linux 合成测试首分钟至结束的 RSS 增量从 972 KiB 降至
+128 KiB，系统分配器组为 16 KiB。Kubernetes 1.37.0 + Calico 实测 61 次检查，
+同一 Operator Pod 持续处理副本数变化，采样时均就绪，容器重启数为 0。
+[对照设计、原始样本与 CI](evidence/20261128-soak-followup/README.md)。
+
 ## Linux 一小时合成长稳测试 · 2026-11-28
 
 1,000 个合成资源运行 3,600,002 ms，注入 17,100,000 次瞬时失败，结束时队列

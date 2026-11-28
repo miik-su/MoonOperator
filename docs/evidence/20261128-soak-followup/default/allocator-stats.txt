@@ -1,0 +1,25 @@
+heap stats:     peak       total       freed     current        unit       count
+  reserved:     1.0 GiB     1.0 GiB     0           1.0 GiB
+ committed:     1.0 GiB     1.0 GiB    60.7 MiB   963.2 MiB
+     reset:     0
+    purged:    60.7 MiB
+   touched:    64.2 KiB    64.2 KiB     2.6 MiB    -2.5 MiB                          ok
+  segments:     1           1           0           1                                not all freed
+-abandoned:     0           0           0           0                                ok
+   -cached:     0           0           0           0                                ok
+     pages:     0           0          62         -62                                ok
+-abandoned:     0           0           0           0                                ok
+ -extended:     0
+ -noretire:     0
+    arenas:     1
+-crossover:     0
+ -rollback:     0
+     mmaps:     0
+   commits:     0
+    resets:     0
+    purges:     6
+   threads:     0           0           0           0                                ok
+  searches:     0.0 avg
+numa nodes:     1
+   elapsed:  3600.007 s
+   process: user: 3463.170 s, system: 136.653 s, faults: 0, rss: 13.7 MiB, commit: 1.0 GiB

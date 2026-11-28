@@ -22,7 +22,7 @@ application information is maintained in this repository.
 | Experimental Wasmtime advisory check | Updated | Wasmtime 50.0.3 passed the exact-version OSV query and ten-case host probe. See [archived evidence](evidence/20261121-protocol/README.md) |
 | Distribution and vulnerability coverage | Partial | All installed Ubuntu package sources mapped and downloaded. A byte-matched map confirms the selected archive members. Production exports one filesystem layer and the verified Ubuntu sources are bundled locally. The audited image uses the pinned scalar UTF runtime. Source delivery and builder-component obligations for a formal release remain open |
 | Full native regression | Available, not executed in this maintenance pass | Manual release-validation workflow; targeted testing was explicitly requested |
-| Synthetic and real-cluster soak | Partially verified | One-hour Linux synthetic run passed. 24-hour and prolonged real-cluster runs remain open. [Reports](evidence/20261128-linux-soak/README.md) |
+| Synthetic and real-cluster soak | Partially verified | One-hour Linux synthetic and real Kind runs passed. The 24-hour run is tracked separately. [Reports](evidence/20261128-soak-followup/README.md) |
 | Multi-version Kubernetes/CNI/auth | Partially verified | Kind 1.35.8, 1.36.4 and 1.37.0 with Calico 3.33.0 passed. [Reports](evidence/20261128-kind-compatibility/README.md). Other versions, CNIs and identity providers remain open |
 | Mooncakes library release | Versioned | Verify each published version with an independent consumer and no source override. [Registry](https://mooncakes.io/docs/miik-su/moonoperator) |
 

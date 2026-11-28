@@ -33,7 +33,11 @@ full-native option invokes `moon run scripts/release-validation.mbtx -- full`
 and retains stdout, stderr, toolchain, source SHA, exit code and test totals.
 Its soak option supports 60 seconds or one hour. For a suitable local runner,
 `moon run scripts/release-validation.mbtx -- soak 86400` requests 24 hours with
-bounded progress samples. The 24-hour run and full native regression remain open.
+minute-by-minute progress in `soak-progress.jsonl`. A GitHub-hosted job has a
+six-hour limit, so use a local runner for a single 24-hour process. The Kind
+workflow's manual `soak-seconds` input adds a live Kubernetes 1.37.0 check.
+The [allocator comparison and live result](evidence/20261128-soak-followup/README.md)
+record the tested workload and measurements.
 
 The maintenance fault suite adds runtime/model_test.mbt, controller/storm_test.mbt,
 observability/metrics_test.mbt and crd/generator_test.mbt. They verify final data,

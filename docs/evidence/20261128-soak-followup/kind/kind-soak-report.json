@@ -1,0 +1,434 @@
+{
+  "completed": true,
+  "target_seconds": 3600,
+  "operator_pod_uid": "2fd680f9-f401-4439-b66e-8d8f8755bd87",
+  "samples": [
+    {
+      "elapsed_ms": "373",
+      "reconcile_check_ms": "371",
+      "replicas": 1,
+      "observed_generation": 3,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "60773",
+      "reconcile_check_ms": "339",
+      "replicas": 2,
+      "observed_generation": 4,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "121205",
+      "reconcile_check_ms": "372",
+      "replicas": 1,
+      "observed_generation": 5,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "181600",
+      "reconcile_check_ms": "334",
+      "replicas": 2,
+      "observed_generation": 6,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "242022",
+      "reconcile_check_ms": "362",
+      "replicas": 1,
+      "observed_generation": 7,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "302411",
+      "reconcile_check_ms": "331",
+      "replicas": 2,
+      "observed_generation": 8,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "362831",
+      "reconcile_check_ms": "359",
+      "replicas": 1,
+      "observed_generation": 9,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "423225",
+      "reconcile_check_ms": "334",
+      "replicas": 2,
+      "observed_generation": 10,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "483643",
+      "reconcile_check_ms": "357",
+      "replicas": 1,
+      "observed_generation": 11,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "544039",
+      "reconcile_check_ms": "335",
+      "replicas": 2,
+      "observed_generation": 12,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "604458",
+      "reconcile_check_ms": "359",
+      "replicas": 1,
+      "observed_generation": 13,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "664855",
+      "reconcile_check_ms": "336",
+      "replicas": 2,
+      "observed_generation": 14,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "725258",
+      "reconcile_check_ms": "343",
+      "replicas": 1,
+      "observed_generation": 15,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "785626",
+      "reconcile_check_ms": "326",
+      "replicas": 2,
+      "observed_generation": 16,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "846044",
+      "reconcile_check_ms": "360",
+      "replicas": 1,
+      "observed_generation": 17,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "906432",
+      "reconcile_check_ms": "329",
+      "replicas": 2,
+      "observed_generation": 18,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "966847",
+      "reconcile_check_ms": "358",
+      "replicas": 1,
+      "observed_generation": 19,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1027238",
+      "reconcile_check_ms": "330",
+      "replicas": 2,
+      "observed_generation": 20,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1087657",
+      "reconcile_check_ms": "361",
+      "replicas": 1,
+      "observed_generation": 21,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1148045",
+      "reconcile_check_ms": "328",
+      "replicas": 2,
+      "observed_generation": 22,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1208458",
+      "reconcile_check_ms": "352",
+      "replicas": 1,
+      "observed_generation": 23,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1268845",
+      "reconcile_check_ms": "327",
+      "replicas": 2,
+      "observed_generation": 24,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1329253",
+      "reconcile_check_ms": "347",
+      "replicas": 1,
+      "observed_generation": 25,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1389632",
+      "reconcile_check_ms": "318",
+      "replicas": 2,
+      "observed_generation": 26,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1450043",
+      "reconcile_check_ms": "351",
+      "replicas": 1,
+      "observed_generation": 27,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1510431",
+      "reconcile_check_ms": "328",
+      "replicas": 2,
+      "observed_generation": 28,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1570855",
+      "reconcile_check_ms": "365",
+      "replicas": 1,
+      "observed_generation": 29,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1631244",
+      "reconcile_check_ms": "328",
+      "replicas": 2,
+      "observed_generation": 30,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1691647",
+      "reconcile_check_ms": "343",
+      "replicas": 1,
+      "observed_generation": 31,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1752028",
+      "reconcile_check_ms": "321",
+      "replicas": 2,
+      "observed_generation": 32,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1812450",
+      "reconcile_check_ms": "361",
+      "replicas": 1,
+      "observed_generation": 33,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1872826",
+      "reconcile_check_ms": "316",
+      "replicas": 2,
+      "observed_generation": 34,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1933233",
+      "reconcile_check_ms": "350",
+      "replicas": 1,
+      "observed_generation": 35,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "1993616",
+      "reconcile_check_ms": "322",
+      "replicas": 2,
+      "observed_generation": 36,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2054047",
+      "reconcile_check_ms": "371",
+      "replicas": 1,
+      "observed_generation": 37,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2114432",
+      "reconcile_check_ms": "324",
+      "replicas": 2,
+      "observed_generation": 38,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2174835",
+      "reconcile_check_ms": "351",
+      "replicas": 1,
+      "observed_generation": 39,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2235218",
+      "reconcile_check_ms": "322",
+      "replicas": 2,
+      "observed_generation": 40,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2295619",
+      "reconcile_check_ms": "347",
+      "replicas": 1,
+      "observed_generation": 41,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2356000",
+      "reconcile_check_ms": "321",
+      "replicas": 2,
+      "observed_generation": 42,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2416415",
+      "reconcile_check_ms": "354",
+      "replicas": 1,
+      "observed_generation": 43,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2476805",
+      "reconcile_check_ms": "330",
+      "replicas": 2,
+      "observed_generation": 44,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2537210",
+      "reconcile_check_ms": "350",
+      "replicas": 1,
+      "observed_generation": 45,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2597591",
+      "reconcile_check_ms": "322",
+      "replicas": 2,
+      "observed_generation": 46,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2658014",
+      "reconcile_check_ms": "362",
+      "replicas": 1,
+      "observed_generation": 47,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2718400",
+      "reconcile_check_ms": "325",
+      "replicas": 2,
+      "observed_generation": 48,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2778823",
+      "reconcile_check_ms": "362",
+      "replicas": 1,
+      "observed_generation": 49,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2839214",
+      "reconcile_check_ms": "332",
+      "replicas": 2,
+      "observed_generation": 50,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2899618",
+      "reconcile_check_ms": "358",
+      "replicas": 1,
+      "observed_generation": 51,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "2960018",
+      "reconcile_check_ms": "339",
+      "replicas": 2,
+      "observed_generation": 52,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3020438",
+      "reconcile_check_ms": "359",
+      "replicas": 1,
+      "observed_generation": 53,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3080825",
+      "reconcile_check_ms": "330",
+      "replicas": 2,
+      "observed_generation": 54,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3141244",
+      "reconcile_check_ms": "358",
+      "replicas": 1,
+      "observed_generation": 55,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3201601",
+      "reconcile_check_ms": "321",
+      "replicas": 2,
+      "observed_generation": 56,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3261989",
+      "reconcile_check_ms": "352",
+      "replicas": 1,
+      "observed_generation": 57,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3322375",
+      "reconcile_check_ms": "325",
+      "replicas": 2,
+      "observed_generation": 58,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3382801",
+      "reconcile_check_ms": "365",
+      "replicas": 1,
+      "observed_generation": 59,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3443185",
+      "reconcile_check_ms": "324",
+      "replicas": 2,
+      "observed_generation": 60,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3503591",
+      "reconcile_check_ms": "357",
+      "replicas": 1,
+      "observed_generation": 61,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3563988",
+      "reconcile_check_ms": "342",
+      "replicas": 2,
+      "observed_generation": 62,
+      "operator_restarts": 0
+    },
+    {
+      "elapsed_ms": "3600381",
+      "reconcile_check_ms": "344",
+      "replicas": 1,
+      "observed_generation": 63,
+      "operator_restarts": 0
+    }
+  ]
+}

@@ -1,0 +1,687 @@
+{
+  "completed": true,
+  "duration_ms": 3600002,
+  "iterations": "458596483",
+  "objects": 1000,
+  "queue_pending_end": 0,
+  "cache_objects_end": 1000,
+  "faults_and_duplicates": true,
+  "reconcile_failures": "14794000",
+  "reconcile_successes": "443803100",
+  "queue_retries": "14794000",
+  "cache_encoded_bytes_end": 110890,
+  "memory_rss": "see per-sample available flags; Linux kernel RSS/HWM only, no GC live-heap measurement",
+  "memory_samples": [
+    {
+      "elapsed_ms": "0",
+      "iterations": "0",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 3628,
+        "peak_rss_kib": 3628
+      }
+    },
+    {
+      "elapsed_ms": "60000",
+      "iterations": "7736000",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4972,
+        "peak_rss_kib": 4972
+      }
+    },
+    {
+      "elapsed_ms": "120001",
+      "iterations": "15376300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "180002",
+      "iterations": "23070300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "240002",
+      "iterations": "30707700",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "300002",
+      "iterations": "38359300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "360003",
+      "iterations": "45984100",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "420003",
+      "iterations": "53618400",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "480003",
+      "iterations": "61273300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "540003",
+      "iterations": "68899400",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "600003",
+      "iterations": "76531400",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "660003",
+      "iterations": "84185100",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "720003",
+      "iterations": "91795600",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "780003",
+      "iterations": "99404500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "840003",
+      "iterations": "107051500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "900003",
+      "iterations": "114721200",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "960003",
+      "iterations": "122382900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1020003",
+      "iterations": "130029700",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1080003",
+      "iterations": "137687000",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1140003",
+      "iterations": "145340100",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1200003",
+      "iterations": "152995400",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1260003",
+      "iterations": "160643900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1320003",
+      "iterations": "168310500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1380003",
+      "iterations": "175966700",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1440003",
+      "iterations": "183605300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1500003",
+      "iterations": "191226200",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1560004",
+      "iterations": "198843400",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1620004",
+      "iterations": "206507300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1680004",
+      "iterations": "214168600",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1740004",
+      "iterations": "221830500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1800004",
+      "iterations": "229477400",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1860004",
+      "iterations": "237138300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1920004",
+      "iterations": "244804500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "1980004",
+      "iterations": "252470500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2040004",
+      "iterations": "260134500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2100004",
+      "iterations": "267801900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2160004",
+      "iterations": "275465900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2220004",
+      "iterations": "283215600",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2280004",
+      "iterations": "290874000",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2340004",
+      "iterations": "298530500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2400004",
+      "iterations": "306207500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2460004",
+      "iterations": "313864600",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2520004",
+      "iterations": "321502000",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2580004",
+      "iterations": "329114200",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2640004",
+      "iterations": "336741100",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2700004",
+      "iterations": "344370500",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2760004",
+      "iterations": "352004800",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2820004",
+      "iterations": "359721700",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2880004",
+      "iterations": "367332600",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "2940004",
+      "iterations": "374934300",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3000004",
+      "iterations": "382539000",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3060004",
+      "iterations": "390154200",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3120004",
+      "iterations": "397768900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3180004",
+      "iterations": "405368900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3240004",
+      "iterations": "412961800",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3300004",
+      "iterations": "420556200",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3360004",
+      "iterations": "428146900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3420004",
+      "iterations": "435733900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3480004",
+      "iterations": "443330700",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3540004",
+      "iterations": "451003900",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4980,
+        "peak_rss_kib": 4980
+      }
+    },
+    {
+      "elapsed_ms": "3600002",
+      "iterations": "458596483",
+      "memory": {
+        "available": true,
+        "unit": "KiB",
+        "scope": "this process; peak is since process start; no GC live-heap measurement",
+        "rss_kib": 4988,
+        "peak_rss_kib": 4988
+      }
+    }
+  ]
+}

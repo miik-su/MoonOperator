@@ -1,0 +1,15 @@
+{
+  "source_commit": "5f3d7cb07006d4dd87a190142ce08d6e00854c97",
+  "mode": "soak",
+  "command": [
+    "run",
+    "tests/soak",
+    "--target",
+    "native",
+    "--release"
+  ],
+  "toolchain": "moon 0.1.20261023 (3778465 2026-10-23) ~/.moon/bin/moon\nmoonc v0.10.17+d971670cd (2026-10-23) ~/.moon/bin/moonc\nmoonrun 0.1.20261023 (3778465 2026-10-23) ~/.moon/bin/moonrun\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg\n",
+  "exit_code": 0,
+  "test_counts": {},
+  "scope": "synthetic soak; duration and Linux RSS availability in soak-report.json"
+}

@@ -28,8 +28,8 @@ the deployer's responsibility. See deployment.md and compatibility.md.
 The [compatibility matrix](compatibility.md) identifies the tested Kubernetes
 and CNI combinations. The public [Linux amd64 v0.1.2 image](evidence/20261125-v0.1.2/README.md)
 was rebuilt and deployed in Kind 1.37.0. Broader Kubernetes and CNI coverage,
-full regression, 24-hour synthetic stability and sustained real-cluster testing
-remain gates for broader support. The [one-hour synthetic run](evidence/20261128-linux-soak/README.md)
-records process RSS under the tested load.
+full regression and 24-hour synthetic stability remain gates for broader support.
+The [one-hour synthetic and Kind runs](evidence/20261128-soak-followup/README.md)
+record Linux process RSS under synthetic load and sampled real-cluster behavior.
 The [Mooncakes library](https://mooncakes.io/docs/miik-su/moonoperator) and
 GitHub image releases follow the experimental single-replica scope above.
