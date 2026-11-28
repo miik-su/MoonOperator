@@ -8,6 +8,7 @@ target/
 *-report.json
 /benchmark-input.json
 /soak-input.json
+/soak-progress.jsonl
 /test-results-summary.md
 /ci-evidence/
 /moonoperator-images.tar

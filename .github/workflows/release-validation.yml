@@ -11,6 +11,10 @@ on:
         type: choice
         options: ['0', '60', '3600']
         default: '0'
+      soak_system_allocator:
+        description: Compare the production system allocator (Linux soak only)
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -42,8 +46,11 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-moonbit
+        with:
+          scalar-utf: ${{ inputs.soak_system_allocator }}
       - name: Bounded opt-in soak
         env:
+          MIMALLOC_SHOW_STATS: '1'
           SOAK_SECONDS: ${{ inputs.soak_seconds }}
         run: moon run scripts/release-validation.mbtx -- soak "$SOAK_SECONDS"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -56,4 +63,4 @@ jobs:
             release-validation-stderr.log
             soak-report.json
             soak-input.json
-            soak-progress-report.json
+            soak-progress.jsonl

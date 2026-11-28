@@ -46,11 +46,17 @@ async fn main {
     },
     metrics~,
   )
+  let sample_path = "soak-progress.jsonl"
+  let journal = @fs.open(
+    sample_path,
+    mode=WriteOnly,
+    create_mode=CreateOrTruncate,
+  )
+  defer journal.close()
   let started = @async.now()
   let mut iterations = 0L
-  let memory_samples : Array[Json] = [
-    { "elapsed_ms": 0, "memory": @process.memory() },
-  ]
+  let initial = sample(started, iterations)
+  journal.write(initial.stringify() + "\n")
   let mut next_sample = started + 60000L
   while @async.now() - started < seconds.to_int64() * 1000L {
     let resource = resources[(iterations % 1000L).to_int()]
@@ -69,19 +75,9 @@ async fn main {
     iterations += 1L
     if iterations % 100L == 0L {
       @async.pause()
-      if @async.now() >= next_sample && memory_samples.length() < 1450 {
-        memory_samples.push({
-          "elapsed_ms": @async.now() - started,
-          "memory": @process.memory(),
-        })
-        let partial : Json = {
-          "completed": false,
-          "elapsed_ms": @async.now() - started,
-          "iterations": iterations,
-          "memory_samples": memory_samples,
-          "oom": "external termination must be diagnosed by caller",
-        }
-        @fs.write_file("soak-progress-report.json", partial.stringify(indent=2))
+      if @async.now() >= next_sample {
+        let observation = sample(started, iterations)
+        journal.write(observation.stringify() + "\n")
         next_sample = @async.now() + 60000L
       }
     }
@@ -92,10 +88,16 @@ async fn main {
   }
   assert_eq(queue.pending(), 0)
   assert_eq(store.list(gvk).length(), 1000)
-  memory_samples.push({
-    "elapsed_ms": @async.now() - started,
-    "memory": @process.memory(),
-  })
+  let final_sample = sample(started, iterations)
+  journal.write(final_sample.stringify() + "\n")
+  // Only assemble the full report after the final RSS observation.
+  let memory_samples : Array[Json] = []
+  let progress = @fs.read_file(sample_path).text()
+  for line in progress.split("\n") {
+    if !line.is_empty() {
+      memory_samples.push(@json.parse(line.to_owned()))
+    }
+  }
   let report : Json = {
     "completed": true,
     "duration_ms": (@async.now() - started).to_int(),
@@ -125,4 +127,13 @@ async fn main {
   @fs.write_file("soak-input.json", input.stringify(indent=2))
   @fs.write_file("soak-report.json", report.stringify(indent=2))
   println(report.stringify())
+}
+
+///|
+async fn sample(started : Int64, iterations : Int64) -> Json {
+  {
+    "elapsed_ms": @async.now() - started,
+    "iterations": iterations,
+    "memory": @process.memory(),
+  }
 }
