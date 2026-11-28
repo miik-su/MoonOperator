@@ -23,7 +23,7 @@ application information is maintained in this repository.
 | Distribution and vulnerability coverage | Partial | All installed Ubuntu package sources mapped and downloaded. A byte-matched map confirms the selected archive members. Production exports one filesystem layer and the verified Ubuntu sources are bundled locally. The audited image uses the pinned scalar UTF runtime. Source delivery and builder-component obligations for a formal release remain open |
 | Full native regression | Available, not executed in this maintenance pass | Manual release-validation workflow; targeted testing was explicitly requested |
 | 1h/24h synthetic and real-cluster soak | Open | Manual entry points exist; no long-duration success or leak-freedom claim |
-| Multi-version Kubernetes/CNI/auth | Partially verified | Kind 1.36.4 and 1.37.0 with Calico 3.33.0 passed. Other versions, CNIs and identity providers remain open |
+| Multi-version Kubernetes/CNI/auth | Partially verified | Kind 1.35.8, 1.36.4 and 1.37.0 with Calico 3.33.0 passed. [Reports](evidence/20261128-kind-compatibility/README.md). Other versions, CNIs and identity providers remain open |
 | Mooncakes library release | Versioned | Verify each published version with an independent consumer and no source override. [Registry](https://mooncakes.io/docs/miik-su/moonoperator) |
 
 For each meaningful change, record the problem, resulting behavior, affected

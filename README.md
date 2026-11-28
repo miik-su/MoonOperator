@@ -122,8 +122,8 @@ and unexecuted in this maintenance pass.
 
 MoonBit 0.10.17+d971670cd / moon 0.1.20261023, native target; kubectl and a
 disposable development cluster are required. Linux and Windows native have
-bounded evidence. Kind passed with Kubernetes 1.36.4 and 1.37.0 on amd64,
-using Calico 3.33.0. macOS and other cluster combinations remain unverified. The
+bounded evidence. Kind passed with Kubernetes 1.35.8, 1.36.4 and 1.37.0 on
+amd64 using Calico 3.33.0. See the [compatibility results](docs/evidence/20261128-kind-compatibility/README.md). macOS and other cluster combinations remain unverified. The
 commands below use the `default` namespace on a disposable development cluster.
 Check the active context before applying the bundle. An authorized administrator
 installs the cluster-scoped CRD. The in-cluster path uses a dedicated

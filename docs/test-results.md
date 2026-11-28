@@ -9,6 +9,12 @@
 测试数据以合成 Kubernetes Pod、MoonApp 和 Watch 事件为主。
 输入模板、生成规则、原始结果均已保存到仓库，无需登录 Actions 下载即可阅读。
 
+## Kubernetes 三版本兼容性 · 2026-11-28
+
+修复 Kind 在 Kubernetes 1.35 上未应用所有权准入配置的问题。1.35.8、1.36.4 和
+1.37.0 复测通过真实 API、TLS、RBAC、所有权准入、Calico 网络策略和 MoonApp 生命周期。
+[首轮失败、复测和原始报告](evidence/20261128-kind-compatibility/README.md)。
+
 ## MoonApp 状态更新与真实集群回归 · 2026-11-28
 
 原修复及后续条件顺序修复的 GitHub 原生 CI 均通过，Kind 1.36.4 和 1.37.0
