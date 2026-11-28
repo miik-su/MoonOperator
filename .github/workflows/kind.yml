@@ -86,7 +86,7 @@ jobs:
       - name: Retain package sources, copyrights and native linkage
         if: matrix.kubernetes == 'v1.37.0' && !inputs.export-candidate
         run: moon run scripts/distribution-inventory.mbtx -- distribution-evidence
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
         with:
           name: runtime-distribution-inventory
@@ -128,7 +128,7 @@ jobs:
       - name: Display cluster acceptance results
         if: always()
         run: moon run scripts/report-summary.mbtx -- kind '${{ job.status }}'
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: kind-acceptance-${{ matrix.kubernetes }}
@@ -170,7 +170,7 @@ jobs:
           if [ "$EXPORT_CANDIDATE" = true ]; then
             jq -e '[.Results[] | select(.Class == "os-pkgs") | .Packages[].Name] | sort == ["ca-certificates","libc6","libssl3t64"]' os-scan/trivy.json
           fi
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() && matrix.kubernetes == 'v1.37.0' }}
         with:
           name: os-vulnerability-observations
@@ -185,7 +185,7 @@ jobs:
       - name: Display memory observations
         if: ${{ !cancelled() && steps.memory.outcome != 'skipped' && matrix.kubernetes == 'v1.37.0' }}
         run: moon run scripts/report-summary.mbtx -- memory '${{ steps.memory.outcome }}'
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() && steps.memory.outcome != 'skipped' && matrix.kubernetes == 'v1.37.0' }}
         with:
           name: memory-observations
@@ -225,7 +225,7 @@ jobs:
           cp distribution-evidence/* "$output/"
           cp os-scan/image-id.txt os-scan/source-commit.txt os-scan/trivy-version.txt "$output/"
           (cd "$output" && sha256sum *.tar.gz > candidate-SHA256SUMS)
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: matrix.kubernetes == 'v1.37.0' && inputs.export-candidate
         with:
           name: linux-amd64-release-candidate
