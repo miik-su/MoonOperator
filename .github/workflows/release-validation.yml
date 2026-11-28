@@ -12,7 +12,7 @@ on:
         options: ['0', '60', '3600']
         default: '0'
       soak_system_allocator:
-        description: Compare the production system allocator (Linux soak only)
+        description: Use the system allocator with the same SDK and UTF configuration
         type: boolean
         default: false
 permissions:
@@ -46,8 +46,9 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-moonbit
-        with:
-          scalar-utf: ${{ inputs.soak_system_allocator }}
+      - name: Select system allocator
+        if: inputs.soak_system_allocator
+        run: echo 'MOONBIT_ALLOCATOR=system' >> "$GITHUB_ENV"
       - name: Bounded opt-in soak
         env:
           MIMALLOC_SHOW_STATS: '1'
