@@ -126,13 +126,13 @@ jobs:
         if: always() && matrix.builder == 'a'
         run: |
           if test -x /tmp/kind; then /tmp/kind delete cluster --name moonoperator-release; fi
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: release-evidence-${{ matrix.builder }}
           path: ${{ runner.temp }}/receipt/
           if-no-files-found: error
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: matrix.builder == 'a'
         with:
           name: release-payload
@@ -246,7 +246,7 @@ jobs:
           )
           moon run scripts/assemble-release.mbtx -- "$receipt/image.json" "$RUNNER_TEMP/release" "$SYSTEM_SOURCE_TAG" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           (cd "$RUNNER_TEMP/release" && sha256sum --check --strict SHA256SUMS)
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verified-release
           path: ${{ runner.temp }}/release/
