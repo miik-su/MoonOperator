@@ -7,12 +7,17 @@ on:
         description: Export the scanned Linux amd64 image and matching build sources
         type: boolean
         default: false
+      soak-seconds:
+        description: Live MoonApp soak on Kubernetes 1.37.0
+        type: choice
+        options: ['0', '60', '3600']
+        default: '0'
 permissions:
   contents: read
 jobs:
   moonapp:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: ${{ (inputs.soak-seconds == '3600' && matrix.kubernetes == 'v1.37.0') && 90 || 30 }}
     defaults:
       run:
         shell: bash
@@ -115,7 +120,10 @@ jobs:
           kubectl --context kind-moonoperator-e2e -n kube-system get pods -l component=kube-apiserver -o json |
             jq -e 'any(.items[].spec.containers[].command[]; . == "--enable-admission-plugins=OwnerReferencesPermissionEnforcement")'
       - run: /tmp/kind load docker-image moonoperator:dev moonoperator-probe:dev --name moonoperator-e2e
-      - run: moon run scripts/kind-e2e.mbtx -- _build/native/release/build/cmd/manifests/manifests.exe
+      - name: Verify MoonApp lifecycle and optional live soak
+        env:
+          SOAK_SECONDS: ${{ (matrix.kubernetes == 'v1.37.0' && inputs.soak-seconds) || '0' }}
+        run: moon run scripts/kind-e2e.mbtx -- _build/native/release/build/cmd/manifests/manifests.exe "$SOAK_SECONDS"
       - run: moon run scripts/network-policy.mbtx
       - name: Display cluster acceptance results
         if: always()
@@ -126,6 +134,7 @@ jobs:
           name: kind-acceptance-${{ matrix.kubernetes }}
           path: |
             kind-e2e-report.json
+            kind-soak-report.json
             cluster-client-report.json
             kind-version.json
             runtime-packages.txt

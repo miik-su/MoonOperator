@@ -30,10 +30,56 @@ async fn replicas(expected : Double) -> Unit {
   }
 }
 
+async fn soak(seconds : Int, external : Json) -> Unit {
+  let started = @async.now()
+  let mut pod_uid : Json = Json::null()
+  let samples : Array[Json] = []
+  while true {
+    let before = @async.now()
+    let desired = if samples.length() % 2 == 0 { 1 } else { 2 }
+    let patch : Json = { "spec": { "replicas": desired } }
+    let app = @json.parse(kubectl(["patch", "moonapp/demo-app", "--type=merge", "-p", patch.stringify(), "-o", "json"]))
+    let generation = field(field(app, "metadata"), "generation")
+    assert_true(generation is Number(_))
+    ignore(kubectl(["wait", "--for=jsonpath={.status.observedGeneration}=" + generation.stringify(), "moonapp/demo-app", "--timeout=60s"]))
+    replicas(desired.to_double())
+    let status = field(@json.parse(kubectl(["get", "moonapp/demo-app", "-o", "json"])), "status")
+    assert_eq(field(status, "externalRevision"), Json::number(7.0))
+    guard field(status, "conditions") is Array(conditions) else { fail("missing conditions during soak") }
+    assert_eq(conditions.last(), Some(external))
+    assert_true(conditions.any(c => field(c, "type") == Json::string("ResourcesApplied") && field(c, "status") == Json::string("True")))
+    let pods = @json.parse(kubectl(["get", "pods", "-l", "app=moonoperator", "-o", "json"]))
+    guard field(pods, "items") is Array(items) else { fail("missing operator Pods") }
+    let running = items.filter(p => field(field(p, "metadata"), "deletionTimestamp") == Json::null())
+    guard running is [pod] else { fail("expected one active operator Pod") }
+    let uid = field(field(pod, "metadata"), "uid")
+    assert_true(uid is String(_))
+    if samples.is_empty() { pod_uid = uid }
+    assert_eq(uid, pod_uid)
+    guard field(field(pod, "status"), "containerStatuses") is Array([container]) else { fail("missing operator container status") }
+    assert_eq(field(container, "ready"), Json::boolean(true))
+    assert_eq(field(container, "restartCount"), Json::number(0.0))
+    let elapsed = @async.now() - started
+    samples.push({ "elapsed_ms": elapsed, "reconcile_check_ms": @async.now() - before, "replicas": desired, "observed_generation": generation, "operator_restarts": 0 })
+    let remaining = seconds.to_int64() * 1000L - elapsed
+    let report : Json = { "completed": remaining <= 0L, "target_seconds": seconds, "operator_pod_uid": pod_uid, "samples": samples }
+    @fs.write_file("kind-soak-report.json", report.stringify(indent=2))
+    if remaining <= 0L { break }
+    @async.sleep(if remaining < 60000L { remaining.to_int() } else { 60000 })
+  }
+  println("Kind MoonApp soak verified over " + seconds.to_string() + " seconds")
+}
+
 async fn main {
   // The script only touches an explicitly named disposable Kind context.
   let args = @env.args()
-  guard args.length() == 2 else { fail("usage: kind-e2e.mbtx MANIFEST_GENERATOR_BINARY") }
+  guard args.length() == 2 || args.length() == 3 else { fail("usage: kind-e2e.mbtx MANIFEST_GENERATOR_BINARY [SOAK_SECONDS]") }
+  let soak_seconds = if args.length() == 3 {
+    match @json.parse(args[2]) {
+      Number(n, ..) if n == n.floor() && n >= 0.0 && n <= 3600.0 => n.to_int()
+      _ => fail("soak duration must be 0..3600 seconds")
+    }
+  } else { 0 }
   let ns : Json = { "apiVersion": "v1", "kind": "Namespace", "metadata": { "name": "moonoperator-e2e" } }
   ignore(kubectl(["apply", "-f", "-"], input=ns.stringify()))
   let bundle = @shell.Cmd(args[1], [], env={ "MOONOPERATOR_NAMESPACE": "moonoperator-e2e" }).output(timeout_ms=10000)
@@ -153,6 +199,7 @@ async fn main {
   ignore(kubectl(["rollout", "restart", "deployment/moonoperator"]))
   ignore(kubectl(["rollout", "status", "deployment/moonoperator", "--timeout=120s"]))
   replicas(2.0)
+  if soak_seconds > 0 { soak(soak_seconds, external) }
   ignore(kubectl(["delete", "moonapp", "demo-app", "--wait=true"]))
   ignore(kubectl(["wait", "--for=delete", "deployment/demo-app", "--timeout=90s"]))
   ignore(kubectl(["wait", "--for=delete", "service/demo-app", "--timeout=90s"]))
