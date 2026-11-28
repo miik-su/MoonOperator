@@ -110,6 +110,10 @@ jobs:
         run: |
           kubectl --context kind-moonoperator-e2e version -o json > kind-version.json
           jq -e --arg version "$EXPECTED_KUBERNETES_VERSION" '.serverVersion.gitVersion == $version' kind-version.json
+      - name: Verify ownership admission is enabled
+        run: |
+          kubectl --context kind-moonoperator-e2e -n kube-system get pods -l component=kube-apiserver -o json |
+            jq -e 'any(.items[].spec.containers[].command[]; . == "--enable-admission-plugins=OwnerReferencesPermissionEnforcement")'
       - run: /tmp/kind load docker-image moonoperator:dev moonoperator-probe:dev --name moonoperator-e2e
       - run: moon run scripts/kind-e2e.mbtx -- _build/native/release/build/cmd/manifests/manifests.exe
       - run: moon run scripts/network-policy.mbtx
