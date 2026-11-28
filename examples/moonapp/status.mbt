@@ -57,7 +57,9 @@ async fn publish_status(
       "lastTransitionTime": time,
     })
   }
-  let status : Json = {
+  // Preserve status fields managed by other writers. Compare against the
+  // original status to avoid issuing a write on an unchanged reconciliation.
+  let status = overlay(@core.copy_json(old), {
     "observedGeneration": generation,
     "phase": if applied {
       "ResourcesApplied"
@@ -65,7 +67,7 @@ async fn publish_status(
       "Degraded"
     },
     "conditions": conditions,
-  }
+  })
   if old != status {
     ignore(
       client.update(app_type, app.with_field("status", status), status=true),

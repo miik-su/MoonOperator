@@ -29,7 +29,7 @@ jobs:
       - run: moon test client/rest_test.mbt client/pagination_test.mbt client/typed_list_test.mbt watch/predicates_test.mbt transport/kubeconfig_test.mbt transport/cancellation_test.mbt --target native
       - run: moon test core/budget_test.mbt cache/budget_test.mbt transport/origin_test.mbt controller/deadline_test.mbt controller/worker_test.mbt watch/adversarial_test.mbt --target native
       - run: moon test core/redaction_test.mbt core/ownership_test.mbt core/validation_test.mbt controller/finalizer_test.mbt examples/moonapp/ownership_test.mbt watch/version_test.mbt runtime/capacity_test.mbt transport/files_wbtest.mbt rbac/rbac_test.mbt client/budget_test.mbt --target native
-      - run: moon test core/utc_test.mbt examples/moonapp/status_test.mbt queue/heap_test.mbt queue/timers_wbtest.mbt transport/retry_after_test.mbt crd/versions_test.mbt --target native
+      - run: moon test core/utc_test.mbt core/lifecycle_test.mbt examples/moonapp/status_test.mbt queue/heap_test.mbt queue/timers_wbtest.mbt transport/retry_after_test.mbt crd/versions_test.mbt --target native
       - run: moon test observability/admission_wbtest.mbt observability/progress_test.mbt --target native
       - run: moon test transport/token_rotation_test.mbt --target native
       - name: Retain targeted maintenance and public consumer evidence

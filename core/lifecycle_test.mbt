@@ -28,3 +28,22 @@ test "condition reason changes retain transition timestamp" {
   guard result is Array(items) else { fail("expected array") }
   assert_eq(@core.field(items[0], "lastTransitionTime"), Json::string("old"))
 }
+
+///|
+test "condition upsert repairs missing transition timestamps without losing other conditions" {
+  let updated = @core.conditions_upsert(
+    [
+      { "type": "Ready", "status": "True", "lastTransitionTime": null },
+      { "type": "External", "status": "True" },
+    ],
+    {
+      "type": "Ready",
+      "status": "True",
+      "lastTransitionTime": "2026-11-28T00:00:00Z",
+    },
+  )
+  guard updated is Array(items) else { fail("missing conditions") }
+  assert_eq(items.length(), 2)
+  assert_eq(@core.field(items[0], "type"), "External")
+  assert_eq(@core.field(items[1], "lastTransitionTime"), "2026-11-28T00:00:00Z")
+}
